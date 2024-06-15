@@ -54,7 +54,7 @@ class SearchFragment : Fragment() {
 
         return binding.root
     }
-
+    //Buscador Funcional solo con nombre o apellido
     private fun setupSearchBar() {
         binding.searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
