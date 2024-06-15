@@ -1,0 +1,35 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.HomeFragments.SearchFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/searchBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="Buscar..."
+            android:textColor="@color/searchBarTextColor"
+            android:textColorHint="@color/hintColor"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="8dp"
+            android:padding="12dp"
+            android:inputType="text"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewSearchResults"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/searchBar"
+            android:layout_marginTop="16dp"/>
+    </RelativeLayout>
+</layout>

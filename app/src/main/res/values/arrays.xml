@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="estado_array">
+        <item>Desaparecido</item>
+        <item>Localizado</item>
+        <item>Muerto</item>
+    </string-array>
+</resources>

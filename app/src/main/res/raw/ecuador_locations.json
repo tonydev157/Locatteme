@@ -1,0 +1,100 @@
+{
+  "provinces": [
+    {
+      "name": "Azuay",
+      "cities": ["Cuenca", "Gualaceo", "Sigsig", "Paute", "Nabón", "Chordeleg", "El Pan", "Sevilla de Oro", "Guachapala", "Camilo Ponce Enríquez"]
+    },
+    {
+      "name": "Bolívar",
+      "cities": ["Guaranda", "Chillanes", "San Miguel", "Echeandía", "San José de Chimbo", "Caluma", "Las Naves"]
+    },
+    {
+      "name": "Cañar",
+      "cities": ["Azogues", "Biblián", "La Troncal", "Cañar", "El Tambo", "Suscal", "Déleg"]
+    },
+    {
+      "name": "Carchi",
+      "cities": ["Tulcán", "San Gabriel", "Mira", "Bolívar", "Montúfar", "Espejo"]
+    },
+    {
+      "name": "Chimborazo",
+      "cities": ["Riobamba", "Guano", "Chambo", "Colta", "Cumandá", "Guamote", "Alausí", "Pallatanga", "Penipe"]
+    },
+    {
+      "name": "Cotopaxi",
+      "cities": ["Latacunga", "Salcedo", "Pujilí", "Saquisilí", "Sigchos", "La Maná"]
+    },
+    {
+      "name": "El Oro",
+      "cities": ["Machala", "Pasaje", "Santa Rosa", "Arenillas", "Atahualpa", "Balsas", "Chilla", "El Guabo", "Huaquillas", "Marcabelí", "Piñas", "Portovelo", "Zaruma"]
+    },
+    {
+      "name": "Esmeraldas",
+      "cities": ["Esmeraldas", "Atacames", "Quinindé", "Rioverde", "San Lorenzo", "Muisne"]
+    },
+    {
+      "name": "Galápagos",
+      "cities": ["Puerto Baquerizo Moreno", "Puerto Ayora", "Puerto Villamil"]
+    },
+    {
+      "name": "Guayas",
+      "cities": ["Guayaquil", "Daule", "Samborondón", "Milagro", "Durán", "Playas", "Naranjal", "Balao", "Colimes", "El Triunfo", "Salitre", "Santa Lucía", "Naranjito", "Pedro Carbo", "Yaguachi"]
+    },
+    {
+      "name": "Imbabura",
+      "cities": ["Ibarra", "Otavalo", "Cotacachi", "Antonio Ante", "Urcuquí", "Pimampiro"]
+    },
+    {
+      "name": "Loja",
+      "cities": ["Loja", "Catamayo", "Macará", "Paltas", "Calvas", "Saraguro", "Gonzanamá", "Celica", "Puyango", "Espíndola", "Pindal", "Chaguarpamba", "Olmedo", "Zapotillo"]
+    },
+    {
+      "name": "Los Ríos",
+      "cities": ["Babahoyo", "Quevedo", "Ventanas", "Vinces", "Puebloviejo", "Mocache", "Urdaneta", "Buena Fe", "Valencia", "Quinsaloma"]
+    },
+    {
+      "name": "Manabí",
+      "cities": ["Portoviejo", "Manta", "Chone", "Montecristi", "Jipijapa", "Bahía de Caráquez", "El Carmen", "Jaramijó", "Pedernales", "Puerto López", "Rocafuerte", "Santa Ana", "Sucre", "Tosagua", "Bolívar", "San Vicente"]
+    },
+    {
+      "name": "Morona Santiago",
+      "cities": ["Macas", "Gualaquiza", "Sucúa", "Huamboya", "Limón Indanza", "Logroño", "Pablo Sexto", "Palora", "Santiago", "Taisha"]
+    },
+    {
+      "name": "Napo",
+      "cities": ["Tena", "Archidona", "El Chaco", "Quijos", "Carlos Julio Arosemena Tola"]
+    },
+    {
+      "name": "Orellana",
+      "cities": ["Francisco de Orellana", "Loreto", "Shushufindi", "La Joya de los Sachas", "Aguarico"]
+    },
+    {
+      "name": "Pastaza",
+      "cities": ["Puyo", "Mera", "Santa Clara", "Arajuno"]
+    },
+    {
+      "name": "Pichincha",
+      "cities": ["Quito", "Cayambe", "Mejía", "Pedro Moncayo", "Rumiñahui", "San Miguel de los Bancos", "Pedro Vicente Maldonado", "Puerto Quito"]
+    },
+    {
+      "name": "Santa Elena",
+      "cities": ["Santa Elena", "La Libertad", "Salinas"]
+    },
+    {
+      "name": "Santo Domingo de los Tsáchilas",
+      "cities": ["Santo Domingo", "La Concordia"]
+    },
+    {
+      "name": "Sucumbíos",
+      "cities": ["Nueva Loja", "Lago Agrio", "Shushufindi", "Cascales", "Cuyabeno", "Gonzalo Pizarro", "Putumayo", "Sucumbíos"]
+    },
+    {
+      "name": "Tungurahua",
+      "cities": ["Ambato", "Baños", "Pelileo", "Cevallos", "Mocha", "Patate", "Quero", "Tisaleo"]
+    },
+    {
+      "name": "Zamora Chinchipe",
+      "cities": ["Zamora", "Yantzaza", "Zumba", "El Pangui", "Centinela del Cóndor", "Palanda", "Nangaritza", "Chinchipe"]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "94108356992",
+    "project_id": "socialmedia-d9af7",
+    "storage_bucket": "socialmedia-d9af7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:94108356992:android:d7ea5de682240d7d863165",
+        "android_client_info": {
+          "package_name": "com.tonymen.locatteme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "94108356992-t1q5f5jc42t0vp2m684qqbupebcmrgoa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tonymen.locatteme",
+            "certificate_hash": "0af6da6fe978e8c03385137f96ddf8f0c56bd9e5"
+          }
+        },
+        {
+          "client_id": "94108356992-il8arsee7i7qd0j9c11uosesnv58diri.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoKxk_hXI7ffJcLC3xaWjyI_BFKWFmoL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "94108356992-il8arsee7i7qd0j9c11uosesnv58diri.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

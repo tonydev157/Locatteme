@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    tools:context=".view.LoginActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="32dp"
+            android:text="Iniciar Sesión"
+            android:textColor="@color/primaryColor"
+            android:textSize="24sp" />
+
+        <EditText
+            android:id="@+id/emailEditText"
+            style="@style/EditTextStyle"
+            android:hint="Correo Electrónico"
+            android:inputType="textEmailAddress"
+            android:background="@drawable/edit_text_background"
+            android:minHeight="48dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="0dp">
+
+            <EditText
+                android:id="@+id/passwordEditText"
+                style="@style/EditTextStyle"
+                android:hint="Contraseña"
+                android:inputType="textPassword"
+                android:background="@drawable/edit_text_background"
+                android:layout_weight="1"
+                android:minHeight="48dp" />
+
+            <ImageButton
+                android:id="@+id/showHidePasswordButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/show_password"
+                android:src="@drawable/ic_eye_off"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/googleSignInButton"
+            style="@style/ButtonStyle"
+            android:layout_marginTop="16dp"
+            android:minHeight="48dp"
+            android:text="Iniciar sesión con Google" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/loginButton"
+            style="@style/ButtonStyle"
+            android:layout_marginTop="16dp"
+            android:minHeight="48dp"
+            android:text="Iniciar Sesión" />
+
+    </LinearLayout>
+</ScrollView>

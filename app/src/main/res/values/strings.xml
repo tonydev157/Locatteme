@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Locatteme</string>
+    <string name="default_web_client_id">94108356992-t1q5f5jc42t0vp2m684qqbupebcmrgoa.apps.googleusercontent.com</string>
+    <string name="username_label">Nombre de usuario</string>
+    <string name="profile_username_label">usuario</string>
+    <string name="post_image_desc">Imagen de la publicación</string>
+    <string name="settings">Configuración</string>
+    <string name="menu_find_upc">Encuentra UPC más cercana</string>
+    <string name="menu_safety_numbers">Números de seguridad</string>
+    <string name="menu_danger_zones">Zonas más peligrosas</string>
+    <string name="menu_logout">Cerrar sesión</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="following">Following</string>
+    <string name="home">Home</string>
+    <string name="profile">Profile</string>
+    <string name="search">Search</string>
+    <string name="cerrar_sesion">Cerrar Sesión</string>
+    <string name="Editar_cuenta">Editar Cuenta</string>
+    <string name="bienvenido">Bienvenido</string>
+    <string name="show_password">Mostrar contraseña</string>
+    <string name="hide_password">Ocultar contraseña</string>
+    <string name="profile_image">Imagen de perfil</string>
+    <string name="post_image" />
+    <string name="user_post_image" />
+    <string name="editar_cuenta">Editar cuenta</string>
+    <string name="photo" />
+
+    <string name="left_arrow">Flecha izquierda</string>
+    <string name="right_arrow">Flecha derecha</string>
+
+</resources>

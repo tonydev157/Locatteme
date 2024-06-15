@@ -1,0 +1,16 @@
+<resources>
+    <color name="green">#4CAF50</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="primaryColor">#388E3C</color>
+    <color name="primaryDarkColor">#1B5E20</color>
+    <color name="colorAccent">#FFEB3B</color>
+    <color name="backgroundColor">#121212</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="textColorSecondary">#B0BEC5</color>
+    <color name="editTextBackground">#121212</color> <!-- Fondo del buscador en modo oscuro -->
+    <color name="editTextTextColor">#FFFFFF</color> <!-- Blanco en lugar de negro -->
+    <color name="hintColor">#B0BEC5</color> <!-- Color de texto de sugerencia más claro -->
+    <color name="searchBarBackground">#121212</color> <!-- Fondo del buscador -->
+    <color name="searchBarTextColor">#FFFFFF</color> <!-- Color del texto -->
+</resources>

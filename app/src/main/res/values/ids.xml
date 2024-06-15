@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="profileImageView" type="id" />
+    <item name="profileTextView" type="id" />
+    <item name="fullNameTextView" type="id" />
+    <item name="postsCount" type="id" />
+    <item name="followersCount" type="id" />
+    <item name="followingCount" type="id" />
+    <item name="recyclerViewUserPosts" type="id" />
+    <item name="buttonLogout" type="id" />
+    <item name="guardarButton" type="id" />
+    <item name="contactosErrorText" type="id" />
+    <item name="addContactoButton" type="id" />
+    <item name="contactoEditText1" type="id" />
+    <item name="contactosContainer" type="id" />
+    <item name="caracteristicasErrorText" type="id" />
+    <item name="nombresEditText" type="id" />
+    <item name="nombresErrorText" type="id" />
+    <item name="uploadPhotoButton" type="id" />
+    <item name="borderView" type="id" />
+    <item name="provinciaAutoComplete" type="id" />
+    <item name="apellidosEditText" type="id" />
+    <item name="apellidosErrorText" type="id" />
+    <item name="photoPreviewImageView" type="id" />
+    <item name="edadSpinner" type="id" />
+    <item name="clearProvinciaButton" type="id" />
+    <item name="provinciaErrorText" type="id" />
+    <item name="ciudadAutoComplete" type="id" />
+    <item name="clearCiudadButton" type="id" />
+    <item name="ciudadErrorText" type="id" />
+    <item name="nacionalidadAutoComplete" type="id" />
+    <item name="clearNacionalidadButton" type="id" />
+    <item name="nacionalidadErrorText" type="id" />
+    <item name="lugarDesaparicionEditText" type="id" />
+    <item name="lugarDesaparicionErrorText" type="id" />
+    <item name="fechaDesaparicionEditText" type="id" />
+    <item name="fechaDesaparicionErrorText" type="id" />
+    <item name="caracteristicasEditText" type="id" />
+    <item name="profileImage" type="id" />
+    <item name="username" type="id" />
+    <item name="fullName" type="id" />
+    <item name="postImage" type="id" />
+    <item name="postTitle" type="id" />
+    <item name="postDetails" type="id" />
+</resources>

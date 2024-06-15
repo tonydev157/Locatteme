@@ -1,0 +1,24 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Locatteme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary branding color. -->
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryVariant">@color/primaryDarkColor</item>
+        <item name="colorOnPrimary">@color/colorAccent</item>
+        <!-- Secondary branding color. -->
+        <item name="colorSecondary">@color/primaryColor</item>
+        <item name="colorSecondaryVariant">@color/primaryDarkColor</item>
+        <item name="colorOnSecondary">@color/colorAccent</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/primaryDarkColor</item>
+        <!-- Navigation bar color. -->
+        <item name="android:colorPrimaryDark">@color/primaryDarkColor</item>
+        <!-- Customize your theme here. -->
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary</item>
+        <item name="android:background">@color/backgroundColor</item>
+        <item name="android:buttonStyle">@style/ButtonStyle</item>
+    </style>
+
+    <style name="Theme.Locatteme" parent="Base.Theme.Locatteme" />
+</resources>

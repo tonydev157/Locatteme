@@ -1,0 +1,21 @@
+<resources>
+    <!-- Button Style -->
+    <style name="ButtonStyle" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:backgroundTint">@color/primaryColor</item>
+        <item name="android:textColor">@color/backgroundColor</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
+    <!-- EditText Style -->
+    <style name="EditTextStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/editTextTextColor</item>
+        <item name="android:textColorHint">@color/hintColor</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+    </style>
+</resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@color/backgroundColor"
+    tools:context=".view.MainActivity">
+
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@drawable/locatteme_logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="32dp"
+        android:layout_alignParentTop="true"/>
+
+    <TextView
+        android:id="@+id/welcomeMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome"
+        android:textSize="24sp"
+        android:textColor="@color/textColorPrimary"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/logoImageView"
+        android:layout_marginBottom="32dp"/>
+
+    <Button
+        android:id="@+id/buttonLogin"
+        style="@style/ButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Login"
+        android:minHeight="48dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/welcomeMessage"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/buttonSignUp"
+        style="@style/ButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign Up"
+        android:minHeight="48dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/buttonLogin"
+        android:layout_marginTop="16dp"/>
+</RelativeLayout>

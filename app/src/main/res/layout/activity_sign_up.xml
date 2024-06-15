@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    tools:context=".view.SignUpActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Registro"
+            android:textSize="24sp"
+            android:textColor="@color/primaryDarkColor"
+            android:layout_gravity="center"
+            android:layout_marginBottom="32dp"/>
+
+        <EditText
+            android:id="@+id/firstNameEditText"
+            style="@style/EditTextStyle"
+            android:hint="Nombre"
+            android:inputType="text"
+            android:background="@drawable/edit_text_background"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/lastNameEditText"
+            style="@style/EditTextStyle"
+            android:hint="Apellido"
+            android:inputType="text"
+            android:background="@drawable/edit_text_background"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/usernameEditText"
+            style="@style/EditTextStyle"
+            android:hint="Username"
+            android:inputType="text"
+            android:background="@drawable/edit_text_background"
+            android:minHeight="48dp" />
+
+
+        <EditText
+            android:id="@+id/ageEditText"
+            style="@style/EditTextStyle"
+            android:hint="Edad"
+            android:inputType="number"
+            android:background="@drawable/edit_text_background"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/idNumberEditText"
+            style="@style/EditTextStyle"
+            android:hint="Cédula de Identidad"
+            android:inputType="text"
+            android:background="@drawable/edit_text_background"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/emailEditText"
+            style="@style/EditTextStyle"
+            android:hint="Correo Electrónico"
+            android:inputType="textEmailAddress"
+            android:background="@drawable/edit_text_background"
+            android:minHeight="48dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="0dp">
+
+            <EditText
+                android:id="@+id/passwordEditText"
+                style="@style/EditTextStyle"
+                android:hint="Contraseña"
+                android:inputType="textPassword"
+                android:background="@drawable/edit_text_background"
+                android:layout_weight="1"
+                android:minHeight="48dp" />
+
+            <ImageButton
+                android:id="@+id/showHidePasswordButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/show_password"
+                android:src="@drawable/ic_eye_off"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/confirmPasswordEditText"
+            style="@style/EditTextStyle"
+            android:hint="Confirmar Contraseña"
+            android:inputType="textPassword"
+            android:background="@drawable/edit_text_background"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/phoneEditText"
+            style="@style/EditTextStyle"
+            android:hint="Teléfono"
+            android:inputType="phone"
+            android:background="@drawable/edit_text_background"
+            android:minHeight="48dp" />
+
+        <Button
+            android:id="@+id/googleSignInButton"
+            style="@style/ButtonStyle"
+            android:text="Registrarse con Google"
+            android:minHeight="48dp"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/registerButton"
+            style="@style/ButtonStyle"
+            android:text="Registrar"
+            android:minHeight="48dp"
+            android:layout_marginTop="16dp"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"/>
+
+    </LinearLayout>
+</ScrollView>
