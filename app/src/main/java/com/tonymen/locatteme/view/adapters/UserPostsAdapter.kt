@@ -1,5 +1,6 @@
 package com.tonymen.locatteme.view.adapters
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -9,11 +10,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.model.Post
+import com.tonymen.locatteme.utils.TimestampUtil
 import com.tonymen.locatteme.view.PostDetailActivity
 
 class UserPostsAdapter(
     private var posts: List<Post>,
-    private val context: android.content.Context
+    private val context: Context
 ) : RecyclerView.Adapter<UserPostsAdapter.PostViewHolder>() {
 
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -34,6 +36,7 @@ class UserPostsAdapter(
 
         holder.imageView.setOnClickListener {
             val intent = Intent(context, PostDetailActivity::class.java).apply {
+                putExtra("postId", post.id)
                 putExtra("fotoGrande", post.fotoGrande)
                 putExtra("nombres", post.nombres)
                 putExtra("apellidos", post.apellidos)
@@ -43,10 +46,10 @@ class UserPostsAdapter(
                 putExtra("nacionalidad", post.nacionalidad)
                 putExtra("estado", post.estado)
                 putExtra("lugarDesaparicion", post.lugarDesaparicion)
-                putExtra("fechaDesaparicion", post.fechaDesaparicion.seconds)
+                putExtra("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
                 putExtra("caracteristicas", post.caracteristicas)
                 putExtra("autorId", post.autorId)
-                putExtra("fechaPublicacion", post.fechaPublicacion.seconds)
+                putExtra("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
             }
             context.startActivity(intent)
         }

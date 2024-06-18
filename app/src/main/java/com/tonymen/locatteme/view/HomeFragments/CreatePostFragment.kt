@@ -369,6 +369,9 @@ class CreatePostFragment : Fragment() {
             return
         }
 
+        binding.progressBar.visibility = View.VISIBLE
+        binding.guardarButton.isEnabled = false
+
         selectedPhotoUri?.let { uri ->
             uploadPostImagesToFirebase(uri, { smallImageUrl, largeImageUrl ->
                 val searchKeywords = SearchUtils.generateSearchKeywords(nombres, apellidos) // Generar palabras clave
@@ -393,6 +396,8 @@ class CreatePostFragment : Fragment() {
 
                 createPostViewModel.addPost(post)
                     .addOnSuccessListener {
+                        binding.progressBar.visibility = View.GONE
+                        binding.guardarButton.isEnabled = true
                         Toast.makeText(context, "Post guardado exitosamente", Toast.LENGTH_SHORT).show()
                         (activity as HomeActivity).isPostSaved = true // Update the flag in HomeActivity
                         (activity as HomeActivity).resetCreatePostButton() // Reset the button state
@@ -400,9 +405,13 @@ class CreatePostFragment : Fragment() {
                         requireActivity().onBackPressed()
                     }
                     .addOnFailureListener { e ->
+                        binding.progressBar.visibility = View.GONE
+                        binding.guardarButton.isEnabled = true
                         Toast.makeText(context, "Error al guardar el post: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
             }, { exception ->
+                binding.progressBar.visibility = View.GONE
+                binding.guardarButton.isEnabled = true
                 Toast.makeText(context, "Error al subir la imagen: ${exception.message}", Toast.LENGTH_SHORT).show()
             })
         }

@@ -3,17 +3,13 @@ package com.tonymen.locatteme.view
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,8 +18,7 @@ import com.google.firebase.storage.StorageReference
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.ActivityPostDetailBinding
 import com.tonymen.locatteme.model.Post
-import com.tonymen.locatteme.model.User
-import java.io.ByteArrayOutputStream
+import com.tonymen.locatteme.utils.TimestampUtil
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -55,15 +50,28 @@ class PostDetailActivity : AppCompatActivity() {
         val nacionalidad = intent.getStringExtra("nacionalidad")
         val estado = intent.getStringExtra("estado")
         val lugarDesaparicion = intent.getStringExtra("lugarDesaparicion")
-        val fechaDesaparicion = intent.getStringExtra("fechaDesaparicion")
+        val fechaDesaparicionStr = intent.getStringExtra("fechaDesaparicion")
         val caracteristicas = intent.getStringExtra("caracteristicas")
         val autorId = intent.getStringExtra("autorId")
-        val fechaPublicacion = intent.getStringExtra("fechaPublicacion")
+        val fechaPublicacionStr = intent.getStringExtra("fechaPublicacion")
+
+        // Verificación de recuperación de datos del Intent
+        println("Recibido fechaDesaparicionStr: $fechaDesaparicionStr")
+        println("Recibido fechaPublicacionStr: $fechaPublicacionStr")
+
+        // Conversión de cadenas a Timestamp
+        val fechaDesaparicion = TimestampUtil.parseStringToTimestamp(fechaDesaparicionStr)
+        val fechaPublicacion = TimestampUtil.parseStringToTimestamp(fechaPublicacionStr)
+
+        // Verificación de conversión
+        println("Convertido fechaDesaparicion: $fechaDesaparicion")
+        println("Convertido fechaPublicacion: $fechaPublicacion")
+
 
         // Recuperar el nombre del autor en lugar del autorId
         db.collection("users").document(autorId!!).get().addOnSuccessListener { document ->
             val autorNombre = document.getString("nombre") ?: "Desconocido"
-            binding.publicadoPorTextView.text = "Publicado por $autorNombre el $fechaPublicacion"
+            binding.publicadoPorTextView.text = "Publicado por $autorNombre el ${TimestampUtil.formatTimestampToString(fechaPublicacion)}"
         }
 
         binding.apply {
@@ -79,14 +87,14 @@ class PostDetailActivity : AppCompatActivity() {
             nacionalidadTextView.text = nacionalidad
             estadoTextView.text = estado
             lugarDesaparicionTextView.text = lugarDesaparicion
-            fechaDesaparicionTextView.text = fechaDesaparicion
+            fechaDesaparicionTextView.text = TimestampUtil.formatTimestampToString(fechaDesaparicion)
             caracteristicasTextView.text = caracteristicas
         }
 
         binding.editButton.setOnClickListener {
             showEditDialog(
                 fotoGrande, nombres, apellidos, edad, provincia, ciudad, nacionalidad,
-                estado, lugarDesaparicion, fechaDesaparicion, caracteristicas
+                estado, lugarDesaparicion, fechaDesaparicionStr, caracteristicas
             )
         }
     }
@@ -101,11 +109,11 @@ class PostDetailActivity : AppCompatActivity() {
         nacionalidad: String?,
         estado: String?,
         lugarDesaparicion: String?,
-        fechaDesaparicion: String?,
+        fechaDesaparicionStr: String?,
         caracteristicas: String?
     ) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_post, null)
-        val dialog = android.app.AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .setTitle("Editar Post")
             .setPositiveButton("Guardar") { _, _ ->
@@ -117,11 +125,11 @@ class PostDetailActivity : AppCompatActivity() {
                 val nacionalidad = dialogView.findViewById<EditText>(R.id.editTextNacionalidad).text.toString()
                 val estado = dialogView.findViewById<Spinner>(R.id.spinnerEstado).selectedItem.toString()
                 val lugarDesaparicion = dialogView.findViewById<EditText>(R.id.editTextLugarDesaparicion).text.toString()
-                val fechaDesaparicion = dialogView.findViewById<EditText>(R.id.editTextFechaDesaparicion).text.toString()
+                val fechaDesaparicionStr = dialogView.findViewById<EditText>(R.id.editTextFechaDesaparicion).text.toString()
                 val caracteristicas = dialogView.findViewById<EditText>(R.id.editTextCaracteristicas).text.toString()
 
                 val format = SimpleDateFormat("dd/MM/yyyy", Locale.US)
-                val fechaDesaparicionDate = format.parse(fechaDesaparicion)
+                val fechaDesaparicionDate = format.parse(fechaDesaparicionStr)
 
                 val post = Post(
                     id = postId!!,
@@ -176,7 +184,7 @@ class PostDetailActivity : AppCompatActivity() {
         dialogView.findViewById<EditText>(R.id.editTextCiudad).setText(ciudad)
         dialogView.findViewById<EditText>(R.id.editTextNacionalidad).setText(nacionalidad)
         dialogView.findViewById<EditText>(R.id.editTextLugarDesaparicion).setText(lugarDesaparicion)
-        dialogView.findViewById<EditText>(R.id.editTextFechaDesaparicion).setText(fechaDesaparicion)
+        dialogView.findViewById<EditText>(R.id.editTextFechaDesaparicion).setText(fechaDesaparicionStr)
         dialogView.findViewById<EditText>(R.id.editTextCaracteristicas).setText(caracteristicas)
 
         dialog.show()

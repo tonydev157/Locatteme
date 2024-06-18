@@ -1,6 +1,8 @@
 package com.tonymen.locatteme.viewmodel
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -13,6 +15,8 @@ import java.io.InputStreamReader
 
 class CreatePostViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> get() = _loading
 
     lateinit var provinces: List<EcuadorLocations>
     lateinit var nationalities: List<String>
@@ -37,4 +41,7 @@ class CreatePostViewModel : ViewModel() {
     fun getPostImageStorageReference(userId: String, postId: String) =
         FirebaseStorage.getInstance().reference.child("postImages/$userId/$postId.jpg")
 
+    fun setLoadingState(isLoading: Boolean) {
+        _loading.value = isLoading
+    }
 }

@@ -1,16 +1,28 @@
 package com.tonymen.locatteme.utils
 
-import com.google.firebase.firestore.DocumentSnapshot
-import com.tonymen.locatteme.model.Post
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
 
 object TimestampUtil {
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.US)
 
-    fun getPost(document: DocumentSnapshot): Post {
-        return document.toObject(Post::class.java) ?: Post()
+    fun parseStringToTimestamp(dateString: String?): Timestamp? {
+        return if (dateString.isNullOrEmpty()) {
+            null
+        } else {
+            try {
+                val date = dateFormat.parse(dateString)
+                date?.let { Timestamp(it) }
+            } catch (e: Exception) {
+                null
+            }
+        }
     }
 
-    fun formatTimestampToString(timestamp: com.google.firebase.Timestamp): String {
-        val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
-        return sdf.format(timestamp.toDate())
+    fun formatTimestampToString(timestamp: Timestamp?): String {
+        return timestamp?.let {
+            dateFormat.format(it.toDate())
+        } ?: ""
     }
 }

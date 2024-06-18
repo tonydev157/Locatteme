@@ -35,15 +35,19 @@ class SearchViewModel : ViewModel() {
     }
 
     fun searchPosts(query: String) {
-        val lowercaseQuery = query.toLowerCase()
+        val lowercaseQuery = query.toLowerCase().trim()
+        val words = lowercaseQuery.split(" ")
+
         db.collection("posts")
             .get()
             .addOnSuccessListener { documents ->
                 val postList = documents.mapNotNull { it.toObject(Post::class.java) }
                 // Filtrar posts localmente sin importar mayúsculas/minúsculas
-                val filteredList = postList.filter {
-                    it.nombres.toLowerCase().contains(lowercaseQuery) ||
-                            it.apellidos.toLowerCase().contains(lowercaseQuery)
+                val filteredList = postList.filter { post ->
+                    words.all { word ->
+                        post.nombres.toLowerCase().contains(word) ||
+                                post.apellidos.toLowerCase().contains(word)
+                    }
                 }
                 _posts.value = filteredList
             }
@@ -51,5 +55,4 @@ class SearchViewModel : ViewModel() {
                 _posts.value = emptyList()
             }
     }
-
 }
