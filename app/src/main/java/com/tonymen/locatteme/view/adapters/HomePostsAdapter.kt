@@ -66,7 +66,7 @@ class HomePostsAdapter(
         }
 
         val prettyTime = PrettyTime()
-        holder.fechaPublicacionTextView.text = "Publicado ${prettyTime.format(Date(post.fechaPublicacion.seconds * 1000))}"
+        holder.fechaPublicacionTextView.text = "Publicado hace: ${prettyTime.format(Date(post.fechaPublicacion.seconds * 1000))}"
         holder.nombresTextView.text = "Nombre: ${post.nombres}"
         holder.apellidosTextView.text = "Apellidos: ${post.apellidos}"
         holder.edadTextView.text = "Edad: ${post.edad}"

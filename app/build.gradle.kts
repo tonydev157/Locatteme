@@ -95,5 +95,7 @@ dependencies {
 
     implementation ("androidx.paging:paging-runtime:3.1.1")
     implementation ("com.facebook.shimmer:shimmer:0.5.0")
+    implementation ("com.google.android.gms:play-services-tasks:18.2.0")
+
 
 }
