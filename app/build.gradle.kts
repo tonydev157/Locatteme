@@ -88,5 +88,12 @@ dependencies {
     implementation ("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation ("androidx.navigation:navigation-ui-ktx:2.7.7")
 
+    implementation ("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
+
+
+    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    implementation ("androidx.paging:paging-runtime:3.1.1")
+    implementation ("com.facebook.shimmer:shimmer:0.5.0")
 
 }

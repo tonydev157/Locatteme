@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
@@ -40,6 +41,7 @@ class HomeFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(HomeFViewModel::class.java)
 
         setupRecyclerView()
+        setupSwipeRefresh()
         loadUserProfile()
         loadPosts()
 
@@ -60,6 +62,12 @@ class HomeFragment : Fragment() {
                 }
             }
         })
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            refreshContent()
+        }
     }
 
     private fun loadUserProfile() {
@@ -97,6 +105,13 @@ class HomeFragment : Fragment() {
 
     private fun loadMorePosts() {
         loadPosts()
+    }
+
+    fun refreshContent() {
+        posts.clear()
+        lastVisible = null
+        loadPosts()
+        binding.swipeRefreshLayout.isRefreshing = false
     }
 
     override fun onDestroyView() {

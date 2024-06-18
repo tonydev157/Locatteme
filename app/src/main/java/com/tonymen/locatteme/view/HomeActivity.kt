@@ -107,6 +107,13 @@ class HomeActivity : AppCompatActivity() {
             .commit()
     }
 
+    fun refreshCurrentFragment() {
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+        if (currentFragment is HomeFragment) {
+            currentFragment.refreshContent()
+        }
+    }
+
     override fun onBackPressed() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         if (isCreatePostButtonEnlarged) {
@@ -249,6 +256,4 @@ class HomeActivity : AppCompatActivity() {
         }
         popup.show()
     }
-
-
 }

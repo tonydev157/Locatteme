@@ -9,10 +9,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.model.Post
+import com.tonymen.locatteme.model.User
 import com.tonymen.locatteme.utils.TimestampUtil
 import com.tonymen.locatteme.view.PostDetailActivity
+import org.ocpsoft.prettytime.PrettyTime
+import java.util.Date
 
 class HomePostsAdapter(
     private var posts: List<Post>,
@@ -20,7 +24,10 @@ class HomePostsAdapter(
 ) : RecyclerView.Adapter<HomePostsAdapter.PostViewHolder>() {
 
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val profileImageView: ImageView = itemView.findViewById(R.id.profileImageView)
+        val usernameTextView: TextView = itemView.findViewById(R.id.usernameTextView)
         val imageView: ImageView = itemView.findViewById(R.id.postImageView)
+        val fechaPublicacionTextView: TextView = itemView.findViewById(R.id.fechaPublicacionTextView)
         val nombresTextView: TextView = itemView.findViewById(R.id.nombresTextView)
         val apellidosTextView: TextView = itemView.findViewById(R.id.apellidosTextView)
         val edadTextView: TextView = itemView.findViewById(R.id.edadTextView)
@@ -40,21 +47,36 @@ class HomePostsAdapter(
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
+
         Glide.with(holder.itemView.context)
             .load(post.fotoGrande)
             .centerCrop()
             .into(holder.imageView)
 
-        holder.nombresTextView.text = post.nombres
-        holder.apellidosTextView.text = post.apellidos
-        holder.edadTextView.text = post.edad.toString()
-        holder.provinciaTextView.text = post.provincia
-        holder.ciudadTextView.text = post.ciudad
-        holder.nacionalidadTextView.text = post.nacionalidad
-        holder.estadoTextView.text = post.estado
-        holder.lugarDesaparicionTextView.text = post.lugarDesaparicion
-        holder.fechaDesaparicionTextView.text = TimestampUtil.formatTimestampToString(post.fechaDesaparicion)
-        holder.caracteristicasTextView.text = post.caracteristicas
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users").document(post.autorId).get().addOnSuccessListener { document ->
+            val user = document.toObject(User::class.java)
+            user?.let {
+                holder.usernameTextView.text = it.username
+                Glide.with(holder.itemView.context)
+                    .load(it.profileImageUrl)
+                    .circleCrop()
+                    .into(holder.profileImageView)
+            }
+        }
+
+        val prettyTime = PrettyTime()
+        holder.fechaPublicacionTextView.text = "Publicado ${prettyTime.format(Date(post.fechaPublicacion.seconds * 1000))}"
+        holder.nombresTextView.text = "Nombre: ${post.nombres}"
+        holder.apellidosTextView.text = "Apellidos: ${post.apellidos}"
+        holder.edadTextView.text = "Edad: ${post.edad}"
+        holder.provinciaTextView.text = "Provincia: ${post.provincia}"
+        holder.ciudadTextView.text = "Ciudad: ${post.ciudad}"
+        holder.nacionalidadTextView.text = "Nacionalidad: ${post.nacionalidad}"
+        holder.estadoTextView.text = "Estado: ${post.estado}"
+        holder.lugarDesaparicionTextView.text = "Lugar de Desaparición: ${post.lugarDesaparicion}"
+        holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
+        holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
 
         holder.itemView.setOnClickListener {
             val intent = Intent(context, PostDetailActivity::class.java).apply {
