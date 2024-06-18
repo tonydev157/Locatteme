@@ -42,4 +42,5 @@
     <item name="postImage" type="id" />
     <item name="postTitle" type="id" />
     <item name="postDetails" type="id" />
+    <item name="nombresTextView" type="id" />
 </resources>
