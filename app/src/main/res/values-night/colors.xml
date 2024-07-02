@@ -8,9 +8,13 @@
     <color name="backgroundColor">#121212</color>
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="textColorSecondary">#B0BEC5</color>
-    <color name="editTextBackground">#121212</color> <!-- Fondo del buscador en modo oscuro -->
-    <color name="editTextTextColor">#FFFFFF</color> <!-- Blanco en lugar de negro -->
-    <color name="hintColor">#B0BEC5</color> <!-- Color de texto de sugerencia más claro -->
-    <color name="searchBarBackground">#121212</color> <!-- Fondo del buscador -->
-    <color name="searchBarTextColor">#FFFFFF</color> <!-- Color del texto -->
+    <color name="editTextBackground">#121212</color>
+    <color name="editTextTextColor">#FFFFFF</color>
+    <color name="hintColor">#B0BEC5</color>
+    <color name="searchBarBackground">#121212</color>
+    <color name="searchBarTextColor">#FFFFFF</color>
+    <color name="windowBackground">#000000</color> <!-- Definir color para modo oscuro -->
+    <color name="itemPostBackground">#000000</color> <!-- Color para item post en modo oscuro -->
+    <color name="borderColor">#757575</color> <!-- Color plomo para el borde en modo oscuro -->
+    <color name="homeBackgroundColor">#757575</color> <!-- Color plomo para HomeActivity en modo oscuro -->
 </resources>
