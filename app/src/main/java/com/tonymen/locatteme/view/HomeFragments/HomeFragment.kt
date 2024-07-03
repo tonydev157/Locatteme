@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentHomeBinding
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.User
@@ -77,13 +78,23 @@ class HomeFragment : Fragment() {
             val user = document.toObject(User::class.java)
             user?.let {
                 binding.usernameTextView.text = it.username
-                Glide.with(this)
-                    .load(it.profileImageUrl)
-                    .circleCrop()
-                    .into(binding.profileImageView)
+                if (!it.profileImageUrl.isNullOrEmpty()) {
+                    Glide.with(this)
+                        .load(it.profileImageUrl)
+                        .circleCrop()
+                        .into(binding.profileImageView)
+                } else {
+                    // Si no hay imagen en la base de datos, mostrar imagen predeterminada
+                    binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
+                }
             }
+        }.addOnFailureListener {
+            // En caso de error, mostrar imagen predeterminada
+            binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
+            Toast.makeText(context, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun loadPosts() {
         isLoading = true

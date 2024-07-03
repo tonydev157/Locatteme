@@ -18,4 +18,5 @@
     <color name="itemPostBackground">#FFFFFF</color> <!-- Color para item post en modo claro -->
     <color name="borderColor">#BDBDBD</color> <!-- Color plomo para el borde -->
     <color name="homeBackgroundColor">#F0F0F0</color> <!-- Color plomo claro para HomeActivity -->
+    <color name="profile_image_background_light">@android:color/transparent</color>
 </resources>

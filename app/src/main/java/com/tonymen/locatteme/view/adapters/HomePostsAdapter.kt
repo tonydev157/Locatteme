@@ -1,7 +1,6 @@
 package com.tonymen.locatteme.view.adapters
 
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,6 @@ import com.tonymen.locatteme.R
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.User
 import com.tonymen.locatteme.utils.TimestampUtil
-import com.tonymen.locatteme.view.PostDetailActivity
 import org.ocpsoft.prettytime.PrettyTime
 import java.util.Date
 
@@ -78,25 +76,26 @@ class HomePostsAdapter(
         holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
         holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
 
-        holder.itemView.setOnClickListener {
-            val intent = Intent(context, PostDetailActivity::class.java).apply {
-                putExtra("postId", post.id)
-                putExtra("fotoGrande", post.fotoGrande)
-                putExtra("nombres", post.nombres)
-                putExtra("apellidos", post.apellidos)
-                putExtra("edad", post.edad)
-                putExtra("provincia", post.provincia)
-                putExtra("ciudad", post.ciudad)
-                putExtra("nacionalidad", post.nacionalidad)
-                putExtra("estado", post.estado)
-                putExtra("lugarDesaparicion", post.lugarDesaparicion)
-                putExtra("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
-                putExtra("caracteristicas", post.caracteristicas)
-                putExtra("autorId", post.autorId)
-                putExtra("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
-            }
-            context.startActivity(intent)
-        }
+        // Eliminar el OnClickListener
+        // holder.itemView.setOnClickListener {
+        //     val intent = Intent(context, PostDetailActivity::class.java).apply {
+        //         putExtra("postId", post.id)
+        //         putExtra("fotoGrande", post.fotoGrande)
+        //         putExtra("nombres", post.nombres)
+        //         putExtra("apellidos", post.apellidos)
+        //         putExtra("edad", post.edad)
+        //         putExtra("provincia", post.provincia)
+        //         putExtra("ciudad", post.ciudad)
+        //         putExtra("nacionalidad", post.nacionalidad)
+        //         putExtra("estado", post.estado)
+        //         putExtra("lugarDesaparicion", post.lugarDesaparicion)
+        //         putExtra("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
+        //         putExtra("caracteristicas", post.caracteristicas)
+        //         putExtra("autorId", post.autorId)
+        //         putExtra("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
+        //     }
+        //     context.startActivity(intent)
+        // }
     }
 
     override fun getItemCount(): Int {
