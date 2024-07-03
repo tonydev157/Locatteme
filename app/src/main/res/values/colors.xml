@@ -14,4 +14,8 @@
     <color name="hintColor">#757575</color>
     <color name="searchBarBackground">#FFFFFF</color>
     <color name="searchBarTextColor">#000000</color>
+    <color name="windowBackground">#FFFFFF</color> <!-- Definir color para modo claro -->
+    <color name="itemPostBackground">#FFFFFF</color> <!-- Color para item post en modo claro -->
+    <color name="borderColor">#BDBDBD</color> <!-- Color plomo para el borde -->
+    <color name="homeBackgroundColor">#F0F0F0</color> <!-- Color plomo claro para HomeActivity -->
 </resources>

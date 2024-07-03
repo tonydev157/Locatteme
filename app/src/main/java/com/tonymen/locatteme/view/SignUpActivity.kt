@@ -2,8 +2,11 @@ package com.tonymen.locatteme.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Patterns
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -12,10 +15,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.tonymen.locatteme.R
@@ -92,6 +97,9 @@ class SignUpActivity : AppCompatActivity() {
             isPasswordVisible = !isPasswordVisible
             binding.passwordEditText.setSelection(binding.passwordEditText.text.length)
         }
+
+        // Configuración de validación en tiempo real
+        setupRealTimeValidation()
     }
 
     private fun signInWithGoogle() {
@@ -181,7 +189,9 @@ class SignUpActivity : AppCompatActivity() {
                                     viewModel.addUser(newUser)
                                     sendEmailVerification()
                                 } else {
-                                    Toast.makeText(this, "Error al vincular Google como proveedor: ${linkTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                                    user.delete().addOnCompleteListener {
+                                        Toast.makeText(this, "Error al vincular Google como proveedor: ${linkTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
                     }
@@ -212,61 +222,103 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun registerUser(firstName: String, lastName: String, username: String, age: Int, idNumber: String, email: String, password: String, phone: String) {
         binding.progressBar.visibility = View.VISIBLE
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                binding.progressBar.visibility = View.GONE
-                if (task.isSuccessful) {
-                    val user = User(auth.currentUser!!.uid, firstName, lastName, username, age, idNumber, email, phone)
-                    viewModel.addUser(user)
-                    sendEmailVerification()
-                } else {
-                    if (task.exception is FirebaseAuthUserCollisionException) {
-                        Toast.makeText(this, "Este correo ya está registrado. Inicia sesión.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "Error al registrarse. Inténtalo de nuevo.", Toast.LENGTH_SHORT).show()
+        checkIfUserDataIsUnique(firstName, lastName, username, age, idNumber, email, phone) { isUnique ->
+            binding.progressBar.visibility = View.GONE
+            if (isUnique) {
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this) { task ->
+                        if (task.isSuccessful) {
+                            val user = User(auth.currentUser!!.uid, firstName, lastName, username, age, idNumber, email, phone)
+                            viewModel.addUser(user)
+                            sendEmailVerification()
+                        } else {
+                            if (task.exception is FirebaseAuthUserCollisionException) {
+                                Toast.makeText(this, "Este correo ya está registrado. Inicia sesión.", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(this, "Error al registrarse. Inténtalo de nuevo.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
-                }
             }
+        }
     }
 
     private fun validateInput(firstName: String, lastName: String, username: String, age: Int?, idNumber: String, email: String, password: String, confirmPassword: String, phone: String): Boolean {
-        if (firstName.isEmpty()) {
-            Toast.makeText(this, "Por favor, ingresa tu nombre.", Toast.LENGTH_SHORT).show()
-            return false
+        var isValid = true
+
+        if (firstName.isEmpty() || !firstName.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+            binding.firstNameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+            binding.firstNameEditText.error = "Nombre inválido"
+            isValid = false
+        } else {
+            binding.firstNameEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
-        if (lastName.isEmpty()) {
-            Toast.makeText(this, "Por favor, ingresa tu apellido.", Toast.LENGTH_SHORT).show()
-            return false
+
+        if (lastName.isEmpty() || !lastName.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+            binding.lastNameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+            binding.lastNameEditText.error = "Apellido inválido"
+            isValid = false
+        } else {
+            binding.lastNameEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
-        if (username.isEmpty()) {
-            Toast.makeText(this, "Por favor, ingresa tu nombre de usuario.", Toast.LENGTH_SHORT).show()
-            return false
+
+        if (username.isEmpty() || !username.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*\$"))) {
+            binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+            binding.usernameEditText.error = "Username inválido"
+            isValid = false
+        } else {
+            binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
-        if (age == null || age <= 0) {
-            Toast.makeText(this, "Por favor, ingresa una edad válida.", Toast.LENGTH_SHORT).show()
-            return false
+
+        if (age == null || age <= 0 || age > 100) {
+            binding.ageEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+            binding.ageEditText.error = "Edad inválida"
+            isValid = false
+        } else {
+            binding.ageEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
+
         if (!isValidIdNumber(idNumber)) {
-            Toast.makeText(this, "Por favor, ingresa una cédula de identidad válida.", Toast.LENGTH_SHORT).show()
-            return false
+            binding.idNumberEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+            binding.idNumberEditText.error = "Cédula no válida"
+            isValid = false
+        } else {
+            binding.idNumberEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
+
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Por favor, ingresa un correo electrónico válido.", Toast.LENGTH_SHORT).show()
-            return false
+            binding.emailEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+            binding.emailEditText.error = "Correo inválido"
+            isValid = false
+        } else {
+            binding.emailEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
+
         if (password.isEmpty() || !isValidPassword(password)) {
-            Toast.makeText(this, "La contraseña debe tener entre 8 y 16 caracteres, solo letras y números.", Toast.LENGTH_SHORT).show()
-            return false
+            binding.passwordEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+            binding.passwordEditText.error = "Contraseña inválida"
+            isValid = false
+        } else {
+            binding.passwordEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
+
         if (password != confirmPassword) {
-            Toast.makeText(this, "Las contraseñas no coinciden.", Toast.LENGTH_SHORT).show()
-            return false
+            binding.confirmPasswordEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+            binding.confirmPasswordEditText.error = "Las contraseñas no coinciden"
+            isValid = false
+        } else {
+            binding.confirmPasswordEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
-        if (phone.isEmpty() || !Patterns.PHONE.matcher(phone).matches()) {
-            Toast.makeText(this, "Por favor, ingresa un número de teléfono válido.", Toast.LENGTH_SHORT).show()
-            return false
+
+        if (phone.length != 10 || !phone.matches(Regex("^09[0-9]{8}\$"))) {
+            binding.phoneEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+            binding.phoneEditText.error = "Teléfono inválido"
+            isValid = false
+        } else {
+            binding.phoneEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
-        return true
+
+        return isValid
     }
 
     private fun isValidIdNumber(idNumber: String): Boolean {
@@ -313,6 +365,168 @@ class SignUpActivity : AppCompatActivity() {
         binding.passwordEditText.setText("")
         binding.confirmPasswordEditText.setText("")
         binding.phoneEditText.setText("")
+    }
+
+    private fun setupRealTimeValidation() {
+        // Validación en tiempo real para Nombre
+        binding.firstNameEditText.addTextChangedListener(createTextWatcher(binding.firstNameEditText) { text ->
+            if (text.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+                binding.firstNameEditText.setBackgroundResource(R.drawable.edit_text_valid)
+                binding.firstNameEditText.error = null
+            } else {
+                binding.firstNameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                binding.firstNameEditText.error = "Nombre inválido"
+            }
+        })
+
+        // Validación en tiempo real para Apellido
+        binding.lastNameEditText.addTextChangedListener(createTextWatcher(binding.lastNameEditText) { text ->
+            if (text.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+                binding.lastNameEditText.setBackgroundResource(R.drawable.edit_text_valid)
+                binding.lastNameEditText.error = null
+            } else {
+                binding.lastNameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                binding.lastNameEditText.error = "Apellido inválido"
+            }
+        })
+
+        // Validación en tiempo real para Username
+        binding.usernameEditText.addTextChangedListener(createTextWatcher(binding.usernameEditText) { text ->
+            if (text.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*\$"))) {
+                binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_valid)
+                binding.usernameEditText.error = null
+            } else {
+                binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                binding.usernameEditText.error = "Username inválido"
+            }
+        })
+
+        // Validación en tiempo real para Edad
+        binding.ageEditText.addTextChangedListener(createTextWatcher(binding.ageEditText) { text ->
+            val age = text.toIntOrNull()
+            if (age != null && age in 1..100) {
+                binding.ageEditText.setBackgroundResource(R.drawable.edit_text_valid)
+                binding.ageEditText.error = null
+            } else {
+                binding.ageEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                binding.ageEditText.error = "Edad inválida"
+            }
+        })
+
+        // Validación en tiempo real para Cédula
+        binding.idNumberEditText.addTextChangedListener(createTextWatcher(binding.idNumberEditText) { text ->
+            if (isValidIdNumber(text)) {
+                binding.idNumberEditText.setBackgroundResource(R.drawable.edit_text_valid)
+                binding.idNumberEditText.error = null
+            } else {
+                binding.idNumberEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                binding.idNumberEditText.error = "Cédula no válida"
+            }
+        })
+
+        // Validación en tiempo real para Email
+        binding.emailEditText.addTextChangedListener(createTextWatcher(binding.emailEditText) { text ->
+            if (Patterns.EMAIL_ADDRESS.matcher(text).matches()) {
+                binding.emailEditText.setBackgroundResource(R.drawable.edit_text_valid)
+                binding.emailEditText.error = null
+            } else {
+                binding.emailEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                binding.emailEditText.error = "Correo inválido"
+            }
+        })
+
+        // Validación en tiempo real para Contraseña
+        binding.passwordEditText.addTextChangedListener(createTextWatcher(binding.passwordEditText) { text ->
+            if (isValidPassword(text)) {
+                binding.passwordEditText.setBackgroundResource(R.drawable.edit_text_valid)
+                binding.passwordEditText.error = null
+            } else {
+                binding.passwordEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                binding.passwordEditText.error = "Contraseña inválida"
+            }
+        })
+
+        // Validación en tiempo real para Confirmación de Contraseña
+        binding.confirmPasswordEditText.addTextChangedListener(createTextWatcher(binding.confirmPasswordEditText) { text ->
+            if (text == binding.passwordEditText.text.toString()) {
+                binding.confirmPasswordEditText.setBackgroundResource(R.drawable.edit_text_valid)
+                binding.confirmPasswordEditText.error = null
+            } else {
+                binding.confirmPasswordEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                binding.confirmPasswordEditText.error = "Las contraseñas no coinciden"
+            }
+        })
+
+        // Validación en tiempo real para Teléfono
+        binding.phoneEditText.addTextChangedListener(createTextWatcher(binding.phoneEditText) { text ->
+            if (text.matches(Regex("^09[0-9]{8}\$"))) {
+                binding.phoneEditText.setBackgroundResource(R.drawable.edit_text_valid)
+                binding.phoneEditText.error = null
+            } else {
+                binding.phoneEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                binding.phoneEditText.error = "Teléfono inválido"
+            }
+        })
+    }
+
+    private fun createTextWatcher(editText: EditText, validation: (String) -> Unit): TextWatcher {
+        return object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                validation(s.toString())
+            }
+        }
+    }
+
+    private fun checkIfUserDataIsUnique(
+        firstName: String, lastName: String, username: String, age: Int,
+        idNumber: String, email: String, phone: String,
+        callback: (Boolean) -> Unit) {
+
+        val db = Firebase.firestore
+
+        val usernameCheck = db.collection("users").whereEqualTo("username", username).get()
+        val idNumberCheck = db.collection("users").whereEqualTo("cedulaIdentidad", idNumber).get()
+        val phoneCheck = db.collection("users").whereEqualTo("telefono", phone).get()
+        val emailCheck = db.collection("users").whereEqualTo("correoElectronico", email).get()
+
+        Tasks.whenAllSuccess<QuerySnapshot>(usernameCheck, idNumberCheck, phoneCheck, emailCheck)
+            .addOnSuccessListener { results ->
+                var isUnique = true
+
+                if (!results[0].isEmpty) {
+                    binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                    binding.usernameEditText.error = "El nombre de usuario ya está en uso."
+                    isUnique = false
+                }
+
+                if (!results[1].isEmpty) {
+                    binding.idNumberEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                    binding.idNumberEditText.error = "La cédula ya está en uso."
+                    isUnique = false
+                }
+
+                if (!results[2].isEmpty) {
+                    binding.phoneEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                    binding.phoneEditText.error = "El teléfono ya está en uso."
+                    isUnique = false
+                }
+
+                if (!results[3].isEmpty) {
+                    binding.emailEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                    binding.emailEditText.error = "El correo ya está en uso."
+                    isUnique = false
+                }
+
+                callback(isUnique)
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Error al verificar los datos: ${exception.message}", Toast.LENGTH_SHORT).show()
+                callback(false)
+            }
     }
 
     companion object {

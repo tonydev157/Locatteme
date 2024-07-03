@@ -13,14 +13,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="8dp">
+        android:paddingBottom="8dp"
+        android:background="@color/itemPostBackground">
 
         <ImageView
             android:id="@+id/profileImageView"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="8dp"
-            android:src="@drawable/ic_profile_placeholder" />
+            android:src="@drawable/ic_profile_placeholder"
+            android:background="@color/itemPostBackground"/>
 
         <TextView
             android:id="@+id/usernameTextView"
@@ -30,7 +32,8 @@
             android:text="Username"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="@color/textColorPrimary" />
+            android:textColor="@color/textColorPrimary"
+            android:background="@color/itemPostBackground"/>
     </LinearLayout>
 
     <ImageView
@@ -38,7 +41,8 @@
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/ic_profile_placeholder" />
+        android:src="@drawable/ic_profile_placeholder"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/fechaPublicacionTextView"
@@ -50,7 +54,8 @@
         android:textSize="12sp"
         android:textStyle="bold"
         android:gravity="end"
-        android:textColor="@color/textColorSecondary" />
+        android:textColor="@color/textColorSecondary"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/nombresTextView"
@@ -60,7 +65,8 @@
         android:text="Nombre: "
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/apellidosTextView"
@@ -71,7 +77,8 @@
         android:paddingBottom="2dp"
         android:text="Apellidos: "
         android:textSize="14sp"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/edadTextView"
@@ -82,7 +89,8 @@
         android:paddingBottom="2dp"
         android:text="Edad: "
         android:textSize="14sp"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/provinciaTextView"
@@ -93,7 +101,8 @@
         android:paddingBottom="2dp"
         android:text="Provincia: "
         android:textSize="14sp"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/ciudadTextView"
@@ -104,7 +113,8 @@
         android:paddingBottom="2dp"
         android:text="Ciudad: "
         android:textSize="14sp"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/nacionalidadTextView"
@@ -115,7 +125,8 @@
         android:paddingBottom="2dp"
         android:text="Nacionalidad: "
         android:textSize="14sp"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/estadoTextView"
@@ -126,7 +137,8 @@
         android:paddingBottom="2dp"
         android:text="Estado: "
         android:textSize="14sp"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/lugarDesaparicionTextView"
@@ -137,7 +149,8 @@
         android:paddingBottom="2dp"
         android:text="Lugar de Desaparición: "
         android:textSize="14sp"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/fechaDesaparicionTextView"
@@ -148,7 +161,8 @@
         android:paddingBottom="2dp"
         android:text="Fecha de Desaparición: "
         android:textSize="14sp"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        android:background="@color/itemPostBackground" />
 
     <TextView
         android:id="@+id/caracteristicasTextView"
@@ -159,5 +173,6 @@
         android:paddingBottom="2dp"
         android:text="Características: "
         android:textSize="14sp"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        android:background="@color/itemPostBackground" />
 </LinearLayout>
