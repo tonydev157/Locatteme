@@ -13,23 +13,21 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/itemPostBackground"
+        android:background="@color/backgroundColor"
         android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:background="@color/itemPostBackground">
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="16dp"
-                android:background="@color/itemPostBackground">
+                android:padding="16dp">
 
                 <ImageView
                     android:id="@+id/profileImageView"
@@ -46,8 +44,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="1"
-                    android:paddingStart="16dp"
-                    android:background="@color/itemPostBackground">
+                    android:paddingStart="16dp">
 
                     <TextView
                         android:id="@+id/profileTextView"
@@ -55,8 +52,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorPrimary"
                         android:textSize="18sp"
-                        android:text="Nombre"
-                        android:background="@color/itemPostBackground"/>
+                        android:text="Nombre" />
 
                     <TextView
                         android:id="@+id/fullNameTextView"
@@ -64,8 +60,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorSecondary"
                         android:layout_marginTop="4dp"
-                        android:text="Username"
-                        android:background="@color/itemPostBackground"/>
+                        android:text="Username" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -74,16 +69,14 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center"
-                android:weightSum="3"
-                android:background="@color/itemPostBackground">
+                android:weightSum="3">
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:background="@color/itemPostBackground">
+                    android:gravity="center">
 
                     <TextView
                         android:id="@+id/postsCount"
@@ -91,16 +84,14 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorPrimary"
                         android:textSize="16sp"
-                        android:text="0"
-                        android:background="@color/itemPostBackground"/>
+                        android:text="0" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorSecondary"
                         android:textSize="14sp"
-                        android:text="publicaciones"
-                        android:background="@color/itemPostBackground"/>
+                        android:text="publicaciones" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -108,8 +99,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:background="@color/itemPostBackground">
+                    android:gravity="center">
 
                     <TextView
                         android:id="@+id/followersCount"
@@ -117,16 +107,14 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorPrimary"
                         android:textSize="16sp"
-                        android:text="0"
-                        android:background="@color/itemPostBackground"/>
+                        android:text="0" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorSecondary"
                         android:textSize="14sp"
-                        android:text="seguidores"
-                        android:background="@color/itemPostBackground"/>
+                        android:text="seguidores" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -134,8 +122,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:background="@color/itemPostBackground">
+                    android:gravity="center">
 
                     <TextView
                         android:id="@+id/followingCount"
@@ -143,16 +130,14 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorPrimary"
                         android:textSize="16sp"
-                        android:text="0"
-                        android:background="@color/itemPostBackground"/>
+                        android:text="0" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorSecondary"
                         android:textSize="14sp"
-                        android:text="seguidos"
-                        android:background="@color/itemPostBackground"/>
+                        android:text="seguidos" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -162,7 +147,6 @@
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:layout_marginTop="16dp"
-                android:background="@color/itemPostBackground"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="3" />
 
