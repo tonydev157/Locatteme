@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +31,7 @@ class PostDetailActivity : AppCompatActivity() {
     private var selectedPhotoUri: Uri? = null
     private var postId: String? = null
     private val calendar = Calendar.getInstance()
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +40,7 @@ class PostDetailActivity : AppCompatActivity() {
 
         db = FirebaseFirestore.getInstance()
         storageRef = FirebaseStorage.getInstance().reference
+        auth = FirebaseAuth.getInstance()
 
         postId = intent.getStringExtra("postId")
 
@@ -67,7 +70,6 @@ class PostDetailActivity : AppCompatActivity() {
         println("Convertido fechaDesaparicion: $fechaDesaparicion")
         println("Convertido fechaPublicacion: $fechaPublicacion")
 
-
         // Recuperar el nombre del autor en lugar del autorId
         db.collection("users").document(autorId!!).get().addOnSuccessListener { document ->
             val autorNombre = document.getString("nombre") ?: "Desconocido"
@@ -89,6 +91,13 @@ class PostDetailActivity : AppCompatActivity() {
             lugarDesaparicionTextView.text = lugarDesaparicion
             fechaDesaparicionTextView.text = TimestampUtil.formatTimestampToString(fechaDesaparicion)
             caracteristicasTextView.text = caracteristicas
+        }
+
+        // Mostrar u ocultar el botón de edición
+        if (autorId == auth.currentUser?.uid) {
+            binding.editButton.visibility = View.VISIBLE
+        } else {
+            binding.editButton.visibility = View.GONE
         }
 
         binding.editButton.setOnClickListener {

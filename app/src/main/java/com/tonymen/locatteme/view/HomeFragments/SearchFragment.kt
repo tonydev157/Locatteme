@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import com.tonymen.locatteme.databinding.FragmentSearchBinding
 import com.tonymen.locatteme.view.adapters.SearchAdapter
 import com.tonymen.locatteme.viewmodel.SearchViewModel
@@ -23,6 +24,7 @@ class SearchFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var viewModel: SearchViewModel
     private lateinit var adapter: SearchAdapter
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,7 +32,11 @@ class SearchFragment : Fragment() {
     ): View? {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this).get(SearchViewModel::class.java)
-        adapter = SearchAdapter()
+        auth = FirebaseAuth.getInstance()
+
+        val currentUserId = auth.currentUser?.uid ?: ""
+
+        adapter = SearchAdapter(currentUserId = currentUserId)
 
         binding.recyclerViewSearchResults.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewSearchResults.adapter = adapter
@@ -54,7 +60,7 @@ class SearchFragment : Fragment() {
 
         return binding.root
     }
-    //Buscador Funcional solo con nombre o apellido
+
     private fun setupSearchBar() {
         binding.searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -74,8 +80,6 @@ class SearchFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
     }
-
-
 
     private fun observeViewModel() {
         viewModel.users.observe(viewLifecycleOwner, { users ->
