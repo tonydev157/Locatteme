@@ -5,6 +5,7 @@
     tools:context=".view.HomeFragments.UserProfileFragment">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.tonymen.locatteme.viewmodel.ProfileViewModel" />
@@ -19,152 +20,173 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/itemPostBackground"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:background="@color/itemPostBackground">
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:background="@color/itemPostBackground"
                 android:gravity="center_vertical"
-                android:padding="16dp"
-                android:background="@color/itemPostBackground">
+                android:orientation="horizontal"
+                android:padding="16dp">
 
                 <ImageView
                     android:id="@+id/profileImageView"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:src="@drawable/ic_profile_placeholder"
-                    android:scaleType="centerCrop"
                     android:background="@drawable/circle"
+                    android:contentDescription="@string/profile_image"
                     android:padding="8dp"
-                    android:contentDescription="@string/profile_image" />
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_profile_placeholder" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_weight="1"
-                    android:paddingStart="16dp"
-                    android:background="@color/itemPostBackground">
+                    android:background="@color/itemPostBackground"
+                    android:orientation="vertical"
+                    android:paddingStart="16dp">
 
                     <TextView
                         android:id="@+id/profileTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorPrimary"
-                        android:textSize="18sp"
+                        android:background="@color/itemPostBackground"
                         android:text="Nombre"
-                        android:background="@color/itemPostBackground"/>
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:id="@+id/fullNameTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorSecondary"
                         android:layout_marginTop="4dp"
+                        android:background="@color/itemPostBackground"
                         android:text="Username"
-                        android:background="@color/itemPostBackground"/>
+                        android:textColor="@color/textColorSecondary" />
                 </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:background="@color/itemPostBackground"
                 android:gravity="center"
-                android:weightSum="3"
-                android:background="@color/itemPostBackground">
+                android:orientation="horizontal"
+                android:weightSum="3">
 
                 <LinearLayout
+                    android:id="@+id/postsLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_weight="1"
+                    android:background="@color/itemPostBackground"
                     android:gravity="center"
-                    android:background="@color/itemPostBackground">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/postsCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorPrimary"
-                        android:textSize="16sp"
+                        android:background="@color/itemPostBackground"
                         android:text="0"
-                        android:background="@color/itemPostBackground"/>
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorSecondary"
-                        android:textSize="14sp"
+                        android:background="@color/itemPostBackground"
                         android:text="publicaciones"
-                        android:background="@color/itemPostBackground"/>
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="14sp" />
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/followersLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_weight="1"
+                    android:background="@color/itemPostBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
-                    android:background="@color/itemPostBackground">
+                    android:orientation="vertical"
+                    tools:ignore="TouchTargetSizeCheck">
 
                     <TextView
                         android:id="@+id/followersCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorPrimary"
-                        android:textSize="16sp"
+                        android:background="@color/itemPostBackground"
                         android:text="0"
-                        android:background="@color/itemPostBackground"/>
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorSecondary"
-                        android:textSize="14sp"
+                        android:background="@color/itemPostBackground"
                         android:text="seguidores"
-                        android:background="@color/itemPostBackground"/>
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="14sp" />
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/followingLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_weight="1"
+                    android:background="@color/itemPostBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
-                    android:background="@color/itemPostBackground">
+                    android:orientation="vertical"
+                    tools:ignore="TouchTargetSizeCheck">
 
                     <TextView
                         android:id="@+id/followingCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorPrimary"
-                        android:textSize="16sp"
+                        android:background="@color/itemPostBackground"
                         android:text="0"
-                        android:background="@color/itemPostBackground"/>
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorSecondary"
-                        android:textSize="14sp"
+                        android:background="@color/itemPostBackground"
                         android:text="seguidos"
-                        android:background="@color/itemPostBackground"/>
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
+
+
+            <Button
+                android:id="@+id/followButton"
+                style="@style/ButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Seguir"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewUserPosts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
                 android:layout_marginTop="16dp"
                 android:background="@color/itemPostBackground"
+                android:padding="8dp"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="3" />
+
         </LinearLayout>
     </ScrollView>
 </layout>

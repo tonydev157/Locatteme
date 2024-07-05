@@ -62,6 +62,7 @@ dependencies {
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:20.2.0")
     implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.media3.common)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
