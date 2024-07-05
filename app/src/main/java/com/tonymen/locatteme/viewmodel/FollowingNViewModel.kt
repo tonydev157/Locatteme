@@ -18,7 +18,7 @@ class FollowingNViewModel : ViewModel() {
             .whereEqualTo("followerId", userId)
             .get()
             .addOnSuccessListener { documents ->
-                val userIds = documents.map { it.getString("followedId") ?: "" }
+                val userIds = documents.mapNotNull { it.getString("followedId") }
                 if (userIds.isNotEmpty()) {
                     db.collection("users")
                         .whereIn("id", userIds)
@@ -26,6 +26,9 @@ class FollowingNViewModel : ViewModel() {
                         .addOnSuccessListener { userDocs ->
                             val userList = userDocs.toObjects<User>()
                             _following.value = userList
+                        }
+                        .addOnFailureListener {
+                            _following.value = emptyList()
                         }
                 } else {
                     _following.value = emptyList()

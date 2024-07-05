@@ -25,9 +25,7 @@ class FollowingNAdapter(
 
     override fun onBindViewHolder(holder: FollowingViewHolder, position: Int) {
         val user = following[position]
-
-        holder.binding.username.text = user.username
-        holder.binding.fullName.text = "${user.nombre} ${user.apellido}" // Verificar estos campos
+        holder.binding.user = user
         Glide.with(holder.binding.profileImage.context).load(user.profileImageUrl).circleCrop().into(holder.binding.profileImage)
 
         holder.itemView.setOnClickListener {
