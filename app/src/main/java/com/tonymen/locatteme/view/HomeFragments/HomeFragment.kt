@@ -87,6 +87,18 @@ class HomeFragment : Fragment() {
                     // Si no hay imagen en la base de datos, mostrar imagen predeterminada
                     binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
                 }
+
+                // Set click listeners to navigate to the profile fragment
+                val clickListener = View.OnClickListener {
+                    val fragment = ProfileFragment()
+                    val transaction = parentFragmentManager.beginTransaction()
+                    transaction.replace(R.id.fragmentContainer, fragment)
+                    transaction.addToBackStack(null)
+                    transaction.commit()
+                }
+
+                binding.profileImageView.setOnClickListener(clickListener)
+                binding.usernameTextView.setOnClickListener(clickListener)
             }
         }.addOnFailureListener {
             // En caso de error, mostrar imagen predeterminada
@@ -94,7 +106,6 @@ class HomeFragment : Fragment() {
             Toast.makeText(context, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     private fun loadPosts() {
         isLoading = true

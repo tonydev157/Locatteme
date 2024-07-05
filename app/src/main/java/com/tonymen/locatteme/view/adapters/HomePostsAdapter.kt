@@ -6,13 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.User
 import com.tonymen.locatteme.utils.TimestampUtil
+import com.tonymen.locatteme.view.HomeFragments.ProfileFragment
+import com.tonymen.locatteme.view.HomeFragments.UserProfileFragment
 import org.ocpsoft.prettytime.PrettyTime
 import java.util.Date
 
@@ -52,6 +56,7 @@ class HomePostsAdapter(
             .into(holder.imageView)
 
         val db = FirebaseFirestore.getInstance()
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
         db.collection("users").document(post.autorId).get().addOnSuccessListener { document ->
             val user = document.toObject(User::class.java)
             user?.let {
@@ -60,6 +65,24 @@ class HomePostsAdapter(
                     .load(it.profileImageUrl)
                     .circleCrop()
                     .into(holder.profileImageView)
+
+                val isCurrentUser = currentUserId == user.id
+
+                // Set the click listener on the profile image and username to navigate to the user's profile
+                val clickListener = View.OnClickListener {
+                    val fragment = if (isCurrentUser) {
+                        ProfileFragment()
+                    } else {
+                        UserProfileFragment.newInstance(user.id)
+                    }
+                    val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                    transaction.replace(R.id.fragmentContainer, fragment)
+                    transaction.addToBackStack(null)
+                    transaction.commit()
+                }
+
+                holder.profileImageView.setOnClickListener(clickListener)
+                holder.usernameTextView.setOnClickListener(clickListener)
             }
         }
 
@@ -75,27 +98,6 @@ class HomePostsAdapter(
         holder.lugarDesaparicionTextView.text = "Lugar de Desaparición: ${post.lugarDesaparicion}"
         holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
         holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
-
-        // Eliminar el OnClickListener
-        // holder.itemView.setOnClickListener {
-        //     val intent = Intent(context, PostDetailActivity::class.java).apply {
-        //         putExtra("postId", post.id)
-        //         putExtra("fotoGrande", post.fotoGrande)
-        //         putExtra("nombres", post.nombres)
-        //         putExtra("apellidos", post.apellidos)
-        //         putExtra("edad", post.edad)
-        //         putExtra("provincia", post.provincia)
-        //         putExtra("ciudad", post.ciudad)
-        //         putExtra("nacionalidad", post.nacionalidad)
-        //         putExtra("estado", post.estado)
-        //         putExtra("lugarDesaparicion", post.lugarDesaparicion)
-        //         putExtra("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
-        //         putExtra("caracteristicas", post.caracteristicas)
-        //         putExtra("autorId", post.autorId)
-        //         putExtra("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
-        //     }
-        //     context.startActivity(intent)
-        // }
     }
 
     override fun getItemCount(): Int {
