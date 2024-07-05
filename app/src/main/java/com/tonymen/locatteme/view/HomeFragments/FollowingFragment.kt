@@ -9,10 +9,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentFollowingBinding
 import com.tonymen.locatteme.model.Post
@@ -43,13 +45,13 @@ class FollowingFragment : Fragment() {
         setupRecyclerView()
         setupSwipeRefresh()
         loadUserProfile()
-        loadFollowingPosts()
+        loadPosts()
 
         return binding.root
     }
 
     private fun setupRecyclerView() {
-        recyclerView = binding.recyclerViewFollowingPosts
+        recyclerView = binding.recyclerView
         postAdapter = FollowingPostsAdapter(posts, requireContext())
         recyclerView.adapter = postAdapter
         recyclerView.layoutManager = LinearLayoutManager(context)
@@ -58,7 +60,7 @@ class FollowingFragment : Fragment() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (!recyclerView.canScrollVertically(1) && !isLoading) {
-                    loadMoreFollowingPosts()
+                    loadMorePosts()
                 }
             }
         })
@@ -83,29 +85,32 @@ class FollowingFragment : Fragment() {
                         .circleCrop()
                         .into(binding.profileImageView)
                 } else {
+                    // Si no hay imagen en la base de datos, mostrar imagen predeterminada
                     binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
                 }
             }
         }.addOnFailureListener {
+            // En caso de error, mostrar imagen predeterminada
             binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
             Toast.makeText(context, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun loadFollowingPosts() {
+    private fun loadPosts() {
         isLoading = true
-        val userId = auth.currentUser?.uid ?: return
-        viewModel.getFollowingPosts(userId, lastVisible).addOnSuccessListener { documents ->
+        viewModel.getFollowingPosts().addOnSuccessListener { documents ->
             if (documents.isEmpty) {
-                binding.noPostsTextView.visibility = View.VISIBLE
                 isLoading = false
+                if (posts.isEmpty()) {
+                    binding.noPostsTextView.visibility = View.VISIBLE
+                }
                 return@addOnSuccessListener
             }
-            binding.noPostsTextView.visibility = View.GONE
             lastVisible = documents.documents[documents.size() - 1]
             val postList = documents.mapNotNull { it.toObject(Post::class.java) }
             posts.addAll(postList)
             postAdapter.notifyDataSetChanged()
+            binding.noPostsTextView.visibility = View.GONE
             isLoading = false
         }.addOnFailureListener {
             isLoading = false
@@ -113,14 +118,14 @@ class FollowingFragment : Fragment() {
         }
     }
 
-    private fun loadMoreFollowingPosts() {
-        loadFollowingPosts()
+    private fun loadMorePosts() {
+        loadPosts()
     }
 
-    private fun refreshContent() {
+    fun refreshContent() {
         posts.clear()
         lastVisible = null
-        loadFollowingPosts()
+        loadPosts()
         binding.swipeRefreshLayout.isRefreshing = false
     }
 
@@ -129,3 +134,4 @@ class FollowingFragment : Fragment() {
         _binding = null
     }
 }
+

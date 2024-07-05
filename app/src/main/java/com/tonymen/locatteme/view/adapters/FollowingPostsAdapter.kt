@@ -6,13 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.User
 import com.tonymen.locatteme.utils.TimestampUtil
+import com.tonymen.locatteme.view.HomeFragments.ProfileFragment
+import com.tonymen.locatteme.view.HomeFragments.UserProfileFragment
 import org.ocpsoft.prettytime.PrettyTime
 import java.util.Date
 
@@ -52,6 +56,7 @@ class FollowingPostsAdapter(
             .into(holder.imageView)
 
         val db = FirebaseFirestore.getInstance()
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
         db.collection("users").document(post.autorId).get().addOnSuccessListener { document ->
             val user = document.toObject(User::class.java)
             user?.let {
@@ -60,6 +65,24 @@ class FollowingPostsAdapter(
                     .load(it.profileImageUrl)
                     .circleCrop()
                     .into(holder.profileImageView)
+
+                val isCurrentUser = currentUserId == user.id
+
+                // Set the click listener on the profile image and username to navigate to the user's profile
+                val clickListener = View.OnClickListener {
+                    val fragment = if (isCurrentUser) {
+                        ProfileFragment()
+                    } else {
+                        UserProfileFragment.newInstance(user.id)
+                    }
+                    val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                    transaction.replace(R.id.fragmentContainer, fragment)
+                    transaction.addToBackStack(null)
+                    transaction.commit()
+                }
+
+                holder.profileImageView.setOnClickListener(clickListener)
+                holder.usernameTextView.setOnClickListener(clickListener)
             }
         }
 
@@ -77,9 +100,7 @@ class FollowingPostsAdapter(
         holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
     }
 
-    override fun getItemCount(): Int {
-        return posts.size
-    }
+    override fun getItemCount(): Int = posts.size
 
     fun updatePosts(newPosts: List<Post>) {
         posts = newPosts
