@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.ItemFollowerUserBinding
 import com.tonymen.locatteme.model.User
@@ -32,9 +33,11 @@ class FollowersNAdapter(
         holder.binding.user = user
         holder.binding.executePendingBindings()
 
+        val profileImageUrl = user.profileImageUrl.takeIf { !it.isNullOrEmpty() } ?: R.drawable.ic_profile_placeholder
+
         Glide.with(holder.binding.profileImage.context)
-            .load(user.profileImageUrl)
-            .circleCrop()
+            .load(profileImageUrl)
+            .apply(RequestOptions.circleCropTransform())
             .into(holder.binding.profileImage)
 
         holder.itemView.setOnClickListener {

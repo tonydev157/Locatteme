@@ -18,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentProfileBinding
 import com.tonymen.locatteme.model.Post
+import com.tonymen.locatteme.view.FollowersNFragment
+import com.tonymen.locatteme.view.FollowingNFragment
 import com.tonymen.locatteme.view.adapters.UserPostsAdapter
 import com.tonymen.locatteme.viewmodel.ProfileViewModel
 
@@ -43,6 +45,29 @@ class ProfileFragment : Fragment() {
         binding.profileImageView.setOnClickListener {
             showChangeProfilePictureDialog()
         }
+
+        // Añadir los click listeners para seguidores y seguidos
+        val userId = auth.currentUser?.uid ?: ""
+        val followersClickListener = View.OnClickListener {
+            val fragment = FollowersNFragment.newInstance(userId)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
+        val followingClickListener = View.OnClickListener {
+            val fragment = FollowingNFragment.newInstance(userId)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
+        binding.followersCount.setOnClickListener(followersClickListener)
+        binding.followingCount.setOnClickListener(followingClickListener)
+        binding.followersLabel.setOnClickListener(followersClickListener)
+        binding.followingLabel.setOnClickListener(followingClickListener)
 
         return binding.root
     }

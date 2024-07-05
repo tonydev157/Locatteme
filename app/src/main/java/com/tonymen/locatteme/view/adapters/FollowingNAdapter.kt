@@ -1,6 +1,7 @@
 package com.tonymen.locatteme.view.adapters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -25,10 +26,22 @@ class FollowingNAdapter(
 
     override fun onBindViewHolder(holder: FollowingViewHolder, position: Int) {
         val user = following[position]
+
+        Log.d("FollowingNAdapter", "User: $user")
+
         holder.binding.user = user
-        Glide.with(holder.binding.profileImage.context).load(user.profileImageUrl).circleCrop().into(holder.binding.profileImage)
+        holder.binding.executePendingBindings()
+
+        val profileImageUrl = user.profileImageUrl.takeIf { it.isNotEmpty() }
+            ?: R.drawable.ic_profile_placeholder
+
+        Glide.with(holder.binding.profileImage.context)
+            .load(profileImageUrl)
+            .circleCrop()
+            .into(holder.binding.profileImage)
 
         holder.itemView.setOnClickListener {
+            Log.d("FollowingNAdapter", "Clicked on user: $user")
             val fragment = UserProfileFragment.newInstance(user.id)
             val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
             transaction.replace(R.id.fragmentContainer, fragment)

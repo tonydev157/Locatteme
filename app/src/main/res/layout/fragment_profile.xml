@@ -95,6 +95,7 @@
                         android:background="@color/itemPostBackground"/>
 
                     <TextView
+                        android:id="@+id/postsLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorSecondary"
@@ -121,6 +122,7 @@
                         android:background="@color/itemPostBackground"/>
 
                     <TextView
+                        android:id="@+id/followersLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorSecondary"
@@ -147,6 +149,7 @@
                         android:background="@color/itemPostBackground"/>
 
                     <TextView
+                        android:id="@+id/followingLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorSecondary"
