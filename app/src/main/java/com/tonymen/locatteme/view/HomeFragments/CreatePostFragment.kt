@@ -9,6 +9,10 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.InputFilter
+import android.text.TextWatcher
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -99,10 +103,10 @@ class CreatePostFragment : Fragment() {
 
         // Add focus change listeners to fields
         binding.nombresEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(binding.nombresEditText, binding.nombresErrorText)
+            if (!hasFocus) validateNombre(binding.nombresEditText)
         }
         binding.apellidosEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(binding.apellidosEditText, binding.apellidosErrorText)
+            if (!hasFocus) validateApellido(binding.apellidosEditText)
         }
         binding.provinciaAutoComplete.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) validateField(binding.provinciaAutoComplete, binding.provinciaErrorText)
@@ -122,7 +126,35 @@ class CreatePostFragment : Fragment() {
         binding.caracteristicasEditText.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) validateField(binding.caracteristicasEditText, binding.caracteristicasErrorText, optional = true)
         }
-        // For contactos, we will validate only on save button click
+
+        // Add text change listeners for validation
+        binding.nombresEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                validateNombre(binding.nombresEditText)
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        binding.apellidosEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                validateApellido(binding.apellidosEditText)
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        binding.contactoEditText1.filters = arrayOf(InputFilter.LengthFilter(10))
+        binding.contactoEditText1.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                validateContacto(binding.contactoEditText1)
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
     }
 
     private fun setupEdadSpinner() {
@@ -225,9 +257,15 @@ class CreatePostFragment : Fragment() {
             }
             hint = "Número de Contacto"
             inputType = android.text.InputType.TYPE_CLASS_PHONE
-            setOnFocusChangeListener { _, hasFocus ->
-                if (!hasFocus) validateField(this, binding.contactosErrorText, optional = true)
-            }
+            filters = arrayOf(InputFilter.LengthFilter(10))
+            addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    validateContacto(this@apply)
+                }
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
         }
 
         val removeButton = Button(requireContext()).apply {
@@ -434,6 +472,36 @@ class CreatePostFragment : Fragment() {
         } else {
             errorTextView.visibility = View.GONE
             autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_green)
+        }
+    }
+
+    private fun validateNombre(editText: EditText) {
+        val pattern = Regex("^[A-Z][a-zA-Z]*$")
+        if (!pattern.matches(editText.text.toString().trim())) {
+            editText.error = "Nombre inválido."
+            editText.setBackgroundResource(R.drawable.edit_text_border_red)
+        } else {
+            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+        }
+    }
+
+    private fun validateApellido(editText: EditText) {
+        val pattern = Regex("^[A-Z][a-zA-Z]*$")
+        if (!pattern.matches(editText.text.toString().trim())) {
+            editText.error = "Apellido inválido."
+            editText.setBackgroundResource(R.drawable.edit_text_border_red)
+        } else {
+            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+        }
+    }
+
+    private fun validateContacto(editText: EditText) {
+        val pattern = Regex("^09[0-9]{8}$")
+        if (!pattern.matches(editText.text.toString().trim())) {
+            editText.error = "Número de contacto inválido."
+            editText.setBackgroundResource(R.drawable.edit_text_border_red)
+        } else {
+            editText.setBackgroundResource(R.drawable.edit_text_border_green)
         }
     }
 
