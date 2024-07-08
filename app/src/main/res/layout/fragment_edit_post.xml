@@ -1,0 +1,417 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.HomeFragments.EditPostFragment">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.tonymen.locatteme.viewmodel.CreatePostViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:layout_above="@+id/progressBar">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Existing UI elements go here -->
+
+                <!-- Nombres -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nombres"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/nombresEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Nombres"
+                    android:inputType="text"
+                    android:minHeight="48dp"
+                    style="@style/EditTextStyle" />
+
+                <TextView
+                    android:id="@+id/nombresErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_red_light"
+                    android:visibility="gone"
+                    android:text="Campo obligatorio" />
+
+                <!-- Apellidos -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Apellidos"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/apellidosEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Apellidos"
+                    android:inputType="text"
+                    android:minHeight="48dp"
+                    style="@style/EditTextStyle" />
+
+                <TextView
+                    android:id="@+id/apellidosErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_red_light"
+                    android:visibility="gone"
+                    android:text="Campo obligatorio" />
+
+                <!-- Add other UI elements here -->
+
+                <!-- Photo Upload -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Foto de la persona desaparecida"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/uploadPhotoButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subir Foto"
+                    android:layout_marginBottom="16dp"
+                    style="@style/ButtonStyle" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center">
+
+                    <View
+                        android:id="@+id/borderView"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:background="@drawable/green_border"
+                        app:layout_constraintWidth_min="200dp"
+                        app:layout_constraintHeight_min="300dp"
+                        app:layout_constraintDimensionRatio="2:3"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/photoPreviewImageView"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toTopOf="@id/borderView"
+                        app:layout_constraintBottom_toBottomOf="@id/borderView"
+                        app:layout_constraintStart_toStartOf="@id/borderView"
+                        app:layout_constraintEnd_toEndOf="@id/borderView"
+                        app:layout_constraintWidth_min="200dp"
+                        app:layout_constraintHeight_min="300dp"
+                        app:layout_constraintDimensionRatio="2:3" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- Edad -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edad"
+                    android:layout_marginBottom="8dp" />
+
+                <Spinner
+                    android:id="@+id/edadSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:minHeight="48dp" />
+
+                <!-- Provincia -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Provincia"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/provinciaAutoComplete"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Seleccionar provincia"
+                        android:minHeight="48dp"
+                        style="@style/EditTextStyle" />
+
+                    <Button
+                        android:id="@+id/clearProvinciaButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="X"
+                        android:layout_marginStart="8dp"
+                        android:visibility="gone"
+                        style="@style/ButtonStyle" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/provinciaErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_red_light"
+                    android:visibility="gone"
+                    android:text="Campo obligatorio" />
+
+                <!-- Ciudad -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ciudad"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/ciudadAutoComplete"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Seleccionar ciudad"
+                        android:enabled="false"
+                        android:minHeight="48dp"
+                        style="@style/EditTextStyle" />
+
+                    <Button
+                        android:id="@+id/clearCiudadButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="X"
+                        android:layout_marginStart="8dp"
+                        android:visibility="gone"
+                        style="@style/ButtonStyle" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/ciudadErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_red_light"
+                    android:visibility="gone"
+                    android:text="Campo obligatorio" />
+
+                <!-- Nacionalidad -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nacionalidad"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/nacionalidadAutoComplete"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Seleccionar nacionalidad"
+                        android:minHeight="48dp"
+                        style="@style/EditTextStyle" />
+
+                    <Button
+                        android:id="@+id/clearNacionalidadButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="X"
+                        android:layout_marginStart="8dp"
+                        android:visibility="gone"
+                        style="@style/ButtonStyle" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/nacionalidadErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_green_light"
+                    android:visibility="gone"
+                    android:text="Campo opcional" />
+
+                <!-- Lugar de Desaparición -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lugar de Desaparición"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/lugarDesaparicionEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Lugar de Desaparición"
+                    android:inputType="textMultiLine"
+                    android:maxLength="100"
+                    android:minHeight="48dp"
+                    android:minLines="3"
+                    android:gravity="top"
+                    android:scrollbars="vertical"
+                    style="@style/EditTextStyle" />
+
+                <TextView
+                    android:id="@+id/lugarDesaparicionErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_green_light"
+                    android:visibility="gone"
+                    android:text="Campo opcional" />
+
+                <!-- Fecha de Desaparición -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fecha de Desaparición"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/fechaDesaparicionEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Seleccionar fecha"
+                    android:focusable="false"
+                    android:inputType="none"
+                    android:minHeight="48dp"
+                    style="@style/EditTextStyle" />
+
+                <TextView
+                    android:id="@+id/fechaDesaparicionErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_red_light"
+                    android:visibility="gone"
+                    android:text="Campo obligatorio" />
+
+                <!-- Características -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Características"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/caracteristicasEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Características"
+                    android:inputType="textMultiLine"
+                    android:maxLength="200"
+                    android:minHeight="48dp"
+                    android:minLines="3"
+                    android:gravity="top"
+                    android:scrollbars="vertical"
+                    style="@style/EditTextStyle" />
+
+                <TextView
+                    android:id="@+id/caracteristicasErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_green_light"
+                    android:visibility="gone"
+                    android:text="Campo opcional" />
+
+                <!-- Números de Contacto -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Números de Contacto"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/contactosContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/contactoEditText1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Número de Contacto"
+                            android:inputType="phone"
+                            android:minHeight="48dp"
+                            style="@style/EditTextStyle" />
+
+                        <Button
+                            android:id="@+id/addContactoButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+"
+                            android:textSize="18sp"
+                            android:background="@drawable/rounded_button_background"
+                            android:layout_marginStart="8dp"
+                            style="@style/ButtonStyle" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/contactosErrorText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/holo_green_light"
+                        android:visibility="gone"
+                        android:text="Campo opcional" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/guardarButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Guardar"
+                    android:layout_marginTop="24dp"
+                    style="@style/ButtonStyle" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_centerInParent="true"
+            app:visible="@{viewModel.loading}" />
+
+    </RelativeLayout>
+</layout>

@@ -44,4 +44,7 @@ class CreatePostViewModel : ViewModel() {
     fun setLoadingState(isLoading: Boolean) {
         _loading.value = isLoading
     }
+
+    fun updatePost(post: Post) = db.collection("posts").document(post.id).set(post)
+
 }

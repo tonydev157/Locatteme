@@ -1,21 +1,21 @@
 package com.tonymen.locatteme.view.adapters
 
-import android.content.Context
-import android.content.Intent
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.utils.TimestampUtil
-import com.tonymen.locatteme.view.PostDetailActivity
+import com.tonymen.locatteme.view.HomeFragments.PostDetailFragment
 
 class UserPostsAdapter(
     private var posts: List<Post>,
-    private val context: Context
+    private val fragmentManager: FragmentManager
 ) : RecyclerView.Adapter<UserPostsAdapter.PostViewHolder>() {
 
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -35,23 +35,29 @@ class UserPostsAdapter(
             .into(holder.imageView)
 
         holder.imageView.setOnClickListener {
-            val intent = Intent(context, PostDetailActivity::class.java).apply {
-                putExtra("postId", post.id)
-                putExtra("fotoGrande", post.fotoGrande)
-                putExtra("nombres", post.nombres)
-                putExtra("apellidos", post.apellidos)
-                putExtra("edad", post.edad)
-                putExtra("provincia", post.provincia)
-                putExtra("ciudad", post.ciudad)
-                putExtra("nacionalidad", post.nacionalidad)
-                putExtra("estado", post.estado)
-                putExtra("lugarDesaparicion", post.lugarDesaparicion)
-                putExtra("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
-                putExtra("caracteristicas", post.caracteristicas)
-                putExtra("autorId", post.autorId)
-                putExtra("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
+            val fragment = PostDetailFragment()
+            val bundle = Bundle().apply {
+                putString("postId", post.id)
+                putString("fotoGrande", post.fotoGrande)
+                putString("nombres", post.nombres)
+                putString("apellidos", post.apellidos)
+                putInt("edad", post.edad)
+                putString("provincia", post.provincia)
+                putString("ciudad", post.ciudad)
+                putString("nacionalidad", post.nacionalidad)
+                putString("estado", post.estado)
+                putString("lugarDesaparicion", post.lugarDesaparicion)
+                putString("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
+                putString("caracteristicas", post.caracteristicas)
+                putString("autorId", post.autorId)
+                putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
             }
-            context.startActivity(intent)
+            fragment.arguments = bundle
+
+            fragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit()
         }
     }
 

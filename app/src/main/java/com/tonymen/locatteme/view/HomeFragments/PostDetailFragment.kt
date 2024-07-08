@@ -1,60 +1,56 @@
-package com.tonymen.locatteme.view
+package com.tonymen.locatteme.view.HomeFragments
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.bumptech.glide.Glide
-import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.tonymen.locatteme.R
-import com.tonymen.locatteme.databinding.ActivityPostDetailBinding
-import com.tonymen.locatteme.model.Post
+import com.tonymen.locatteme.databinding.FragmentPostDetailBinding
 import com.tonymen.locatteme.utils.TimestampUtil
-import com.tonymen.locatteme.view.HomeFragments.EditPostFragment
-import java.text.SimpleDateFormat
-import java.util.*
+import com.google.firebase.auth.FirebaseAuth
 
-class PostDetailActivity : AppCompatActivity() {
+class PostDetailFragment : Fragment() {
 
-    private lateinit var binding: ActivityPostDetailBinding
+    private var _binding: FragmentPostDetailBinding? = null
+    private val binding get() = _binding!!
     private lateinit var db: FirebaseFirestore
-    private lateinit var storageRef: StorageReference
-    private var selectedPhotoUri: Uri? = null
     private var postId: String? = null
-    private val calendar = Calendar.getInstance()
     private lateinit var auth: FirebaseAuth
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityPostDetailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPostDetailBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         db = FirebaseFirestore.getInstance()
-        storageRef = FirebaseStorage.getInstance().reference
         auth = FirebaseAuth.getInstance()
 
-        postId = intent.getStringExtra("postId")
+        postId = arguments?.getString("postId")
 
-        val fotoGrande = intent.getStringExtra("fotoGrande")
-        val nombres = intent.getStringExtra("nombres")
-        val apellidos = intent.getStringExtra("apellidos")
-        val edad = intent.getIntExtra("edad", 0)
-        val provincia = intent.getStringExtra("provincia")
-        val ciudad = intent.getStringExtra("ciudad")
-        val nacionalidad = intent.getStringExtra("nacionalidad")
-        val estado = intent.getStringExtra("estado")
-        val lugarDesaparicion = intent.getStringExtra("lugarDesaparicion")
-        val fechaDesaparicionStr = intent.getStringExtra("fechaDesaparicion")
-        val caracteristicas = intent.getStringExtra("caracteristicas")
-        val autorId = intent.getStringExtra("autorId")
-        val fechaPublicacionStr = intent.getStringExtra("fechaPublicacion")
+        val fotoGrande = arguments?.getString("fotoGrande")
+        val nombres = arguments?.getString("nombres")
+        val apellidos = arguments?.getString("apellidos")
+        val edad = arguments?.getInt("edad", 0)
+        val provincia = arguments?.getString("provincia")
+        val ciudad = arguments?.getString("ciudad")
+        val nacionalidad = arguments?.getString("nacionalidad")
+        val estado = arguments?.getString("estado")
+        val lugarDesaparicion = arguments?.getString("lugarDesaparicion")
+        val fechaDesaparicionStr = arguments?.getString("fechaDesaparicion")
+        val caracteristicas = arguments?.getString("caracteristicas")
+        val autorId = arguments?.getString("autorId")
+        val fechaPublicacionStr = arguments?.getString("fechaPublicacion")
 
         val fechaDesaparicion = TimestampUtil.parseStringToTimestamp(fechaDesaparicionStr)
         val fechaPublicacion = TimestampUtil.parseStringToTimestamp(fechaPublicacionStr)
@@ -65,7 +61,7 @@ class PostDetailActivity : AppCompatActivity() {
         }
 
         binding.apply {
-            Glide.with(this@PostDetailActivity)
+            Glide.with(this@PostDetailFragment)
                 .load(fotoGrande)
                 .into(photoImageView)
 
@@ -98,9 +94,14 @@ class PostDetailActivity : AppCompatActivity() {
                 putString("postId", postId)
             }
         }
-        supportFragmentManager.commit {
-            replace(R.id.fragment_container, fragment)
+        parentFragmentManager.commit {
+            replace(R.id.fragmentContainer, fragment)
             addToBackStack(null)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

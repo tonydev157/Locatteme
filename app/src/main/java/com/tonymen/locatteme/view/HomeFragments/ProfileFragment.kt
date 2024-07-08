@@ -73,7 +73,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = UserPostsAdapter(emptyList(), requireContext())
+        adapter = UserPostsAdapter(emptyList(), parentFragmentManager)
         binding.recyclerViewUserPosts.layoutManager = GridLayoutManager(context, 3)
         binding.recyclerViewUserPosts.adapter = adapter
         loadUserPosts()
@@ -185,4 +185,5 @@ class ProfileFragment : Fragment() {
     companion object {
         private const val REQUEST_CODE_PICK_IMAGE = 1001
     }
+
 }

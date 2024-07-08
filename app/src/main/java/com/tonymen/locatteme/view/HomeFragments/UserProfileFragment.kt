@@ -13,7 +13,6 @@ import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Transaction
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentUserProfileBinding
 import com.tonymen.locatteme.model.Post
@@ -51,7 +50,7 @@ class UserProfileFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = UserPostsAdapter(emptyList(), requireContext())
+        adapter = UserPostsAdapter(emptyList(), parentFragmentManager)
         binding.recyclerViewUserPosts.layoutManager = GridLayoutManager(context, 3)
         binding.recyclerViewUserPosts.adapter = adapter
     }
