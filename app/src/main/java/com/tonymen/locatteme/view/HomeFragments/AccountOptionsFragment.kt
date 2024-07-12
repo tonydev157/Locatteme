@@ -23,7 +23,7 @@ class AccountOptionsFragment : Fragment() {
         }
 
         binding.changePasswordTextView.setOnClickListener {
-            // Implementar la navegación a la pantalla de cambio de contraseña
+            (activity as HomeActivity).loadFragment(ChangePasswordFragment())
         }
 
         return binding.root
