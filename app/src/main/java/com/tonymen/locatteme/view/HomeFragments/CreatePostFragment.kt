@@ -38,6 +38,8 @@ import com.tonymen.locatteme.view.HomeActivity
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import com.tonymen.locatteme.utils.dpToPx
+
 
 class CreatePostFragment : Fragment() {
 
@@ -553,7 +555,3 @@ class CreatePostFragment : Fragment() {
     }
 }
 
-fun Int.dpToPx(): Int {
-    val density = Resources.getSystem().displayMetrics.density
-    return (this * density).toInt()
-}
