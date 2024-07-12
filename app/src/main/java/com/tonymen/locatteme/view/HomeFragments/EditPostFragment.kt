@@ -1,657 +1,117 @@
 package com.tonymen.locatteme.view.HomeFragments
 
-import android.app.Activity
-import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
-import android.text.Editable
-import android.text.InputFilter
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentEditPostBinding
-import com.tonymen.locatteme.model.EcuadorLocations
-import com.tonymen.locatteme.model.Nationalities
 import com.tonymen.locatteme.model.Post
-import com.tonymen.locatteme.utils.SearchUtils
 import com.tonymen.locatteme.utils.TimestampUtil
-import com.tonymen.locatteme.viewmodel.CreatePostViewModel
-import com.google.firebase.storage.StorageReference
-import com.tonymen.locatteme.view.HomeActivity
-import java.io.ByteArrayOutputStream
-import java.text.SimpleDateFormat
-import java.util.*
-import androidx.activity.OnBackPressedCallback
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 
 class EditPostFragment : Fragment() {
 
     private var _binding: FragmentEditPostBinding? = null
     private val binding get() = _binding!!
-    private lateinit var createPostViewModel: CreatePostViewModel
-    private var selectedPhotoUri: Uri? = null
-    private lateinit var ecuadorLocations: EcuadorLocations
-    private lateinit var nationalities: Nationalities
-    private val calendar = Calendar.getInstance()
-    private lateinit var post: Post
-    private var originalPost: Post? = null
+    private lateinit var db: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
+    private lateinit var postId: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentEditPostBinding.inflate(inflater, container, false)
-        createPostViewModel = ViewModelProvider(this).get(CreatePostViewModel::class.java)
-        binding.viewModel = createPostViewModel
-        binding.lifecycleOwner = viewLifecycleOwner
-
-        val postId = arguments?.getString("postId")
-        Log.d("EditPostFragment", "Received postId: $postId")
-
-        if (postId != null) {
-            loadEcuadorLocations()
-            loadNationalities()
-            loadPostData(postId)
-            setupListeners()
-        } else {
-            Log.e("EditPostFragment", "postId is null")
-        }
-
         return binding.root
     }
 
-    private fun loadEcuadorLocations() {
-        val inputStream = resources.openRawResource(R.raw.ecuador_locations)
-        val json = inputStream.bufferedReader().use { it.readText() }
-        val type = object : TypeToken<EcuadorLocations>() {}.type
-        ecuadorLocations = Gson().fromJson(json, type)
-        Log.d("EditPostFragment", "Ecuador locations loaded successfully")
-    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    private fun loadNationalities() {
-        val inputStream = resources.openRawResource(R.raw.nacionalidades)
-        val json = inputStream.bufferedReader().use { it.readText() }
-        val type = object : TypeToken<Nationalities>() {}.type
-        nationalities = Gson().fromJson(json, type)
-        Log.d("EditPostFragment", "Nationalities loaded successfully")
+        db = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
+
+        postId = arguments?.getString("postId") ?: ""
+        Log.d("EditPostFragment", "Received Post ID: $postId")
+
+        if (postId.isNotEmpty()) {
+            loadPostData(postId)
+        } else {
+            Toast.makeText(requireContext(), "Error al cargar el post", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.saveButton.setOnClickListener {
+            savePostData()
+        }
     }
 
     private fun loadPostData(postId: String) {
-        val db = FirebaseFirestore.getInstance()
-        Log.d("EditPostFragment", "Fetching post data for postId: $postId")
-        db.collection("posts").document(postId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    Log.d("EditPostFragment", "Document data: ${document.data}")
-                    val post = document.toObject(Post::class.java)
-                    if (post != null) {
-                        post.id = document.id // Asegura que el ID del documento sea correcto
-                        originalPost = post.copy()
-                        Log.d("EditPostFragment", "Post loaded: $post")
-                        populateFields(post)
-                    } else {
-                        Log.e("EditPostFragment", "Post data is null after deserialization")
-                    }
-                } else {
-                    Log.e("EditPostFragment", "Post not found in Firestore for postId: $postId")
-                }
+        Log.d("EditPostFragment", "Loading post data for ID: $postId")
+        db.collection("posts").whereEqualTo("id", postId).get().addOnSuccessListener { documents ->
+            if (documents.isEmpty) {
+                Log.d("EditPostFragment", "No document exists with ID: $postId")
+                Toast.makeText(requireContext(), "No existe el post", Toast.LENGTH_SHORT).show()
+                return@addOnSuccessListener
             }
-            .addOnFailureListener { e ->
-                Log.e("EditPostFragment", "Error loading post data for postId: $postId", e)
-            }
-    }
-
-    private fun populateFields(post: Post) {
-        binding.apply {
-
-            Glide.with(this@EditPostFragment)
-                .load(post.fotoGrande)
-                .into(photoPreviewImageView)
-            nombresEditText.setText(post.nombres)
-            apellidosEditText.setText(post.apellidos)
-            edadSpinner.setSelection(post.edad - 1)
-            provinciaAutoComplete.setText(post.provincia, false)
-            ciudadAutoComplete.setText(post.ciudad, false)
-            nacionalidadAutoComplete.setText(post.nacionalidad, false)
-            lugarDesaparicionEditText.setText(post.lugarDesaparicion)
-            fechaDesaparicionEditText.setText(SimpleDateFormat("dd/MM/yyyy", Locale.US).format(post.fechaDesaparicion.toDate()))
-            caracteristicasEditText.setText(post.caracteristicas)
-            post.numerosContacto.forEachIndexed { index, numero ->
-                if (index == 0) {
-                    contactoEditText1.setText(numero)
-                } else {
-                    addContactoEditText().setText(numero)
-                }
-            }
-        }
-    }
-
-    private fun setupListeners() {
-        setupEdadSpinner()
-        setupProvinciaAutoComplete()
-        setupCiudadAutoComplete()
-        setupNacionalidadAutoComplete()
-        setupContactos()
-
-        binding.uploadPhotoButton.setOnClickListener {
-            openImagePicker()
-        }
-
-        binding.guardarButton.setOnClickListener {
-            guardarPost()
-        }
-
-        binding.cancelarButton.setOnClickListener {
-            showCancelAlertDialog()
-        }
-
-        binding.fechaDesaparicionEditText.setOnClickListener {
-            showDatePickerDialog()
-        }
-
-        binding.nombresEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateNombre(binding.nombresEditText)
-        }
-        binding.apellidosEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateApellido(binding.apellidosEditText)
-        }
-        binding.provinciaAutoComplete.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(binding.provinciaAutoComplete, binding.provinciaErrorText)
-        }
-        binding.ciudadAutoComplete.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(binding.ciudadAutoComplete, binding.ciudadErrorText)
-        }
-        binding.nacionalidadAutoComplete.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(binding.nacionalidadAutoComplete, binding.nacionalidadErrorText, optional = true)
-        }
-        binding.lugarDesaparicionEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(binding.lugarDesaparicionEditText, binding.lugarDesaparicionErrorText, optional = true)
-        }
-        binding.fechaDesaparicionEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(binding.fechaDesaparicionEditText, binding.fechaDesaparicionErrorText)
-        }
-        binding.caracteristicasEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(binding.caracteristicasEditText, binding.caracteristicasErrorText, optional = true)
-        }
-
-        binding.nombresEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                validateNombre(binding.nombresEditText)
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-
-        binding.apellidosEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                validateApellido(binding.apellidosEditText)
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-
-        binding.contactoEditText1.filters = arrayOf(InputFilter.LengthFilter(10))
-        binding.contactoEditText1.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                validateContacto(binding.contactoEditText1)
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-    }
-
-    private fun setupEdadSpinner() {
-        val edades = (1..100).toList().map { it.toString() }
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, edades)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.edadSpinner.adapter = adapter
-        binding.edadSpinner.setSelection(0)
-    }
-
-    private fun setupProvinciaAutoComplete() {
-        val provincias = ecuadorLocations.provinces.map { it.name }
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, provincias)
-        binding.provinciaAutoComplete.setAdapter(adapter)
-        binding.provinciaAutoComplete.setOnItemClickListener { _, _, position, _ ->
-            val selectedProvincia = adapter.getItem(position).toString()
-            binding.provinciaAutoComplete.setText(selectedProvincia, false)
-            binding.provinciaAutoComplete.isEnabled = false
-            binding.clearProvinciaButton.visibility = View.VISIBLE
-            updateCiudadesAutoComplete(selectedProvincia)
-        }
-        binding.clearProvinciaButton.setOnClickListener {
-            binding.provinciaAutoComplete.text.clear()
-            binding.provinciaAutoComplete.isEnabled = true
-            binding.clearProvinciaButton.visibility = View.GONE
-            binding.ciudadAutoComplete.text.clear()
-            binding.ciudadAutoComplete.isEnabled = false
-        }
-    }
-
-    private fun setupCiudadAutoComplete() {
-        binding.ciudadAutoComplete.isEnabled = false
-        binding.ciudadAutoComplete.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && binding.ciudadAutoComplete.adapter != null) {
-                binding.ciudadAutoComplete.showDropDown()
-            }
-        }
-        binding.ciudadAutoComplete.setOnItemClickListener { _, _, position, _ ->
-            val selectedCiudad = (binding.ciudadAutoComplete.adapter as ArrayAdapter<String>).getItem(position).toString()
-            binding.ciudadAutoComplete.setText(selectedCiudad, false)
-            binding.ciudadAutoComplete.isEnabled = false
-            binding.clearCiudadButton.visibility = View.VISIBLE
-        }
-        binding.clearCiudadButton.setOnClickListener {
-            binding.ciudadAutoComplete.text.clear()
-            binding.ciudadAutoComplete.isEnabled = true
-            binding.clearCiudadButton.visibility = View.GONE
-        }
-    }
-
-    private fun setupNacionalidadAutoComplete() {
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nationalities.nationalidades)
-        binding.nacionalidadAutoComplete.setAdapter(adapter)
-        binding.nacionalidadAutoComplete.setOnItemClickListener { _, _, position, _ ->
-            val selectedNacionalidad = adapter.getItem(position).toString()
-            binding.nacionalidadAutoComplete.setText(selectedNacionalidad, false)
-            binding.nacionalidadAutoComplete.isEnabled = false
-            binding.clearNacionalidadButton.visibility = View.VISIBLE
-        }
-        binding.clearNacionalidadButton.setOnClickListener {
-            binding.nacionalidadAutoComplete.text.clear()
-            binding.nacionalidadAutoComplete.isEnabled = true
-            binding.clearNacionalidadButton.visibility = View.GONE
-        }
-    }
-
-    private fun updateCiudadesAutoComplete(provincia: String) {
-        val provinciaObj = ecuadorLocations.provinces.find { it.name == provincia }
-        if (provinciaObj != null) {
-            val ciudades = provinciaObj.cities
-            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, ciudades)
-            binding.ciudadAutoComplete.setAdapter(adapter)
-            binding.ciudadAutoComplete.isEnabled = true
-        }
-    }
-
-    private fun setupContactos() {
-        binding.addContactoButton.setOnClickListener {
-            addContactoEditText()
-        }
-    }
-
-    private fun addContactoEditText(): EditText {
-        val contactoLayout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                setMargins(0, 8.dpToPx(), 0, 0)
-            }
-        }
-
-        val contactoEditText = EditText(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                weight = 1f
-            }
-            hint = "Número de Contacto"
-            inputType = android.text.InputType.TYPE_CLASS_PHONE
-            filters = arrayOf(InputFilter.LengthFilter(10))
-            addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    validateContacto(this@apply)
-                }
-
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            })
-        }
-
-        val removeButton = Button(requireContext()).apply {
-            text = "-"
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                setMargins(8.dpToPx(), 0, 0, 0)
-            }
-            background = ContextCompat.getDrawable(requireContext(), R.drawable.rounded_button_background)
-            setOnClickListener {
-                binding.contactosContainer.removeView(contactoLayout)
-            }
-        }
-
-        contactoLayout.addView(contactoEditText)
-        contactoLayout.addView(removeButton)
-        binding.contactosContainer.addView(contactoLayout)
-        return contactoEditText
-    }
-
-    private fun openImagePicker() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == Activity.RESULT_OK && data != null) {
-            selectedPhotoUri = data.data
-            selectedPhotoUri?.let { uri ->
-                Glide.with(this)
-                    .load(uri)
-                    .override(600, 900)
-                    .into(binding.photoPreviewImageView)
-                binding.photoPreviewImageView.visibility = View.VISIBLE
-                Toast.makeText(context, "Foto seleccionada correctamente", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun uploadPostImagesToFirebase(
-        imageUri: Uri,
-        onSuccess: (String, String) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        val usuarioId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val storageRefSmall = createPostViewModel.getPostImageStorageReference(usuarioId, "${post.id}_small")
-        val storageRefLarge = createPostViewModel.getPostImageStorageReference(usuarioId, "${post.id}_large")
-
-        Glide.with(this)
-            .asBitmap()
-            .load(imageUri)
-            .override(184, 284)
-            .into(object : CustomTarget<Bitmap>() {
-                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    uploadBitmapToStorage(storageRefSmall, resource, { smallImageUrl ->
+            for (document in documents) {
+                val post = document.toObject(Post::class.java)
+                Log.d("EditPostFragment", "Document snapshot: $document")
+                if (post != null) {
+                    binding.apply {
                         Glide.with(this@EditPostFragment)
-                            .asBitmap()
-                            .load(imageUri)
-                            .into(object : CustomTarget<Bitmap>() {
-                                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                                    uploadBitmapToStorage(storageRefLarge, resource, { largeImageUrl ->
-                                        onSuccess(smallImageUrl, largeImageUrl)
-                                    }, { exception ->
-                                        onFailure(exception)
-                                    })
-                                }
+                            .load(post.fotoGrande)
+                            .into(photoImageView)
 
-                                override fun onLoadCleared(placeholder: Drawable?) {}
-                            })
-                    }, { exception ->
-                        onFailure(exception)
-                    })
-                }
-
-                override fun onLoadCleared(placeholder: Drawable?) {}
-            })
-    }
-
-    private fun uploadBitmapToStorage(
-        storageRef: StorageReference,
-        bitmap: Bitmap,
-        onSuccess: (String) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val data = baos.toByteArray()
-
-        storageRef.putBytes(data)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    onSuccess(uri.toString())
-                }.addOnFailureListener { exception ->
-                    onFailure(exception)
-                }
-            }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
-    }
-
-    private fun guardarPost() {
-        val usuarioId = FirebaseAuth.getInstance().currentUser?.uid
-        if (usuarioId == null) {
-            Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val nombres = binding.nombresEditText.text.toString().trim()
-        val apellidos = binding.apellidosEditText.text.toString().trim()
-        val edad = binding.edadSpinner.selectedItem.toString().toInt()
-        val provincia = binding.provinciaAutoComplete.text.toString().trim()
-        val ciudad = binding.ciudadAutoComplete.text.toString().trim()
-        val nacionalidad = binding.nacionalidadAutoComplete.text.toString().trim()
-        val lugarDesaparicion = binding.lugarDesaparicionEditText.text.toString().trim()
-        val caracteristicas = binding.caracteristicasEditText.text.toString().trim()
-        val fechaDesaparicion = binding.fechaDesaparicionEditText.text.toString().trim()
-        val numerosContacto = getContactos()
-
-        if (nombres.isEmpty() || apellidos.isEmpty() || (selectedPhotoUri == null && post.fotoGrande.isEmpty()) || fechaDesaparicion.isEmpty()) {
-            Toast.makeText(context, "Por favor completa todos los campos obligatorios", Toast.LENGTH_SHORT).show()
-            validateField(binding.nombresEditText, binding.nombresErrorText)
-            validateField(binding.apellidosEditText, binding.apellidosErrorText)
-            validateField(binding.provinciaAutoComplete, binding.provinciaErrorText)
-            validateField(binding.ciudadAutoComplete, binding.ciudadErrorText)
-            validateField(binding.fechaDesaparicionEditText, binding.fechaDesaparicionErrorText)
-            return
-        }
-
-        val format = SimpleDateFormat("dd/MM/yyyy", Locale.US)
-        val fechaDesaparicionDate = format.parse(fechaDesaparicion)
-        val currentDate = Date()
-
-        if (fechaDesaparicionDate != null && fechaDesaparicionDate.after(currentDate)) {
-            Toast.makeText(context, "La fecha de desaparición no puede ser en el futuro", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        binding.progressBar.visibility = View.VISIBLE
-        binding.guardarButton.isEnabled = false
-
-        selectedPhotoUri?.let { uri ->
-            uploadPostImagesToFirebase(uri, { smallImageUrl, largeImageUrl ->
-                val searchKeywords = SearchUtils.generateSearchKeywords(nombres, apellidos)
-                val updatedPost = post.copy(
-                    fotoPequena = smallImageUrl,
-                    fotoGrande = largeImageUrl,
-                    nombres = nombres,
-                    apellidos = apellidos,
-                    edad = edad,
-                    provincia = provincia,
-                    ciudad = ciudad,
-                    nacionalidad = nacionalidad,
-                    lugarDesaparicion = lugarDesaparicion,
-                    fechaDesaparicion = Timestamp(fechaDesaparicionDate),
-                    caracteristicas = caracteristicas,
-                    numerosContacto = numerosContacto,
-                    searchKeywords = searchKeywords,
-                    fechaPublicacion = Timestamp(currentDate)
-                )
-
-                createPostViewModel.updatePost(updatedPost)
-                    .addOnSuccessListener {
-                        binding.progressBar.visibility = View.GONE
-                        binding.guardarButton.isEnabled = true
-                        Toast.makeText(context, "Post actualizado exitosamente", Toast.LENGTH_SHORT).show()
-                        (activity as HomeActivity).isPostSaved = true
-                        requireActivity().onBackPressed()
+                        nombresEditText.setText(post.nombres)
+                        apellidosEditText.setText(post.apellidos)
+                        edadEditText.setText(post.edad.toString())
+                        provinciaEditText.setText(post.provincia)
+                        ciudadEditText.setText(post.ciudad)
+                        nacionalidadEditText.setText(post.nacionalidad)
+                        estadoEditText.setText(post.estado)
+                        lugarDesaparicionEditText.setText(post.lugarDesaparicion)
+                        fechaDesaparicionEditText.setText(TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
+                        caracteristicasEditText.setText(post.caracteristicas)
                     }
-                    .addOnFailureListener { e ->
-                        binding.progressBar.visibility = View.GONE
-                        binding.guardarButton.isEnabled = true
-                        Toast.makeText(context, "Error al actualizar el post: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-            }, { exception ->
-                binding.progressBar.visibility = View.GONE
-                binding.guardarButton.isEnabled = true
-                Toast.makeText(context, "Error al subir la imagen: ${exception.message}", Toast.LENGTH_SHORT).show()
-            })
-        } ?: run {
-            val searchKeywords = SearchUtils.generateSearchKeywords(nombres, apellidos)
-            val updatedPost = post.copy(
-                nombres = nombres,
-                apellidos = apellidos,
-                edad = edad,
-                provincia = provincia,
-                ciudad = ciudad,
-                nacionalidad = nacionalidad,
-                lugarDesaparicion = lugarDesaparicion,
-                fechaDesaparicion = Timestamp(fechaDesaparicionDate),
-                caracteristicas = caracteristicas,
-                numerosContacto = numerosContacto,
-                searchKeywords = searchKeywords,
-                fechaPublicacion = Timestamp(currentDate)
-            )
-
-            createPostViewModel.updatePost(updatedPost)
-                .addOnSuccessListener {
-                    binding.progressBar.visibility = View.GONE
-                    binding.guardarButton.isEnabled = true
-                    Toast.makeText(context, "Post actualizado exitosamente", Toast.LENGTH_SHORT).show()
-                    (activity as HomeActivity).isPostSaved = true
-                    requireActivity().onBackPressed()
-                }
-                .addOnFailureListener { e ->
-                    binding.progressBar.visibility = View.GONE
-                    binding.guardarButton.isEnabled = true
-                    Toast.makeText(context, "Error al actualizar el post: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-        }
-    }
-
-    private fun validateField(editText: EditText, errorTextView: TextView, optional: Boolean = false) {
-        if (editText.text.toString().trim().isEmpty() && !optional) {
-            errorTextView.visibility = View.VISIBLE
-            editText.setBackgroundResource(R.drawable.edit_text_border_red)
-        } else {
-            errorTextView.visibility = View.GONE
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
-        }
-    }
-
-    private fun validateField(autoCompleteTextView: AutoCompleteTextView, errorTextView: TextView, optional: Boolean = false) {
-        if (autoCompleteTextView.text.toString().trim().isEmpty() && !optional) {
-            errorTextView.visibility = View.VISIBLE
-            autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_red)
-        } else {
-            errorTextView.visibility = View.GONE
-            autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_green)
-        }
-    }
-
-    private fun validateNombre(editText: EditText) {
-        val pattern = Regex("^[A-Z][a-zA-Z]*$")
-        if (!pattern.matches(editText.text.toString().trim())) {
-            editText.error = "Nombre inválido."
-            editText.setBackgroundResource(R.drawable.edit_text_border_red)
-        } else {
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
-        }
-    }
-
-    private fun validateApellido(editText: EditText) {
-        val pattern = Regex("^[A-Z][a-zA-Z]*$")
-        if (!pattern.matches(editText.text.toString().trim())) {
-            editText.error = "Apellido inválido."
-            editText.setBackgroundResource(R.drawable.edit_text_border_red)
-        } else {
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
-        }
-    }
-
-    private fun validateContacto(editText: EditText) {
-        val pattern = Regex("^09[0-9]{8}$")
-        if (!pattern.matches(editText.text.toString().trim())) {
-            editText.error = "Número de contacto inválido."
-            editText.setBackgroundResource(R.drawable.edit_text_border_red)
-        } else {
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
-        }
-    }
-
-    private fun getContactos(): List<String> {
-        val contactos = mutableListOf<String>()
-        for (i in 0 until binding.contactosContainer.childCount) {
-            val contactoLayout = binding.contactosContainer.getChildAt(i)
-            if (contactoLayout is LinearLayout && contactoLayout.childCount > 0 && contactoLayout.getChildAt(0) is EditText) {
-                val contactoEditText = contactoLayout.getChildAt(0) as EditText
-                val contacto = contactoEditText.text.toString().trim()
-                if (contacto.isNotEmpty()) {
-                    contactos.add(contacto)
+                } else {
+                    Toast.makeText(requireContext(), "Error al cargar los datos del post", Toast.LENGTH_SHORT).show()
                 }
             }
+        }.addOnFailureListener { e ->
+            Log.e("EditPostFragment", "Error al cargar el post: ${e.message}", e)
+            Toast.makeText(requireContext(), "Error al cargar el post: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-        return contactos
     }
 
-    private fun showDatePickerDialog() {
-        val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, monthOfYear)
-            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-            updateLabel()
+    private fun savePostData() {
+        val postUpdates = mapOf(
+            "nombres" to binding.nombresEditText.text.toString(),
+            "apellidos" to binding.apellidosEditText.text.toString(),
+            "edad" to binding.edadEditText.text.toString().toIntOrNull(),
+            "provincia" to binding.provinciaEditText.text.toString(),
+            "ciudad" to binding.ciudadEditText.text.toString(),
+            "nacionalidad" to binding.nacionalidadEditText.text.toString(),
+            "estado" to binding.estadoEditText.text.toString(),
+            "lugarDesaparicion" to binding.lugarDesaparicionEditText.text.toString(),
+            "fechaDesaparicion" to TimestampUtil.parseStringToTimestamp(binding.fechaDesaparicionEditText.text.toString()),
+            "caracteristicas" to binding.caracteristicasEditText.text.toString()
+        )
+
+        db.collection("posts").document(postId).update(postUpdates).addOnSuccessListener {
+            Toast.makeText(requireContext(), "Post actualizado", Toast.LENGTH_SHORT).show()
+            requireActivity().onBackPressed()
+        }.addOnFailureListener { e ->
+            Toast.makeText(requireContext(), "Error al actualizar el post: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-
-        DatePickerDialog(
-            requireContext(), dateSetListener,
-            calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
-    }
-
-    private fun updateLabel() {
-        val myFormat = "dd/MM/yyyy"
-        val sdf = SimpleDateFormat(myFormat, Locale.US)
-        binding.fechaDesaparicionEditText.setText(sdf.format(calendar.time))
-    }
-
-    private fun showCancelAlertDialog() {
-        AlertDialog.Builder(requireContext())
-            .setMessage("Salir sin guardar cambios")
-            .setPositiveButton("Salir") { _, _ ->
-                parentFragmentManager.popBackStack()
-            }
-            .setNegativeButton("Cancelar", null)
-            .show()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        val homeActivity = activity as? HomeActivity
-        homeActivity?.enableCreatePostButton()
         _binding = null
-    }
-
-    companion object {
-        private const val REQUEST_CODE_PICK_IMAGE = 1001
     }
 }

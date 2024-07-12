@@ -1,18 +1,18 @@
 package com.tonymen.locatteme.view.HomeFragments
 
-import android.util.Log
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentPostDetailBinding
 import com.tonymen.locatteme.utils.TimestampUtil
-import com.google.firebase.auth.FirebaseAuth
 
 class PostDetailFragment : Fragment() {
 
@@ -38,6 +38,7 @@ class PostDetailFragment : Fragment() {
 
         postId = arguments?.getString("postId")
         Log.d("PostDetailFragment", "Post ID: $postId")  // Log para imprimir el postId
+
         val fotoGrande = arguments?.getString("fotoGrande")
         val nombres = arguments?.getString("nombres")
         val apellidos = arguments?.getString("apellidos")
@@ -93,24 +94,20 @@ class PostDetailFragment : Fragment() {
             Log.e("PostDetailFragment", "Post ID is null or empty!")
         } else {
             Log.d("PostDetailFragment", "Passing Post ID: $postId to EditPostFragment")
-        }
-
-        val fragment = EditPostFragment().apply {
-            arguments = Bundle().apply {
-                putString("postId", postId) // Asegúrate de que postId tiene el valor correcto
+            val fragment = EditPostFragment().apply {
+                arguments = Bundle().apply {
+                    putString("postId", postId)
+                }
+            }
+            parentFragmentManager.commit {
+                replace(R.id.fragmentContainer, fragment)
+                addToBackStack(null)
             }
         }
-        parentFragmentManager.commit {
-            replace(R.id.fragmentContainer, fragment)
-            addToBackStack(null)
-        }
     }
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
-
