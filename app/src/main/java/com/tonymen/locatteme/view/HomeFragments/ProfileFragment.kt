@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentProfileBinding
 import com.tonymen.locatteme.model.Post
+import com.tonymen.locatteme.view.AccountOptionsFragment
 import com.tonymen.locatteme.view.FollowersNFragment
 import com.tonymen.locatteme.view.FollowingNFragment
 import com.tonymen.locatteme.view.adapters.UserPostsAdapter
@@ -68,6 +69,14 @@ class ProfileFragment : Fragment() {
         binding.followingCount.setOnClickListener(followingClickListener)
         binding.followersLabel.setOnClickListener(followersClickListener)
         binding.followingLabel.setOnClickListener(followingClickListener)
+
+        // Listener para el botón "Editar cuenta"
+        binding.buttonLogout.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, AccountOptionsFragment())
+                .addToBackStack(null)
+                .commit()
+        }
 
         return binding.root
     }

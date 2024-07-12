@@ -93,41 +93,25 @@
                     android:layout_height="wrap_content"
                     android:text="Subir Foto"
                     android:layout_marginBottom="16dp"
-                    style="@style/ButtonStyle" />
+                    style="@style(ButtonStyle" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:gravity="center">
-
-                    <View
-                        android:id="@+id/borderView"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:background="@drawable/green_border"
-                        app:layout_constraintWidth_min="200dp"
-                        app:layout_constraintHeight_min="300dp"
-                        app:layout_constraintDimensionRatio="2:3"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp">
 
                     <ImageView
                         android:id="@+id/photoPreviewImageView"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:scaleType="centerCrop"
                         android:visibility="gone"
-                        app:layout_constraintTop_toTopOf="@id/borderView"
-                        app:layout_constraintBottom_toBottomOf="@id/borderView"
-                        app:layout_constraintStart_toStartOf="@id/borderView"
-                        app:layout_constraintEnd_toEndOf="@id/borderView"
-                        app:layout_constraintWidth_min="200dp"
-                        app:layout_constraintHeight_min="300dp"
-                        app:layout_constraintDimensionRatio="2:3" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:adjustViewBounds="true"
+                        tools:srcCompat="@tools:sample/avatars" />
+                </androidx.cardview.widget.CardView>
 
                 <!-- Edad -->
                 <TextView
@@ -162,7 +146,7 @@
                         android:layout_weight="1"
                         android:hint="Seleccionar provincia"
                         android:minHeight="48dp"
-                        style="@style/EditTextStyle" />
+                        style="@style(EditTextStyle" />
 
                     <Button
                         android:id="@+id/clearProvinciaButton"
@@ -171,7 +155,7 @@
                         android:text="X"
                         android:layout_marginStart="8dp"
                         android:visibility="gone"
-                        style="@style/ButtonStyle" />
+                        style="@style(ButtonStyle" />
                 </LinearLayout>
 
                 <TextView
@@ -202,7 +186,7 @@
                         android:hint="Seleccionar ciudad"
                         android:enabled="false"
                         android:minHeight="48dp"
-                        style="@style/EditTextStyle" />
+                        style="@style(EditTextStyle" />
 
                     <Button
                         android:id="@+id/clearCiudadButton"
@@ -211,7 +195,7 @@
                         android:text="X"
                         android:layout_marginStart="8dp"
                         android:visibility="gone"
-                        style="@style/ButtonStyle" />
+                        style="@style(ButtonStyle" />
                 </LinearLayout>
 
                 <TextView
@@ -241,7 +225,7 @@
                         android:layout_weight="1"
                         android:hint="Seleccionar nacionalidad"
                         android:minHeight="48dp"
-                        style="@style/EditTextStyle" />
+                        style="@style(EditTextStyle" />
 
                     <Button
                         android:id="@+id/clearNacionalidadButton"
@@ -250,7 +234,7 @@
                         android:text="X"
                         android:layout_marginStart="8dp"
                         android:visibility="gone"
-                        style="@style/ButtonStyle" />
+                        style="@style(ButtonStyle" />
                 </LinearLayout>
 
                 <TextView
@@ -280,7 +264,7 @@
                     android:minLines="3"
                     android:gravity="top"
                     android:scrollbars="vertical"
-                    style="@style/EditTextStyle" />
+                    style="@style(EditTextStyle" />
 
                 <TextView
                     android:id="@+id/lugarDesaparicionErrorText"
@@ -306,7 +290,7 @@
                     android:focusable="false"
                     android:inputType="none"
                     android:minHeight="48dp"
-                    style="@style/EditTextStyle" />
+                    style="@style(EditTextStyle" />
 
                 <TextView
                     android:id="@+id/fechaDesaparicionErrorText"
@@ -335,7 +319,7 @@
                     android:minLines="3"
                     android:gravity="top"
                     android:scrollbars="vertical"
-                    style="@style/EditTextStyle" />
+                    style="@style(EditTextStyle" />
 
                 <TextView
                     android:id="@+id/caracteristicasErrorText"
@@ -372,7 +356,7 @@
                             android:hint="Número de Contacto"
                             android:inputType="phone"
                             android:minHeight="48dp"
-                            style="@style/EditTextStyle" />
+                            style="@style(EditTextStyle" />
 
                         <Button
                             android:id="@+id/addContactoButton"
@@ -382,7 +366,7 @@
                             android:textSize="18sp"
                             android:background="@drawable/rounded_button_background"
                             android:layout_marginStart="8dp"
-                            style="@style/ButtonStyle" />
+                            style="@style(ButtonStyle" />
                     </LinearLayout>
 
                     <TextView
@@ -400,7 +384,7 @@
                     android:layout_height="wrap_content"
                     android:text="Guardar"
                     android:layout_marginTop="24dp"
-                    style="@style/ButtonStyle" />
+                    style="@style(ButtonStyle" />
 
             </LinearLayout>
         </ScrollView>

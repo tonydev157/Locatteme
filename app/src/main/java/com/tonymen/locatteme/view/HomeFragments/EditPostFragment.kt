@@ -1,9 +1,9 @@
 package com.tonymen.locatteme.view.HomeFragments
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -12,6 +12,7 @@ import android.provider.MediaStore
 import android.text.Editable
 import android.text.InputFilter
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +22,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tonymen.locatteme.R
@@ -30,14 +33,17 @@ import com.tonymen.locatteme.model.EcuadorLocations
 import com.tonymen.locatteme.model.Nationalities
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.utils.SearchUtils
+import com.tonymen.locatteme.utils.TimestampUtil
 import com.tonymen.locatteme.viewmodel.CreatePostViewModel
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
 import com.tonymen.locatteme.view.HomeActivity
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class EditPostFragment : Fragment() {
 
@@ -49,6 +55,7 @@ class EditPostFragment : Fragment() {
     private lateinit var nationalities: Nationalities
     private val calendar = Calendar.getInstance()
     private lateinit var post: Post
+    private var originalPost: Post? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,12 +66,17 @@ class EditPostFragment : Fragment() {
         binding.viewModel = createPostViewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val postId = arguments?.getString("postId") ?: return binding.root
+        val postId = arguments?.getString("postId")
+        Log.d("EditPostFragment", "Received postId: $postId")
 
-        loadEcuadorLocations()
-        loadNationalities()
-        loadPostData(postId)
-        setupListeners()
+        if (postId != null) {
+            loadEcuadorLocations()
+            loadNationalities()
+            loadPostData(postId)
+            setupListeners()
+        } else {
+            Log.e("EditPostFragment", "postId is null")
+        }
 
         return binding.root
     }
@@ -74,6 +86,7 @@ class EditPostFragment : Fragment() {
         val json = inputStream.bufferedReader().use { it.readText() }
         val type = object : TypeToken<EcuadorLocations>() {}.type
         ecuadorLocations = Gson().fromJson(json, type)
+        Log.d("EditPostFragment", "Ecuador locations loaded successfully")
     }
 
     private fun loadNationalities() {
@@ -81,18 +94,37 @@ class EditPostFragment : Fragment() {
         val json = inputStream.bufferedReader().use { it.readText() }
         val type = object : TypeToken<Nationalities>() {}.type
         nationalities = Gson().fromJson(json, type)
+        Log.d("EditPostFragment", "Nationalities loaded successfully")
     }
 
     private fun loadPostData(postId: String) {
         val db = FirebaseFirestore.getInstance()
-        db.collection("posts").document(postId).get().addOnSuccessListener { document ->
-            post = document.toObject(Post::class.java) ?: return@addOnSuccessListener
-            populateFields(post)
-        }
+        Log.d("EditPostFragment", "Fetching post data for postId: $postId")
+        db.collection("posts").document(postId).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    Log.d("EditPostFragment", "Document data: ${document.data}")
+                    val post = document.toObject(Post::class.java)
+                    if (post != null) {
+                        post.id = document.id // Asegura que el ID del documento sea correcto
+                        originalPost = post.copy()
+                        Log.d("EditPostFragment", "Post loaded: $post")
+                        populateFields(post)
+                    } else {
+                        Log.e("EditPostFragment", "Post data is null after deserialization")
+                    }
+                } else {
+                    Log.e("EditPostFragment", "Post not found in Firestore for postId: $postId")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("EditPostFragment", "Error loading post data for postId: $postId", e)
+            }
     }
 
     private fun populateFields(post: Post) {
         binding.apply {
+
             Glide.with(this@EditPostFragment)
                 .load(post.fotoGrande)
                 .into(photoPreviewImageView)
@@ -128,6 +160,10 @@ class EditPostFragment : Fragment() {
 
         binding.guardarButton.setOnClickListener {
             guardarPost()
+        }
+
+        binding.cancelarButton.setOnClickListener {
+            showCancelAlertDialog()
         }
 
         binding.fechaDesaparicionEditText.setOnClickListener {
@@ -307,7 +343,7 @@ class EditPostFragment : Fragment() {
             ).apply {
                 setMargins(8.dpToPx(), 0, 0, 0)
             }
-            background = resources.getDrawable(R.drawable.rounded_button_background, null)
+            background = ContextCompat.getDrawable(requireContext(), R.drawable.rounded_button_background)
             setOnClickListener {
                 binding.contactosContainer.removeView(contactoLayout)
             }
@@ -457,7 +493,8 @@ class EditPostFragment : Fragment() {
                     fechaDesaparicion = Timestamp(fechaDesaparicionDate),
                     caracteristicas = caracteristicas,
                     numerosContacto = numerosContacto,
-                    searchKeywords = searchKeywords
+                    searchKeywords = searchKeywords,
+                    fechaPublicacion = Timestamp(currentDate)
                 )
 
                 createPostViewModel.updatePost(updatedPost)
@@ -491,7 +528,8 @@ class EditPostFragment : Fragment() {
                 fechaDesaparicion = Timestamp(fechaDesaparicionDate),
                 caracteristicas = caracteristicas,
                 numerosContacto = numerosContacto,
-                searchKeywords = searchKeywords
+                searchKeywords = searchKeywords,
+                fechaPublicacion = Timestamp(currentDate)
             )
 
             createPostViewModel.updatePost(updatedPost)
@@ -594,6 +632,16 @@ class EditPostFragment : Fragment() {
         val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.US)
         binding.fechaDesaparicionEditText.setText(sdf.format(calendar.time))
+    }
+
+    private fun showCancelAlertDialog() {
+        AlertDialog.Builder(requireContext())
+            .setMessage("Salir sin guardar cambios")
+            .setPositiveButton("Salir") { _, _ ->
+                parentFragmentManager.popBackStack()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     override fun onDestroyView() {

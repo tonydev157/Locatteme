@@ -4,7 +4,7 @@ import com.google.firebase.Timestamp
 import java.io.Serializable
 
 data class Post(
-    val id: String = "",
+    var id: String = "",
     val fotoPequena: String = "", // URL para la versión pequeña de la imagen
     val fotoGrande: String = "", // URL para la versión grande de la imagen
     val nombres: String = "",

@@ -1,6 +1,6 @@
 package com.tonymen.locatteme.view.HomeFragments
 
-import android.net.Uri
+import android.util.Log
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,7 +37,7 @@ class PostDetailFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
 
         postId = arguments?.getString("postId")
-
+        Log.d("PostDetailFragment", "Post ID: $postId")  // Log para imprimir el postId
         val fotoGrande = arguments?.getString("fotoGrande")
         val nombres = arguments?.getString("nombres")
         val apellidos = arguments?.getString("apellidos")
@@ -89,9 +89,15 @@ class PostDetailFragment : Fragment() {
     }
 
     private fun openEditPostFragment() {
+        if (postId.isNullOrEmpty()) {
+            Log.e("PostDetailFragment", "Post ID is null or empty!")
+        } else {
+            Log.d("PostDetailFragment", "Passing Post ID: $postId to EditPostFragment")
+        }
+
         val fragment = EditPostFragment().apply {
             arguments = Bundle().apply {
-                putString("postId", postId)
+                putString("postId", postId) // Asegúrate de que postId tiene el valor correcto
             }
         }
         parentFragmentManager.commit {
@@ -100,8 +106,11 @@ class PostDetailFragment : Fragment() {
         }
     }
 
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
+
