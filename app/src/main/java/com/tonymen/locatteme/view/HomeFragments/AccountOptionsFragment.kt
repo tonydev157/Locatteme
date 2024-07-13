@@ -26,6 +26,10 @@ class AccountOptionsFragment : Fragment() {
             (activity as HomeActivity).loadFragment(ChangePasswordFragment())
         }
 
+        binding.deleteuser.setOnClickListener {
+            (activity as HomeActivity).loadFragment(DeleteAccountFragment())
+        }
+
         return binding.root
     }
 

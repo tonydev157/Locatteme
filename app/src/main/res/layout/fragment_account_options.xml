@@ -1,34 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/backgroundColor">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@color/backgroundColor">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Opciones de cuenta"
-        android:textSize="24sp"
-        android:textColor="@color/textColorPrimary"
-        android:layout_marginBottom="24dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Opciones de cuenta"
+            android:textSize="24sp"
+            android:textColor="@color/textColorPrimary"
+            android:layout_marginBottom="24dp"/>
 
-    <TextView
-        android:id="@+id/editProfileTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Editar perfil"
-        android:textSize="18sp"
-        android:textColor="@color/primaryColor"
-        android:layout_marginBottom="16dp"/>
+        <TextView
+            android:id="@+id/editProfileTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Editar perfil"
+            android:textSize="18sp"
+            android:textColor="@color/primaryColor"
+            android:layout_marginBottom="16dp"/>
 
-    <TextView
-        android:id="@+id/changePasswordTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cambiar contraseña"
-        android:textSize="18sp"
-        android:textColor="@color/primaryColor"/>
+        <TextView
+            android:id="@+id/changePasswordTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cambiar contraseña"
+            android:textSize="18sp"
+            android:textColor="@color/primaryColor"
+            android:layout_marginBottom="16dp"/>
+        <TextView
+            android:id="@+id/deleteuser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Eliminar cuenta"
+            android:textSize="18sp"
+            android:textColor="@color/primaryColor"/>
 
-</LinearLayout>
+    </LinearLayout>
