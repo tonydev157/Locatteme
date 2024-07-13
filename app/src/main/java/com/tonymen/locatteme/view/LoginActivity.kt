@@ -12,7 +12,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.tonymen.locatteme.R
@@ -100,7 +99,6 @@ class LoginActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val signInMethods = task.result?.signInMethods
                     if (signInMethods?.isNotEmpty() == true) {
-                        // Iniciar sesión con Google
                         firebaseAuthWithGoogle(account)
                     } else {
                         Toast.makeText(this, "Esta cuenta de Google no está registrada. Por favor, regístrate primero.", Toast.LENGTH_SHORT).show()
@@ -117,14 +115,16 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    user?.let {
-                        if (!it.isEmailVerified) {
-                            Toast.makeText(this, "Cuenta no Verificada. Por favor verifica tu correo electrónico.", Toast.LENGTH_SHORT).show()
-                            auth.signOut()
-                        } else {
-                            val intent = Intent(this, HomeActivity::class.java)
-                            startActivity(intent)
-                            finish()
+                    user?.reload()?.addOnCompleteListener {
+                        user?.let {
+                            if (!it.isEmailVerified) {
+                                Toast.makeText(this, "Cuenta no Verificada. Por favor verifica tu correo electrónico.", Toast.LENGTH_SHORT).show()
+                                auth.signOut()
+                            } else {
+                                val intent = Intent(this, HomeActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
                         }
                     }
                 } else {
@@ -152,12 +152,15 @@ class LoginActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    if (user != null && user.isEmailVerified) {
-                        val intent = Intent(this, HomeActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    } else {
-                        Toast.makeText(this, "Cuenta no Verificada. Por favor verifica tu correo electrónico.", Toast.LENGTH_SHORT).show()
+                    user?.reload()?.addOnCompleteListener {
+                        if (user != null && user.isEmailVerified) {
+                            val intent = Intent(this, HomeActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            Toast.makeText(this, "Cuenta no Verificada. Por favor verifica tu correo electrónico.", Toast.LENGTH_SHORT).show()
+                            auth.signOut()
+                        }
                     }
                 } else {
                     Toast.makeText(this, "Error al iniciar sesión. Inténtalo de nuevo.", Toast.LENGTH_SHORT).show()
