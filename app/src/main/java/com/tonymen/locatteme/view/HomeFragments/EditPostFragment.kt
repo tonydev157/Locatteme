@@ -32,6 +32,8 @@ import com.tonymen.locatteme.viewmodel.CreatePostViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import com.tonymen.locatteme.utils.dpToPx
+import com.bumptech.glide.request.target.Target
+
 
 class EditPostFragment : Fragment() {
 
@@ -81,6 +83,7 @@ class EditPostFragment : Fragment() {
         }
 
         binding.guardarButton.setOnClickListener {
+            showLoading(true)
             savePostData()
         }
 
@@ -88,6 +91,20 @@ class EditPostFragment : Fragment() {
             requireActivity().onBackPressed()
         }
     }
+    private fun showLoading(isLoading: Boolean) {
+        if (_binding == null) return // Asegúrate de que el binding no es nulo
+        if (isLoading) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.guardarButton.isEnabled = false
+            binding.cancelButton.isEnabled = false
+        } else {
+            binding.progressBar.visibility = View.GONE
+            binding.guardarButton.isEnabled = true
+            binding.cancelButton.isEnabled = true
+        }
+    }
+
+
 
     private fun loadPostData(postId: String) {
         Log.d("EditPostFragment", "Loading post data for ID: $postId")
@@ -105,6 +122,8 @@ class EditPostFragment : Fragment() {
                     binding.apply {
                         Glide.with(this@EditPostFragment)
                             .load(post.fotoGrande)
+                            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) // Ajusta el tamaño original de la imagen
+                            .fitCenter() // Asegúrate de que Glide use fitCenter
                             .into(photoPreviewImageView)
                         photoPreviewImageView.visibility = View.VISIBLE // Asegurarse de que la imagen es visible
 
@@ -174,6 +193,7 @@ class EditPostFragment : Fragment() {
                 updatePostData(downloadUri.toString(), downloadUri.toString()) // Replace with actual URLs for different sizes
             } else {
                 Toast.makeText(requireContext(), "Error al subir la foto", Toast.LENGTH_SHORT).show()
+                showLoading(false) // Ocultar el ProgressBar y habilitar los botones en caso de error
             }
         }
     }
@@ -209,6 +229,8 @@ class EditPostFragment : Fragment() {
                 "Error al actualizar el post: ${e.message}",
                 Toast.LENGTH_SHORT
             ).show()
+        }.addOnCompleteListener {
+            showLoading(false) // Ocultar el ProgressBar y habilitar los botones después de la operación
         }
     }
 
@@ -479,7 +501,8 @@ class EditPostFragment : Fragment() {
             selectedPhotoUri?.let { uri ->
                 Glide.with(this)
                     .load(uri)
-                    .override(600, 900) // Ajusta el tamaño según sea necesario
+                    .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) // Ajusta el tamaño original de la imagen
+                    .fitCenter() // Asegúrate de que Glide use fitCenter
                     .into(binding.photoPreviewImageView)
                 binding.photoPreviewImageView.visibility = View.VISIBLE
                 Toast.makeText(context, "Foto seleccionada correctamente", Toast.LENGTH_SHORT)

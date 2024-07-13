@@ -39,7 +39,7 @@
     <ImageView
         android:id="@+id/postImageView"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="300dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_profile_placeholder"
         android:background="@color/itemPostBackground" />
