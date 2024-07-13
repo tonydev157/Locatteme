@@ -80,12 +80,18 @@ class PostDetailFragment : Fragment() {
 
         if (autorId == auth.currentUser?.uid) {
             binding.editButton.visibility = View.VISIBLE
+            binding.deleteButton.visibility = View.VISIBLE
         } else {
             binding.editButton.visibility = View.GONE
+            binding.deleteButton.visibility = View.GONE
         }
 
         binding.editButton.setOnClickListener {
             openEditPostFragment()
+        }
+
+        binding.deleteButton.setOnClickListener {
+            // Acción de eliminación
         }
     }
 

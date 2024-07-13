@@ -27,5 +27,6 @@
 
     <string name="left_arrow">Flecha izquierda</string>
     <string name="right_arrow">Flecha derecha</string>
+    <string name="delete_post" />
 
 </resources>
