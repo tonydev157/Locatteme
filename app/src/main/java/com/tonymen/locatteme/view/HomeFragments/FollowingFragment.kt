@@ -9,12 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentFollowingBinding
 import com.tonymen.locatteme.model.Post
@@ -33,6 +31,7 @@ class FollowingFragment : Fragment() {
     private val posts = mutableListOf<Post>()
     private var lastVisible: DocumentSnapshot? = null
     private var isLoading = false
+    private var allPostsLoaded = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,7 +58,7 @@ class FollowingFragment : Fragment() {
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                if (!recyclerView.canScrollVertically(1) && !isLoading) {
+                if (!recyclerView.canScrollVertically(1) && !isLoading && !allPostsLoaded) {
                     loadMorePosts()
                 }
             }
@@ -97,16 +96,19 @@ class FollowingFragment : Fragment() {
     }
 
     private fun loadPosts() {
+        if (allPostsLoaded) return
+
         isLoading = true
-        viewModel.getFollowingPosts().addOnSuccessListener { documents ->
+        viewModel.getFollowingPosts(lastVisible).addOnSuccessListener { documents ->
             if (documents.isEmpty) {
+                allPostsLoaded = true
                 isLoading = false
                 if (posts.isEmpty()) {
                     binding.noPostsTextView.visibility = View.VISIBLE
                 }
                 return@addOnSuccessListener
             }
-            lastVisible = documents.documents[documents.size() - 1]
+            lastVisible = documents.documents.lastOrNull()
             val postList = documents.mapNotNull { it.toObject(Post::class.java) }
             posts.addAll(postList)
             postAdapter.notifyDataSetChanged()
@@ -122,9 +124,10 @@ class FollowingFragment : Fragment() {
         loadPosts()
     }
 
-    fun refreshContent() {
+    private fun refreshContent() {
         posts.clear()
         lastVisible = null
+        allPostsLoaded = false
         loadPosts()
         binding.swipeRefreshLayout.isRefreshing = false
     }
@@ -134,4 +137,3 @@ class FollowingFragment : Fragment() {
         _binding = null
     }
 }
-

@@ -20,11 +20,14 @@ class FollowingViewModel : ViewModel() {
         return followingQuery.get().continueWithTask { task ->
             val followingIds = task.result?.documents?.map { it.getString("followedId") ?: "" } ?: emptyList()
 
-            val query = db.collection("posts")
+            var query = db.collection("posts")
                 .whereIn("autorId", followingIds + currentUserId)
                 .orderBy("fechaPublicacion", Query.Direction.DESCENDING)
-                .let { if (lastVisible != null) it.startAfter(lastVisible) else it }
                 .limit(10)
+
+            if (lastVisible != null) {
+                query = query.startAfter(lastVisible)
+            }
 
             query.get()
         }
