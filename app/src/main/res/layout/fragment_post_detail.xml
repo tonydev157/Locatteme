@@ -1,316 +1,348 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.tonymen.locatteme.viewmodel.PostDetailViewModel" />
     </data>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/backgroundColor"
         android:padding="16dp">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/photoImageView"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:scaleType="centerCrop"
-                android:contentDescription="@string/photo"
-                android:layout_marginBottom="16dp" />
+            <androidx.cardview.widget.CardView
+                android:id="@+id/photoCardView"
+                android:layout_width="0dp"
+                android:layout_height="350dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nombre:"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/nombreTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nombre"
-                    android:textSize="18sp"
-                    android:textColor="@color/textColorPrimary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Apellido:"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/apellidosTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Apellidos"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorSecondary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Edad:"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/edadTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Edad"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Provincia:"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/provinciaTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Provincia"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorSecondary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ciudad:"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/ciudadTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ciudad"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorSecondary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nacionalidad:"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/nacionalidadTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nacionalidad"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorSecondary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Estado:"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/estadoTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Estado"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorSecondary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Lugar de Desaparición:"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/lugarDesaparicionTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Lugar de Desaparición"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorSecondary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Fecha de Desaparición:"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/fechaDesaparicionTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Fecha de Desaparición"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorSecondary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Características:"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/caracteristicasTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Características"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorSecondary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:id="@+id/publicadoPorTextView"
-                    android:layout_width="wrap_content"
+                <ImageView
+                    android:id="@+id/photoImageView"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_gravity="end"
-                    android:layout_marginEnd="8dp"
-                    android:text="Publicado por:"
-                    android:textColor="@color/textColorPrimary"
-                    android:textSize="14sp" />
+                    android:contentDescription="@string/photo"
+                    android:scaleType="centerCrop" />
+            </androidx.cardview.widget.CardView>
 
-                <TextView
-                    android:id="@+id/publicadoPorValueTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="14sp"
-                    android:textColor="@color/textColorSecondary" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/nombreLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Nombre: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/photoCardView" />
+
+            <TextView
+                android:id="@+id/nombreTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Nombre"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/nombreLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/photoCardView" />
+
+            <TextView
+                android:id="@+id/apellidoLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Apellido: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/nombreTextView" />
+
+            <TextView
+                android:id="@+id/apellidosTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Apellidos"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/apellidoLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/nombreTextView" />
+
+            <TextView
+                android:id="@+id/edadLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Edad: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/apellidosTextView" />
+
+            <TextView
+                android:id="@+id/edadTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Edad"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/edadLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/apellidosTextView" />
+
+            <TextView
+                android:id="@+id/provinciaLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Provincia: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edadTextView" />
+
+            <TextView
+                android:id="@+id/provinciaTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Provincia"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/provinciaLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/edadTextView" />
+
+            <TextView
+                android:id="@+id/ciudadLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Ciudad: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/provinciaTextView" />
+
+            <TextView
+                android:id="@+id/ciudadTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Ciudad"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/ciudadLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/provinciaTextView" />
+
+            <TextView
+                android:id="@+id/nacionalidadLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Nacionalidad: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ciudadTextView" />
+
+            <TextView
+                android:id="@+id/nacionalidadTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Nacionalidad"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/nacionalidadLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/ciudadTextView" />
+
+            <TextView
+                android:id="@+id/estadoLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Estado: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/nacionalidadTextView" />
+
+            <TextView
+                android:id="@+id/estadoTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Estado"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/estadoLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/nacionalidadTextView" />
+
+            <TextView
+                android:id="@+id/lugarDesaparicionLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Lugar de Desaparición: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/estadoTextView" />
+
+            <TextView
+                android:id="@+id/lugarDesaparicionTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Lugar de Desaparición"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/lugarDesaparicionLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/estadoTextView" />
+
+            <TextView
+                android:id="@+id/fechaDesaparicionLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Fecha de Desaparición: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/lugarDesaparicionTextView" />
+
+            <TextView
+                android:id="@+id/fechaDesaparicionTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Fecha de Desaparición"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/fechaDesaparicionLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/lugarDesaparicionTextView" />
+
+            <TextView
+                android:id="@+id/caracteristicasLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Características: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fechaDesaparicionTextView" />
+
+            <TextView
+                android:id="@+id/caracteristicasTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Características"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/caracteristicasLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/fechaDesaparicionTextView" />
+
+            <TextView
+                android:id="@+id/publicadoPorTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="end"
+                android:text="Publicado por:"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/caracteristicasTextView" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
                 android:gravity="end"
-                android:layout_marginTop="16dp">
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/publicadoPorTextView">
 
                 <Button
                     android:id="@+id/editButton"
                     style="@style/ButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Editar"
-                    android:layout_gravity="end"
+                    android:layout_marginEnd="16dp"
                     android:backgroundTint="@color/primaryColor"
-                    android:textColor="@color/backgroundColor"
-                    android:layout_marginEnd="16dp"/>
+                    android:text="Editar"
+                    android:textColor="@color/backgroundColor" />
 
                 <Button
                     android:id="@+id/comentariosButton"
                     style="@style/ButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Comentarios"
-                    android:layout_gravity="end"
                     android:backgroundTint="@color/primaryColor"
+                    android:text="Comentarios"
                     android:textColor="@color/backgroundColor" />
             </LinearLayout>
 
-        </LinearLayout>
-    </ScrollView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>
