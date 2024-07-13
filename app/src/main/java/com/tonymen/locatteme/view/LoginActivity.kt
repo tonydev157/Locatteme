@@ -12,6 +12,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.tonymen.locatteme.R
@@ -63,6 +64,11 @@ class LoginActivity : AppCompatActivity() {
             }
             isPasswordVisible = !isPasswordVisible
             binding.passwordEditText.setSelection(binding.passwordEditText.text.length)
+        }
+
+        binding.sendVerificationEmailButton.setOnClickListener {
+            val intent = Intent(this, SendVerificationEmailActivity::class.java)
+            startActivity(intent)
         }
     }
 

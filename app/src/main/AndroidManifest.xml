@@ -20,6 +20,11 @@
         android:theme="@style/Theme.Locatteme"
         tools:targetApi="31">
         <activity
+            android:name=".view.SendVerificationEmailActivity"
+            android:exported="false"
+            android:label="@string/title_activity_send_verification_email"
+            android:theme="@style/Theme.Locatteme" />
+        <activity
             android:name=".view.HomeFragments.UserProfileFragment"
             android:exported="false" />
         <activity

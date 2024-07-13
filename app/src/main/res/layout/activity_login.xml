@@ -77,6 +77,12 @@
             android:layout_marginTop="16dp"
             android:minHeight="48dp"
             android:text="Iniciar Sesión" />
+        <Button
+            android:id="@+id/sendVerificationEmailButton"
+            style="@style/ButtonStyle"
+            android:layout_marginTop="16dp"
+            android:minHeight="48dp"
+            android:text="Enviar Correo de Verificación" />
 
     </LinearLayout>
 </ScrollView>
