@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.bumptech.glide.Glide
@@ -13,6 +14,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentPostDetailBinding
 import com.tonymen.locatteme.utils.TimestampUtil
+import android.app.AlertDialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class PostDetailFragment : Fragment() {
 
@@ -37,7 +44,15 @@ class PostDetailFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
 
         postId = arguments?.getString("postId")
-        Log.d("PostDetailFragment", "Post ID: $postId")  // Log para imprimir el postId
+        Log.d("PostDetailFragment", "Post ID in onViewCreated: $postId")
+
+        val cleanedPostId = postId?.trim()
+        Log.d("PostDetailFragment", "Cleaned Post ID: $cleanedPostId")
+
+        if (cleanedPostId.isNullOrEmpty()) {
+            Log.e("PostDetailFragment", "Post ID is null or empty after cleaning!")
+            return
+        }
 
         val fotoGrande = arguments?.getString("fotoGrande")
         val nombres = arguments?.getString("nombres")
@@ -91,7 +106,7 @@ class PostDetailFragment : Fragment() {
         }
 
         binding.deleteButton.setOnClickListener {
-            // Acción de eliminación
+            showDeleteConfirmationDialog()
         }
     }
 
@@ -108,6 +123,57 @@ class PostDetailFragment : Fragment() {
             parentFragmentManager.commit {
                 replace(R.id.fragmentContainer, fragment)
                 addToBackStack(null)
+            }
+        }
+    }
+
+    private fun showDeleteConfirmationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setMessage("¿Está seguro de eliminar esta publicación?")
+            .setPositiveButton("Confirmar") { _, _ ->
+                deletePost()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun deletePost() {
+        if (postId.isNullOrEmpty()) {
+            Log.e("PostDetailFragment", "Post ID is null or empty!")
+            return
+        }
+
+        val cleanedPostId = postId!!.trim()
+        Log.d("PostDetailFragment", "Attempting to delete post with ID: $cleanedPostId")
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                Log.d("PostDetailFragment", "Fetching document with ID: $cleanedPostId")
+                val querySnapshot = db.collection("posts")
+                    .whereEqualTo("id", cleanedPostId)
+                    .get()
+                    .await()
+
+                if (!querySnapshot.isEmpty) {
+                    val documentRef = querySnapshot.documents[0].reference
+                    Log.d("PostDetailFragment", "Document exists, attempting to delete")
+                    documentRef.delete().await()
+                    withContext(Dispatchers.Main) {
+                        Log.d("PostDetailFragment", "Post deleted successfully")
+                        Toast.makeText(requireContext(), "Publicación eliminada con éxito", Toast.LENGTH_SHORT).show()
+                        requireActivity().onBackPressed()
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Log.e("PostDetailFragment", "Document does not exist!")
+                        Toast.makeText(requireContext(), "El documento no existe.", Toast.LENGTH_LONG).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Log.e("PostDetailFragment", "Error deleting post", e)
+                    Toast.makeText(requireContext(), "Error al eliminar la publicación: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
