@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.util.Patterns
 import android.view.View
 import android.widget.EditText
@@ -25,8 +26,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.ActivitySignUpBinding
-import com.tonymen.locatteme.viewmodel.SignUpViewModel
 import com.tonymen.locatteme.model.User
+import com.tonymen.locatteme.viewmodel.SignUpViewModel
 
 class SignUpActivity : AppCompatActivity() {
 
@@ -69,18 +70,25 @@ class SignUpActivity : AppCompatActivity() {
             val phone = binding.phoneEditText.text.toString()
 
             if (validateInput(firstName, lastName, username, age, idNumber, email, password, confirmPassword, phone)) {
-                if (isGoogleSignUp) {
-                    // Registro con cuenta de Google
-                    googleIdToken?.let {
-                        registerUserWithGoogle(firstName, lastName, username, age!!, idNumber, email, password, phone, it)
-                    } ?: Toast.makeText(this, "Error de autenticación con Google.", Toast.LENGTH_SHORT).show()
-                } else {
-                    if (email.endsWith("@gmail.com")) {
-                        // Verificar si la cuenta de Google ya existe
-                        silentGoogleSignIn(email, firstName, lastName, username, age!!, idNumber, password, phone)
+                setButtonsEnabled(false)
+                binding.progressBar.visibility = View.VISIBLE
+                checkIfUserDataIsUnique(firstName, lastName, username, age!!, idNumber, email, phone) { isUnique ->
+                    binding.progressBar.visibility = View.GONE
+                    setButtonsEnabled(true)
+                    if (isUnique) {
+                        if (isGoogleSignUp) {
+                            googleIdToken?.let {
+                                registerUserWithGoogle(firstName, lastName, username, age, idNumber, email, password, phone, it)
+                            } ?: Toast.makeText(this, "Error de autenticación con Google.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            if (email.endsWith("@gmail.com")) {
+                                silentGoogleSignIn(email, firstName, lastName, username, age, idNumber, password, phone)
+                            } else {
+                                registerUser(firstName, lastName, username, age, idNumber, email, password, phone)
+                            }
+                        }
                     } else {
-                        // Registrar como cuenta normal
-                        registerUser(firstName, lastName, username, age!!, idNumber, email, password, phone)
+                        Toast.makeText(this, "Los datos ingresados ya están en uso.", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -98,7 +106,6 @@ class SignUpActivity : AppCompatActivity() {
             binding.passwordEditText.setSelection(binding.passwordEditText.text.length)
         }
 
-        // Configuración de validación en tiempo real
         setupRealTimeValidation()
     }
 
@@ -161,12 +168,10 @@ class SignUpActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val signInMethods = task.result?.signInMethods
                     if (signInMethods.isNullOrEmpty()) {
-                        // Si no hay métodos de inicio de sesión, significa que no hay cuenta existente.
                         googleIdToken?.let {
                             registerUserWithGoogle(firstName, lastName, username, age, idNumber, email, password, phone, it)
                         } ?: Toast.makeText(this, "Error de autenticación con Google.", Toast.LENGTH_SHORT).show()
                     } else {
-                        // Si hay métodos de inicio de sesión, significa que la cuenta ya existe.
                         Toast.makeText(this, "Este correo ya está registrado. Inicia sesión.", Toast.LENGTH_SHORT).show()
                     }
                 } else {
@@ -222,8 +227,10 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun registerUser(firstName: String, lastName: String, username: String, age: Int, idNumber: String, email: String, password: String, phone: String) {
         binding.progressBar.visibility = View.VISIBLE
+        setButtonsEnabled(false)
         checkIfUserDataIsUnique(firstName, lastName, username, age, idNumber, email, phone) { isUnique ->
             binding.progressBar.visibility = View.GONE
+            setButtonsEnabled(true)
             if (isUnique) {
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this) { task ->
@@ -239,6 +246,9 @@ class SignUpActivity : AppCompatActivity() {
                             }
                         }
                     }
+            } else {
+                Log.d("SignUpActivity", "User data is not unique")
+                Toast.makeText(this, "Los datos ingresados ya están en uso.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -368,7 +378,6 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun setupRealTimeValidation() {
-        // Validación en tiempo real para Nombre
         binding.firstNameEditText.addTextChangedListener(createTextWatcher(binding.firstNameEditText) { text ->
             if (text.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
                 binding.firstNameEditText.setBackgroundResource(R.drawable.edit_text_valid)
@@ -379,7 +388,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         })
 
-        // Validación en tiempo real para Apellido
         binding.lastNameEditText.addTextChangedListener(createTextWatcher(binding.lastNameEditText) { text ->
             if (text.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
                 binding.lastNameEditText.setBackgroundResource(R.drawable.edit_text_valid)
@@ -390,7 +398,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         })
 
-        // Validación en tiempo real para Username
         binding.usernameEditText.addTextChangedListener(createTextWatcher(binding.usernameEditText) { text ->
             if (text.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*\$"))) {
                 binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_valid)
@@ -401,7 +408,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         })
 
-        // Validación en tiempo real para Edad
         binding.ageEditText.addTextChangedListener(createTextWatcher(binding.ageEditText) { text ->
             val age = text.toIntOrNull()
             if (age != null && age in 1..100) {
@@ -413,7 +419,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         })
 
-        // Validación en tiempo real para Cédula
         binding.idNumberEditText.addTextChangedListener(createTextWatcher(binding.idNumberEditText) { text ->
             if (isValidIdNumber(text)) {
                 binding.idNumberEditText.setBackgroundResource(R.drawable.edit_text_valid)
@@ -424,7 +429,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         })
 
-        // Validación en tiempo real para Email
         binding.emailEditText.addTextChangedListener(createTextWatcher(binding.emailEditText) { text ->
             if (Patterns.EMAIL_ADDRESS.matcher(text).matches()) {
                 binding.emailEditText.setBackgroundResource(R.drawable.edit_text_valid)
@@ -435,7 +439,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         })
 
-        // Validación en tiempo real para Contraseña
         binding.passwordEditText.addTextChangedListener(createTextWatcher(binding.passwordEditText) { text ->
             if (isValidPassword(text)) {
                 binding.passwordEditText.setBackgroundResource(R.drawable.edit_text_valid)
@@ -446,7 +449,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         })
 
-        // Validación en tiempo real para Confirmación de Contraseña
         binding.confirmPasswordEditText.addTextChangedListener(createTextWatcher(binding.confirmPasswordEditText) { text ->
             if (text == binding.passwordEditText.text.toString()) {
                 binding.confirmPasswordEditText.setBackgroundResource(R.drawable.edit_text_valid)
@@ -457,7 +459,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         })
 
-        // Validación en tiempo real para Teléfono
         binding.phoneEditText.addTextChangedListener(createTextWatcher(binding.phoneEditText) { text ->
             if (text.matches(Regex("^09[0-9]{8}\$"))) {
                 binding.phoneEditText.setBackgroundResource(R.drawable.edit_text_valid)
@@ -498,24 +499,28 @@ class SignUpActivity : AppCompatActivity() {
                 var isUnique = true
 
                 if (!results[0].isEmpty) {
+                    Log.d("SignUpActivity", "Username already exists")
                     binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
                     binding.usernameEditText.error = "El nombre de usuario ya está en uso."
                     isUnique = false
                 }
 
                 if (!results[1].isEmpty) {
+                    Log.d("SignUpActivity", "ID number already exists")
                     binding.idNumberEditText.setBackgroundResource(R.drawable.edit_text_invalid)
                     binding.idNumberEditText.error = "La cédula ya está en uso."
                     isUnique = false
                 }
 
                 if (!results[2].isEmpty) {
+                    Log.d("SignUpActivity", "Phone number already exists")
                     binding.phoneEditText.setBackgroundResource(R.drawable.edit_text_invalid)
                     binding.phoneEditText.error = "El teléfono ya está en uso."
                     isUnique = false
                 }
 
                 if (!results[3].isEmpty) {
+                    Log.d("SignUpActivity", "Email already exists")
                     binding.emailEditText.setBackgroundResource(R.drawable.edit_text_invalid)
                     binding.emailEditText.error = "El correo ya está en uso."
                     isUnique = false
@@ -524,9 +529,15 @@ class SignUpActivity : AppCompatActivity() {
                 callback(isUnique)
             }
             .addOnFailureListener { exception ->
+                Log.e("SignUpActivity", "Error verifying user data: ${exception.message}", exception)
                 Toast.makeText(this, "Error al verificar los datos: ${exception.message}", Toast.LENGTH_SHORT).show()
                 callback(false)
             }
+    }
+
+    private fun setButtonsEnabled(enabled: Boolean) {
+        binding.googleSignInButton.isEnabled = enabled
+        binding.registerButton.isEnabled = enabled
     }
 
     companion object {

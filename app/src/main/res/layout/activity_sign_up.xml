@@ -45,7 +45,6 @@
             android:background="@drawable/edit_text_background"
             android:minHeight="48dp" />
 
-
         <EditText
             android:id="@+id/ageEditText"
             style="@style/EditTextStyle"
