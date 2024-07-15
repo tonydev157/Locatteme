@@ -44,6 +44,27 @@ class SearchViewModel : ViewModel() {
         val lowercaseQuery = query.lowercase(Locale.getDefault()).trim()
         val words = lowercaseQuery.split(" ")
 
+        db.collection("posts")
+            .get()
+            .addOnSuccessListener { documents ->
+                val postList = documents.mapNotNull { it.toObject(Post::class.java) }
+                val filteredList = postList.filter { post ->
+                    words.all { word ->
+                        post.nombres.lowercase(Locale.getDefault()).contains(word) ||
+                                post.apellidos.lowercase(Locale.getDefault()).contains(word)
+                    }
+                }
+                _posts.value = filteredList
+            }
+            .addOnFailureListener {
+                _posts.value = emptyList()
+            }
+    }
+
+    fun searchFilteredPosts(query: String) {
+        val lowercaseQuery = query.lowercase(Locale.getDefault()).trim()
+        val words = lowercaseQuery.split(" ")
+
         _filteredPosts.value?.let { filteredList ->
             val finalList = filteredList.filter { post ->
                 words.all { word ->
@@ -58,7 +79,8 @@ class SearchViewModel : ViewModel() {
     fun filterPosts(
         startDisappearanceDate: String?, endDisappearanceDate: String?,
         startPublicationDate: String?, endPublicationDate: String?,
-        status: String?, province: String?, city: String?
+        status: String?, province: String?, city: String?,
+        query: String? = null
     ) {
         db.collection("posts")
             .get()
@@ -110,6 +132,15 @@ class SearchViewModel : ViewModel() {
                         }
                     }
 
+                    // Check query
+                    if (!query.isNullOrEmpty()) {
+                        val words = query.split(" ")
+                        matches = matches && words.all { word ->
+                            post.nombres.lowercase(Locale.getDefault()).contains(word) ||
+                                    post.apellidos.lowercase(Locale.getDefault()).contains(word)
+                        }
+                    }
+
                     matches
                 }
                 _filteredPosts.value = filteredList
@@ -119,5 +150,15 @@ class SearchViewModel : ViewModel() {
                 _posts.value = emptyList()
                 _filteredPosts.value = emptyList()
             }
+    }
+
+    fun clearFilters() {
+        _filteredPosts.value = emptyList()
+        _posts.value = emptyList()
+        _users.value = emptyList()
+    }
+
+    fun clearUsers() {
+        _users.value = emptyList()
     }
 }

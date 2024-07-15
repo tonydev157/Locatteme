@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentFilterDialogBinding
 import com.tonymen.locatteme.model.EcuadorLocations
+import java.text.SimpleDateFormat
 import java.util.*
 
 class FilterDialogFragment(
@@ -28,6 +29,7 @@ class FilterDialogFragment(
     private var _binding: FragmentFilterDialogBinding? = null
     private val binding get() = _binding!!
     private lateinit var ecuadorLocations: EcuadorLocations
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -72,7 +74,7 @@ class FilterDialogFragment(
         binding.provinceSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 val selectedProvince = ecuadorLocations.provinces.getOrNull(position - 1)
-                val cityNames = selectedProvince?.cities ?: listOf("--")
+                val cityNames = listOf("--") + (selectedProvince?.cities ?: listOf())
                 val cityAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, cityNames)
                 cityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 binding.citySpinner.adapter = cityAdapter
@@ -86,16 +88,22 @@ class FilterDialogFragment(
 
     private fun setupDatePickers() {
         val calendar = Calendar.getInstance()
-        val today = Calendar.getInstance()
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
 
         val dateSetListener = { editText: EditText, year: Int, month: Int, day: Int ->
             val selectedDate = Calendar.getInstance().apply {
-                set(year, month, day)
+                set(year, month, day, 0, 0, 0)
+                set(Calendar.MILLISECOND, 0)
             }
-            if (selectedDate.after(today)) {
-                Toast.makeText(requireContext(), "La fecha no puede ser en el futuro", Toast.LENGTH_SHORT).show()
+            if (!selectedDate.after(today)) {
+                editText.setText(dateFormat.format(selectedDate.time))
             } else {
-                editText.setText(String.format("%02d/%02d/%04d", day, month + 1, year))
+                Toast.makeText(requireContext(), "La fecha no puede ser en el futuro", Toast.LENGTH_SHORT).show()
             }
         }
 

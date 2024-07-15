@@ -88,7 +88,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="8dp"
-                android:text="hasta"
+                android:text="----"
                 android:textSize="16sp"
                 android:textColor="@color/textColorPrimary" />
 
@@ -136,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="8dp"
-                android:text="hasta"
+                android:text="----"
                 android:textSize="16sp"
                 android:textColor="@color/textColorPrimary" />
 

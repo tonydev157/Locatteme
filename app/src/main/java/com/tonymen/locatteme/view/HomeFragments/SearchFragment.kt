@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
@@ -17,10 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentSearchBinding
-import com.tonymen.locatteme.model.EcuadorLocations
 import com.tonymen.locatteme.view.adapters.SearchAdapter
 import com.tonymen.locatteme.viewmodel.SearchViewModel
-import com.google.gson.Gson
 
 class SearchFragment : Fragment() {
 
@@ -29,6 +26,7 @@ class SearchFragment : Fragment() {
     private lateinit var viewModel: SearchViewModel
     private lateinit var adapter: SearchAdapter
     private lateinit var auth: FirebaseAuth
+    private var isFilterApplied = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,10 +48,14 @@ class SearchFragment : Fragment() {
         setupHideKeyboardOnOutsideClick(binding.root)
 
         binding.filterIcon.setOnClickListener {
-            val filterDialog = FilterDialogFragment { startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city ->
-                applyFilter(startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city)
+            if (isFilterApplied) {
+                resetFilters()
+            } else {
+                val filterDialog = FilterDialogFragment { startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city ->
+                    applyFilter(startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city)
+                }
+                filterDialog.show(parentFragmentManager, "FilterDialog")
             }
-            filterDialog.show(parentFragmentManager, "FilterDialog")
         }
 
         // Handle back press
@@ -77,14 +79,41 @@ class SearchFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val query = s.toString().lowercase()
+                updateSearchClearIconVisibility(query)
                 if (query.isNotEmpty()) {
-                    viewModel.searchPosts(query)
+                    if (isFilterApplied) {
+                        viewModel.searchFilteredPosts(query)
+                    } else {
+                        if (query.startsWith("@")) {
+                            viewModel.searchUsers(query.substring(1))
+                        } else {
+                            viewModel.searchPosts(query)
+                        }
+                    }
                 } else {
-                    viewModel.filteredPosts.value?.let { adapter.updatePosts(it) }
+                    if (isFilterApplied) {
+                        viewModel.filteredPosts.value?.let { adapter.updatePosts(it) }
+                    } else {
+                        adapter.updatePosts(emptyList())
+                    }
                 }
             }
             override fun afterTextChanged(s: Editable?) {}
         })
+
+        binding.searchClearIcon.setOnClickListener {
+            binding.searchBar.text.clear()
+            if (isFilterApplied) {
+                viewModel.filteredPosts.value?.let { adapter.updatePosts(it) }
+            } else {
+                adapter.updatePosts(emptyList())
+                viewModel.clearUsers()
+            }
+        }
+    }
+
+    private fun updateSearchClearIconVisibility(query: String) {
+        binding.searchClearIcon.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun observeViewModel() {
@@ -99,6 +128,12 @@ class SearchFragment : Fragment() {
             if (!binding.searchBar.text.toString().startsWith("@")) {
                 adapter.updatePosts(posts)
                 adapter.updateUsers(emptyList())
+            }
+        })
+
+        viewModel.filteredPosts.observe(viewLifecycleOwner, { filteredPosts ->
+            if (isFilterApplied && binding.searchBar.text.toString().isEmpty()) {
+                adapter.updatePosts(filteredPosts)
             }
         })
     }
@@ -130,17 +165,31 @@ class SearchFragment : Fragment() {
         startPublicationDate: String?, endPublicationDate: String?,
         status: String?, province: String?, city: String?
     ) {
-        viewModel.filterPosts(startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city)
+        val query = binding.searchBar.text.toString().lowercase()
+        viewModel.filterPosts(startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city, query)
+        isFilterApplied = true
+        binding.filterIcon.setImageResource(R.drawable.ic_clear_filter) // Cambia el icono a la X
     }
 
-    private fun loadEcuadorLocations(): EcuadorLocations {
-        val inputStream = resources.openRawResource(R.raw.ecuador_locations)
-        val json = inputStream.bufferedReader().use { it.readText() }
-        return Gson().fromJson(json, EcuadorLocations::class.java)
+    private fun resetFilters() {
+        viewModel.clearFilters()
+        isFilterApplied = false
+        binding.filterIcon.setImageResource(R.drawable.ic_filter) // Cambia el icono de vuelta al filtro
+        binding.searchBar.text.clear() // Clear the search bar text
+        adapter.updatePosts(emptyList()) // Clear the displayed posts
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isFilterApplied) {
+            binding.filterIcon.setImageResource(R.drawable.ic_clear_filter) // Asegura que el icono de la X se mantenga al volver a la pantalla
+        } else {
+            binding.filterIcon.setImageResource(R.drawable.ic_filter)
+        }
     }
 }
