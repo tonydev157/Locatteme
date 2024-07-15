@@ -50,8 +50,8 @@ class SearchFragment : Fragment() {
         setupHideKeyboardOnOutsideClick(binding.root)
 
         binding.filterIcon.setOnClickListener {
-            val filterDialog = FilterDialogFragment { startDate, endDate, status, province, city ->
-                applyFilter(startDate, endDate, status, province, city)
+            val filterDialog = FilterDialogFragment { startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city ->
+                applyFilter(startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city)
             }
             filterDialog.show(parentFragmentManager, "FilterDialog")
         }
@@ -77,15 +77,10 @@ class SearchFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val query = s.toString().lowercase()
-                if (query.isEmpty()) {
-                    adapter.updateUsers(emptyList())
-                    adapter.updatePosts(emptyList())
+                if (query.isNotEmpty()) {
+                    viewModel.searchPosts(query)
                 } else {
-                    if (query.startsWith("@")) {
-                        viewModel.searchUsers(query.substring(1))
-                    } else {
-                        viewModel.searchPosts(query)
-                    }
+                    viewModel.filteredPosts.value?.let { adapter.updatePosts(it) }
                 }
             }
             override fun afterTextChanged(s: Editable?) {}
@@ -130,12 +125,13 @@ class SearchFragment : Fragment() {
         imm?.hideSoftInputFromWindow(binding.root.windowToken, 0)
     }
 
-    private fun applyFilter(startDate: String?, endDate: String?, status: String?, province: String?, city: String?) {
-        viewModel.filterPosts(startDate, endDate, status, province, city)
+    private fun applyFilter(
+        startDisappearanceDate: String?, endDisappearanceDate: String?,
+        startPublicationDate: String?, endPublicationDate: String?,
+        status: String?, province: String?, city: String?
+    ) {
+        viewModel.filterPosts(startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city)
     }
-
-
-
 
     private fun loadEcuadorLocations(): EcuadorLocations {
         val inputStream = resources.openRawResource(R.raw.ecuador_locations)

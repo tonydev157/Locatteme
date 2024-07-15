@@ -4,10 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.Timestamp
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.User
-import com.tonymen.locatteme.utils.TimestampUtil
+import java.text.SimpleDateFormat
 import java.util.*
 
 class SearchViewModel : ViewModel() {
@@ -19,6 +18,11 @@ class SearchViewModel : ViewModel() {
 
     private val _posts = MutableLiveData<List<Post>>()
     val posts: LiveData<List<Post>> get() = _posts
+
+    private val _filteredPosts = MutableLiveData<List<Post>>()
+    val filteredPosts: LiveData<List<Post>> get() = _filteredPosts
+
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     fun searchUsers(query: String) {
         val lowercaseQuery = query.lowercase(Locale.getDefault())
@@ -40,56 +44,80 @@ class SearchViewModel : ViewModel() {
         val lowercaseQuery = query.lowercase(Locale.getDefault()).trim()
         val words = lowercaseQuery.split(" ")
 
+        _filteredPosts.value?.let { filteredList ->
+            val finalList = filteredList.filter { post ->
+                words.all { word ->
+                    post.nombres.lowercase(Locale.getDefault()).contains(word) ||
+                            post.apellidos.lowercase(Locale.getDefault()).contains(word)
+                }
+            }
+            _posts.value = finalList
+        }
+    }
+
+    fun filterPosts(
+        startDisappearanceDate: String?, endDisappearanceDate: String?,
+        startPublicationDate: String?, endPublicationDate: String?,
+        status: String?, province: String?, city: String?
+    ) {
         db.collection("posts")
             .get()
             .addOnSuccessListener { documents ->
                 val postList = documents.mapNotNull { it.toObject(Post::class.java) }
                 val filteredList = postList.filter { post ->
-                    words.all { word ->
-                        post.nombres.lowercase(Locale.getDefault()).contains(word) ||
-                                post.apellidos.lowercase(Locale.getDefault()).contains(word)
+                    var matches = true
+
+                    // Check status
+                    if (!status.isNullOrEmpty()) {
+                        matches = matches && post.estado == status
                     }
+
+                    // Check province
+                    if (!province.isNullOrEmpty()) {
+                        matches = matches && post.provincia == province
+                    }
+
+                    // Check city
+                    if (!city.isNullOrEmpty()) {
+                        matches = matches && post.ciudad == city
+                    }
+
+                    // Check disappearance date range
+                    if (!startDisappearanceDate.isNullOrEmpty() || !endDisappearanceDate.isNullOrEmpty()) {
+                        val start = startDisappearanceDate?.let { dateFormat.parse(it) }
+                        val end = endDisappearanceDate?.let { dateFormat.parse(it) }
+                        val disappearanceDate = post.fechaDesaparicion?.toDate()
+
+                        if (start != null) {
+                            matches = matches && (disappearanceDate?.after(start) ?: false || disappearanceDate == start)
+                        }
+                        if (end != null) {
+                            matches = matches && (disappearanceDate?.before(end) ?: false || disappearanceDate == end)
+                        }
+                    }
+
+                    // Check publication date range
+                    if (!startPublicationDate.isNullOrEmpty() || !endPublicationDate.isNullOrEmpty()) {
+                        val start = startPublicationDate?.let { dateFormat.parse(it) }
+                        val end = endPublicationDate?.let { dateFormat.parse(it) }
+                        val publicationDate = post.fechaPublicacion?.toDate()
+
+                        if (start != null) {
+                            matches = matches && (publicationDate?.after(start) ?: false || publicationDate == start)
+                        }
+                        if (end != null) {
+                            matches = matches && (publicationDate?.before(end) ?: false || publicationDate == end)
+                        }
+                    }
+
+                    matches
                 }
+                _filteredPosts.value = filteredList
                 _posts.value = filteredList
             }
             .addOnFailureListener {
                 _posts.value = emptyList()
-            }
-    }
-
-    fun filterPosts(startDate: String?, endDate: String?, status: String?, province: String?, city: String?) {
-        val start = startDate?.let { TimestampUtil.parseStringToTimestamp(it) }
-        val end = endDate?.let { TimestampUtil.parseStringToTimestamp(it) }
-
-        db.collection("posts")
-            .get()
-            .addOnSuccessListener { documents ->
-                val postList = documents.mapNotNull { it.toObject(Post::class.java) }
-                val filteredList = postList.filter { post ->
-                    val isWithinDateRange = (start == null || post.fechaPublicacion?.toDate()?.after(start.toDate()) == true) &&
-                            (end == null || post.fechaPublicacion?.toDate()?.before(end.toDate()) == true)
-                    val matchesStatus = status.isNullOrEmpty() || post.estado == status
-                    val matchesProvince = province.isNullOrEmpty() || post.provincia == province
-                    val matchesCity = city.isNullOrEmpty() || post.ciudad == city
-
-                    isWithinDateRange && matchesStatus && matchesProvince && matchesCity
-                }
-                _posts.value = filteredList
-            }
-            .addOnFailureListener {
-                _posts.value = emptyList()
-            }
-    }
-
-    fun getAllPosts() {
-        db.collection("posts")
-            .get()
-            .addOnSuccessListener { documents ->
-                val postList = documents.mapNotNull { it.toObject(Post::class.java) }
-                _posts.value = postList
-            }
-            .addOnFailureListener {
-                _posts.value = emptyList()
+                _filteredPosts.value = emptyList()
             }
     }
 }

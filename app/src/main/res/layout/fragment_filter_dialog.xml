@@ -1,95 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".view.HomeFragments.FilterDialogFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <RelativeLayout
+    <data>
+
+    </data>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Estado -->
         <TextView
-            android:id="@+id/filterTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Filtrar"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_centerHorizontal="true"/>
+            android:text="Estado"
+            android:textSize="16sp"
+            android:textColor="@color/textColorPrimary" />
 
         <Spinner
             android:id="@+id/statusSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/filterTitle"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/edit_text_search"
-            android:minHeight="48dp"
-            android:padding="12dp" />
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp" />
+
+        <!-- Provincia -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Provincia"
+            android:textSize="16sp"
+            android:textColor="@color/textColorPrimary" />
 
         <Spinner
             android:id="@+id/provinceSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/statusSpinner"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/edit_text_search"
-            android:minHeight="48dp"
-            android:padding="12dp" />
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp" />
+
+        <!-- Ciudad -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ciudad"
+            android:textSize="16sp"
+            android:textColor="@color/textColorPrimary" />
 
         <Spinner
             android:id="@+id/citySpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/provinceSpinner"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/edit_text_search"
-            android:minHeight="48dp"
-            android:padding="12dp" />
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp" />
 
-        <EditText
-            android:id="@+id/startDateEditText"
-            android:layout_width="match_parent"
+        <!-- Fecha de desaparición -->
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Fecha inicio"
-            android:layout_below="@id/citySpinner"
-            android:layout_marginTop="16dp"
-            android:padding="12dp"
-            android:background="@drawable/edit_text_search"/>
-
-        <EditText
-            android:id="@+id/endDateEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Fecha fin"
-            android:layout_below="@id/startDateEditText"
-            android:layout_marginTop="16dp"
-            android:padding="12dp"
-            android:background="@drawable/edit_text_search"/>
+            android:text="Fecha de Desaparición"
+            android:textSize="16sp"
+            android:textColor="@color/textColorPrimary" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/endDateEditText"
-            android:layout_marginTop="16dp"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/startDisappearanceDateEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Desde"
+                android:inputType="date"
+                android:focusable="false"
+                android:clickable="true"
+                android:background="@drawable/edit_text_search"
+                android:padding="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="8dp"
+                android:text="hasta"
+                android:textSize="16sp"
+                android:textColor="@color/textColorPrimary" />
+
+            <EditText
+                android:id="@+id/endDisappearanceDateEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Hasta"
+                android:inputType="date"
+                android:focusable="false"
+                android:clickable="true"
+                android:background="@drawable/edit_text_search"
+                android:padding="12dp" />
+        </LinearLayout>
+
+        <!-- Fecha de publicación -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fecha de Publicación"
+            android:textSize="16sp"
+            android:textColor="@color/textColorPrimary" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/startPublicationDateEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Desde"
+                android:inputType="date"
+                android:focusable="false"
+                android:clickable="true"
+                android:background="@drawable/edit_text_search"
+                android:padding="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="8dp"
+                android:text="hasta"
+                android:textSize="16sp"
+                android:textColor="@color/textColorPrimary" />
+
+            <EditText
+                android:id="@+id/endPublicationDateEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Hasta"
+                android:inputType="date"
+                android:focusable="false"
+                android:clickable="true"
+                android:background="@drawable/edit_text_search"
+                android:padding="12dp" />
+        </LinearLayout>
+
+        <!-- Botones -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
 
             <Button
                 android:id="@+id/applyButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Aplicar"
                 android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/primaryColor"
-                android:textColor="@color/white"/>
+                android:text="Aplicar" />
 
             <Button
                 android:id="@+id/cancelButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancelar"
-                android:backgroundTint="@color/primaryDarkColor"
-                android:textColor="@color/white"/>
+                android:text="Cancelar" />
         </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 </layout>
