@@ -4,5 +4,18 @@
         <item>Desaparecido</item>
         <item>Localizado</item>
         <item>Muerto</item>
+        //Filtro
+    </string-array>
+    <string-array name="filter_options">
+        <item>Fecha de Desaparición</item>
+        <item>Fecha de Publicación</item>
+        <item>Estado</item>
+        <item>Provincia</item>
+    </string-array>
+
+    <string-array name="state_options">
+        <item>Desaparecido</item>
+        <item>Localizado</item>
+        <item>Muerto</item>
     </string-array>
 </resources>

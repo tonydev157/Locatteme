@@ -8,15 +8,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
+import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentSearchBinding
+import com.tonymen.locatteme.model.EcuadorLocations
 import com.tonymen.locatteme.view.adapters.SearchAdapter
 import com.tonymen.locatteme.viewmodel.SearchViewModel
+import com.google.gson.Gson
 
 class SearchFragment : Fragment() {
 
@@ -45,6 +49,13 @@ class SearchFragment : Fragment() {
         observeViewModel()
         setupHideKeyboardOnOutsideClick(binding.root)
 
+        binding.filterIcon.setOnClickListener {
+            val filterDialog = FilterDialogFragment { startDate, endDate, status, province, city ->
+                applyFilter(startDate, endDate, status, province, city)
+            }
+            filterDialog.show(parentFragmentManager, "FilterDialog")
+        }
+
         // Handle back press
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -65,7 +76,7 @@ class SearchFragment : Fragment() {
         binding.searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val query = s.toString().toLowerCase()
+                val query = s.toString().lowercase()
                 if (query.isEmpty()) {
                     adapter.updateUsers(emptyList())
                     adapter.updatePosts(emptyList())
@@ -117,6 +128,19 @@ class SearchFragment : Fragment() {
     private fun hideKeyboard() {
         val imm = getSystemService(requireContext(), InputMethodManager::class.java)
         imm?.hideSoftInputFromWindow(binding.root.windowToken, 0)
+    }
+
+    private fun applyFilter(startDate: String?, endDate: String?, status: String?, province: String?, city: String?) {
+        viewModel.filterPosts(startDate, endDate, status, province, city)
+    }
+
+
+
+
+    private fun loadEcuadorLocations(): EcuadorLocations {
+        val inputStream = resources.openRawResource(R.raw.ecuador_locations)
+        val json = inputStream.bufferedReader().use { it.readText() }
+        return Gson().fromJson(json, EcuadorLocations::class.java)
     }
 
     override fun onDestroyView() {

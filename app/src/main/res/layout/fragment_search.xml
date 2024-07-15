@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:background="@drawable/edit_text_background"
+            android:background="@drawable/edit_text_search"
             android:hint="Buscar..."
             android:textColor="@color/searchBarTextColor"
             android:textColorHint="@color/hintColor"
@@ -26,11 +26,88 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"/>
 
+        <ImageView
+            android:id="@+id/filterIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_filter"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"/>
+
+        <LinearLayout
+            android:id="@+id/filterContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@id/searchBar"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/filterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Filtrar por"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"/>
+
+            <Spinner
+                android:id="@+id/filterSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_search"
+                android:minHeight="48dp"
+                android:padding="12dp" />
+
+            <Spinner
+                android:id="@+id/provinceSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_search"
+                android:padding="12dp"
+                android:visibility="gone"/>
+
+            <Spinner
+                android:id="@+id/citySpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_search"
+                android:padding="12dp"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/dateRangeContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/startDateEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/edit_text_search"
+                    android:hint="Fecha inicio"
+                    android:padding="12dp"/>
+
+                <EditText
+                    android:id="@+id/endDateEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/edit_text_search"
+                    android:hint="Fecha fin"
+                    android:padding="12dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewSearchResults"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/searchBar"
+            android:layout_below="@id/filterContainer"
             android:layout_marginTop="16dp"
             android:background="@color/itemPostBackground"/>
     </RelativeLayout>
