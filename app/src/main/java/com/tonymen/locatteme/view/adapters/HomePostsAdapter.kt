@@ -1,6 +1,7 @@
 package com.tonymen.locatteme.view.adapters
 
 import android.content.Context
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,8 @@ import com.tonymen.locatteme.R
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.User
 import com.tonymen.locatteme.utils.TimestampUtil
+import com.tonymen.locatteme.view.HomeFragments.PostCommentsFragment
+import com.tonymen.locatteme.view.HomeFragments.PostDetailFragment
 import com.tonymen.locatteme.view.HomeFragments.ProfileFragment
 import com.tonymen.locatteme.view.HomeFragments.UserProfileFragment
 import org.ocpsoft.prettytime.PrettyTime
@@ -40,6 +43,7 @@ class HomePostsAdapter(
         val lugarDesaparicionTextView: TextView = itemView.findViewById(R.id.lugarDesaparicionTextView)
         val fechaDesaparicionTextView: TextView = itemView.findViewById(R.id.fechaDesaparicionTextView)
         val caracteristicasTextView: TextView = itemView.findViewById(R.id.caracteristicasTextView)
+        val commentIcon: ImageView = itemView.findViewById(R.id.commentIcon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -98,6 +102,57 @@ class HomePostsAdapter(
         holder.lugarDesaparicionTextView.text = "Lugar de Desaparición: ${post.lugarDesaparicion}"
         holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
         holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
+
+        // Click listeners to open PostDetailFragment
+        val openPostDetailListener = View.OnClickListener {
+            val fragment = PostDetailFragment()
+            val bundle = Bundle().apply {
+                putString("postId", post.id)
+                putString("fotoGrande", post.fotoGrande)
+                putString("nombres", post.nombres)
+                putString("apellidos", post.apellidos)
+                putInt("edad", post.edad)
+                putString("provincia", post.provincia)
+                putString("ciudad", post.ciudad)
+                putString("nacionalidad", post.nacionalidad)
+                putString("estado", post.estado)
+                putString("lugarDesaparicion", post.lugarDesaparicion)
+                putString("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
+                putString("caracteristicas", post.caracteristicas)
+                putString("autorId", post.autorId)
+                putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
+            }
+            fragment.arguments = bundle
+            val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragmentContainer, fragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
+
+        holder.imageView.setOnClickListener(openPostDetailListener)
+        holder.nombresTextView.setOnClickListener(openPostDetailListener)
+        holder.apellidosTextView.setOnClickListener(openPostDetailListener)
+        holder.edadTextView.setOnClickListener(openPostDetailListener)
+        holder.provinciaTextView.setOnClickListener(openPostDetailListener)
+        holder.ciudadTextView.setOnClickListener(openPostDetailListener)
+        holder.nacionalidadTextView.setOnClickListener(openPostDetailListener)
+        holder.estadoTextView.setOnClickListener(openPostDetailListener)
+        holder.lugarDesaparicionTextView.setOnClickListener(openPostDetailListener)
+        holder.fechaDesaparicionTextView.setOnClickListener(openPostDetailListener)
+        holder.caracteristicasTextView.setOnClickListener(openPostDetailListener)
+
+        // Click listener to open PostCommentsFragment
+        holder.commentIcon.setOnClickListener {
+            val fragment = PostCommentsFragment()
+            val bundle = Bundle().apply {
+                putString("postId", post.id)
+            }
+            fragment.arguments = bundle
+            val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragmentContainer, fragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
     }
 
     override fun getItemCount(): Int {

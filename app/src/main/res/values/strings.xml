@@ -29,5 +29,6 @@
     <string name="right_arrow">Flecha derecha</string>
     <string name="delete_post" />
     <string name="title_activity_send_verification_email">SendVerificationEmailActivity</string>
+    <string name="comment_icon_description" />
 
 </resources>

@@ -175,4 +175,14 @@
         android:textSize="14sp"
         android:textColor="@color/textColorPrimary"
         android:background="@color/itemPostBackground" />
+
+    <ImageView
+        android:id="@+id/commentIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_comment"
+        android:contentDescription="@string/comment_icon_description"
+        android:background="@color/itemPostBackground" />
 </LinearLayout>
