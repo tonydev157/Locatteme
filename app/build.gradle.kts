@@ -122,6 +122,8 @@ dependencies {
     implementation ("com.google.android.gms:play-services-tasks:18.2.0")
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation ("com.google.android.gms:play-services-location:21.3.0")
+
 
 
 }

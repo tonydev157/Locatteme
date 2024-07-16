@@ -1,0 +1,419 @@
+{
+  "Quito": [
+    {
+      "name": "UPC La Mariscal",
+      "latitude": -0.204203,
+      "longitude": -78.494947,
+      "address": "Av. Colón y Reina Victoria, Quito"
+    },
+    {
+      "name": "UPC El Condado",
+      "latitude": -0.134451,
+      "longitude": -78.502083,
+      "address": "Av. Occidental y Manuel Valdivieso, Quito"
+    },
+    {
+      "name": "UPC Carcelén",
+      "latitude": -0.098392,
+      "longitude": -78.487339,
+      "address": "Av. Diego de Vásquez y Simón Bolívar, Quito"
+    },
+    {
+      "name": "UPC Cumbayá",
+      "latitude": -0.187280,
+      "longitude": -78.440481,
+      "address": "Av. Interoceánica y De los Guabos, Quito"
+    },
+    {
+      "name": "UPC La Carolina",
+      "latitude": -0.180653,
+      "longitude": -78.470525,
+      "address": "Av. Amazonas y Naciones Unidas, Quito"
+    }
+  ],
+  "Guayaquil": [
+    {
+      "name": "UPC Urdesa",
+      "latitude": -2.179404,
+      "longitude": -79.905224,
+      "address": "Av. Victor Emilio Estrada y Costanera, Guayaquil"
+    },
+    {
+      "name": "UPC Alborada",
+      "latitude": -2.150444,
+      "longitude": -79.894136,
+      "address": "Av. Francisco de Orellana y Juan Tanca Marengo, Guayaquil"
+    },
+    {
+      "name": "UPC Sauces 9",
+      "latitude": -2.147928,
+      "longitude": -79.899999,
+      "address": "Av. Rodrigo Chávez Gutiérrez y Av. Isidro Ayora, Guayaquil"
+    },
+    {
+      "name": "UPC Kennedy",
+      "latitude": -2.179347,
+      "longitude": -79.891507,
+      "address": "Av. San Jorge y Callejón 14 NO, Guayaquil"
+    },
+    {
+      "name": "UPC Centenario",
+      "latitude": -2.190702,
+      "longitude": -79.886156,
+      "address": "Av. 9 de Octubre y Pedro Carbo, Guayaquil"
+    }
+  ],
+  "Cuenca": [
+    {
+      "name": "UPC El Vergel",
+      "latitude": -2.897477,
+      "longitude": -79.004291,
+      "address": "Av. 10 de Agosto y Eduardo Crespo Malo, Cuenca"
+    },
+    {
+      "name": "UPC Totoracocha",
+      "latitude": -2.886855,
+      "longitude": -78.983920,
+      "address": "Av. Gonzáles Suárez y Calle Manuel J. Calle, Cuenca"
+    },
+    {
+      "name": "UPC El Centro",
+      "latitude": -2.900647,
+      "longitude": -79.004875,
+      "address": "Av. José Peralta y Gaspar Sangurima, Cuenca"
+    },
+    {
+      "name": "UPC El Arenal",
+      "latitude": -2.902911,
+      "longitude": -79.005678,
+      "address": "Av. Loja y Av. Huayna Cápac, Cuenca"
+    },
+    {
+      "name": "UPC Yanuncay",
+      "latitude": -2.909568,
+      "longitude": -79.012789,
+      "address": "Av. Primero de Mayo y Calle de la Luz, Cuenca"
+    }
+  ],
+  "Ambato": [
+    {
+      "name": "UPC La Merced",
+      "latitude": -1.242983,
+      "longitude": -78.617282,
+      "address": "Av. Cevallos y Mera, Ambato"
+    },
+    {
+      "name": "UPC Ficoa",
+      "latitude": -1.259150,
+      "longitude": -78.623213,
+      "address": "Av. Rodrigo Pachano y Montalvo, Ambato"
+    },
+    {
+      "name": "UPC Huachi Chico",
+      "latitude": -1.265930,
+      "longitude": -78.617527,
+      "address": "Av. Las Américas y Calle Solís, Ambato"
+    },
+    {
+      "name": "UPC Atocha",
+      "latitude": -1.246294,
+      "longitude": -78.626038,
+      "address": "Av. Los Shyris y Calle Guayaquil, Ambato"
+    },
+    {
+      "name": "UPC Cashapamba",
+      "latitude": -1.267902,
+      "longitude": -78.633567,
+      "address": "Av. Bolivariana y Calle Ignacio Flores, Ambato"
+    }
+  ],
+  "Manta": [
+    {
+      "name": "UPC El Murciélago",
+      "latitude": -0.957135,
+      "longitude": -80.713188,
+      "address": "Av. Malecón y Calle 24, Manta"
+    },
+    {
+      "name": "UPC Tarqui",
+      "latitude": -0.947858,
+      "longitude": -80.726784,
+      "address": "Av. 113 y Calle 305, Manta"
+    },
+    {
+      "name": "UPC La Pradera",
+      "latitude": -0.962745,
+      "longitude": -80.708872,
+      "address": "Av. 113 y Calle 3, Manta"
+    },
+    {
+      "name": "UPC Los Esteros",
+      "latitude": -0.950274,
+      "longitude": -80.705591,
+      "address": "Av. 108 y Calle 113, Manta"
+    },
+    {
+      "name": "UPC Umiña",
+      "latitude": -0.955408,
+      "longitude": -80.690084,
+      "address": "Av. Flavio Reyes y Calle 23, Manta"
+    }
+  ],
+  "Santo Domingo": [
+    {
+      "name": "UPC La Concordia",
+      "latitude": -0.028013,
+      "longitude": -79.389924,
+      "address": "Av. Quevedo y Calle A, Santo Domingo"
+    },
+    {
+      "name": "UPC Los Rosales",
+      "latitude": -0.247746,
+      "longitude": -79.171976,
+      "address": "Av. Tsáchila y Calle Chiguilpe, Santo Domingo"
+    },
+    {
+      "name": "UPC El Esfuerzo",
+      "latitude": -0.253425,
+      "longitude": -79.171034,
+      "address": "Av. Esfuerzo y Calle B, Santo Domingo"
+    },
+    {
+      "name": "UPC El Portón",
+      "latitude": -0.250867,
+      "longitude": -79.171723,
+      "address": "Av. Portón y Calle C, Santo Domingo"
+    },
+    {
+      "name": "UPC Luz de América",
+      "latitude": -0.030246,
+      "longitude": -79.393815,
+      "address": "Av. Luz de América y Calle D, Santo Domingo"
+    }
+  ],
+  "Machala": [
+    {
+      "name": "UPC La Providencia",
+      "latitude": -3.258779,
+      "longitude": -79.956550,
+      "address": "Av. Rocafuerte y Calle 25 de Junio, Machala"
+    },
+    {
+      "name": "UPC Puerto Bolívar",
+      "latitude": -3.256137,
+      "longitude": -79.986540,
+      "address": "Av. Bolívar Madero Vargas y Calle Rocafuerte, Machala"
+    },
+    {
+      "name": "UPC El Cambio",
+      "latitude": -3.265483,
+      "longitude": -79.966501,
+      "address": "Av. El Oro y Calle 9, Machala"
+    },
+    {
+      "name": "UPC La Ferroviaria",
+      "latitude": -3.270312,
+      "longitude": -79.962712,
+      "address": "Av. Ferroviaria y Calle 8, Machala"
+    },
+    {
+      "name": "UPC 10 de Agosto",
+      "latitude": -3.259562,
+      "longitude": -79.952383,
+      "address": "Av. 10 de Agosto y Calle Bolívar, Machala"
+    }
+  ],
+  "Esmeraldas": [
+    {
+      "name": "UPC La Propicia",
+      "latitude": 0.961957,
+      "longitude": -79.662285,
+      "address": "Av. La Propicia y Calle 10, Esmeraldas"
+    },
+    {
+      "name": "UPC Centro",
+      "latitude": 0.962821,
+      "longitude": -79.655859,
+      "address": "Av. Bolívar y Calle Sucre, Esmeraldas"
+    },
+    {
+      "name": "UPC El Faro",
+      "latitude": 0.958991,
+      "longitude": -79.654788,
+      "address": "Av. El Faro y Calle 6, Esmeraldas"
+    },
+    {
+      "name": "UPC Codesa",
+      "latitude": 0.959997,
+      "longitude": -79.661236,
+      "address": "Av. Codesa y Calle 7, Esmeraldas"
+    },
+    {
+      "name": "UPC Las Palmas",
+      "latitude": 0.950243,
+      "longitude": -79.651989,
+      "address": "Av. Las Palmas y Calle 3, Esmeraldas"
+    }
+  ],
+  "Loja": [
+    {
+      "name": "UPC San Sebastián",
+      "latitude": -3.995267,
+      "longitude": -79.204220,
+      "address": "Av. San Sebastián y Calle Lourdes, Loja"
+    },
+    {
+      "name": "UPC El Valle",
+      "latitude": -3.993078,
+      "longitude": -79.207128,
+      "address": "Av. Universitaria y Calle El Valle, Loja"
+    },
+    {
+      "name": "UPC La Tebaida",
+      "latitude": -3.990261,
+      "longitude": -79.210944,
+      "address": "Av. Tebaida y Calle Mercadillo, Loja"
+    },
+    {
+      "name": "UPC Punzara",
+      "latitude": -4.007227,
+      "longitude": -79.195419,
+      "address": "Av. Punzara y Calle José Antonio Eguiguren, Loja"
+    },
+    {
+      "name": "UPC La Argelia",
+      "latitude": -3.988374,
+      "longitude": -79.205619,
+      "address": "Av. La Argelia y Calle Bolívar, Loja"
+    }
+  ],
+  "Portoviejo": [
+    {
+      "name": "UPC El Florón",
+      "latitude": -1.061520,
+      "longitude": -80.462592,
+      "address": "Av. El Florón y Calle 9, Portoviejo"
+    },
+    {
+      "name": "UPC San Alejo",
+      "latitude": -1.055476,
+      "longitude": -80.452942,
+      "address": "Av. San Alejo y Calle 3, Portoviejo"
+    },
+    {
+      "name": "UPC Picoazá",
+      "latitude": -1.059903,
+      "longitude": -80.474481,
+      "address": "Av. Picoazá y Calle 10, Portoviejo"
+    },
+    {
+      "name": "UPC Andrés de Vera",
+      "latitude": -1.061193,
+      "longitude": -80.448821,
+      "address": "Av. Andrés de Vera y Calle 7, Portoviejo"
+    },
+    {
+      "name": "UPC Reales Tamarindos",
+      "latitude": -1.053389,
+      "longitude": -80.463481,
+      "address": "Av. Reales Tamarindos y Calle 5, Portoviejo"
+    }
+  ],
+  "Ibarra": [
+    {
+      "name": "UPC Caranqui",
+      "latitude": 0.348257,
+      "longitude": -78.120820,
+      "address": "Av. Caranqui y Calle 8, Ibarra"
+    },
+    {
+      "name": "UPC El Olivo",
+      "latitude": 0.353257,
+      "longitude": -78.122845,
+      "address": "Av. El Olivo y Calle 7, Ibarra"
+    },
+    {
+      "name": "UPC La Victoria",
+      "latitude": 0.352789,
+      "longitude": -78.113493,
+      "address": "Av. La Victoria y Calle 10, Ibarra"
+    },
+    {
+      "name": "UPC El Retorno",
+      "latitude": 0.355678,
+      "longitude": -78.116734,
+      "address": "Av. El Retorno y Calle 5, Ibarra"
+    },
+    {
+      "name": "UPC Priorato",
+      "latitude": 0.347789,
+      "longitude": -78.117123,
+      "address": "Av. Priorato y Calle 6, Ibarra"
+    }
+  ],
+  "Latacunga": [
+    {
+      "name": "UPC San Felipe",
+      "latitude": -0.935537,
+      "longitude": -78.615555,
+      "address": "Av. San Felipe y Calle Quito, Latacunga"
+    },
+    {
+      "name": "UPC La Matriz",
+      "latitude": -0.933256,
+      "longitude": -78.616778,
+      "address": "Av. La Matriz y Calle Bolívar, Latacunga"
+    },
+    {
+      "name": "UPC Eloy Alfaro",
+      "latitude": -0.937534,
+      "longitude": -78.619483,
+      "address": "Av. Eloy Alfaro y Calle Sucre, Latacunga"
+    },
+    {
+      "name": "UPC El Salto",
+      "latitude": -0.934823,
+      "longitude": -78.617345,
+      "address": "Av. El Salto y Calle García Moreno, Latacunga"
+    },
+    {
+      "name": "UPC Ignacio Flores",
+      "latitude": -0.938567,
+      "longitude": -78.620789,
+      "address": "Av. Ignacio Flores y Calle Carchi, Latacunga"
+    }
+  ],
+  "Riobamba": [
+    {
+      "name": "UPC La Estación",
+      "latitude": -1.665722,
+      "longitude": -78.647414,
+      "address": "Av. Daniel León Borja y Primera Constituyente, Riobamba"
+    },
+    {
+      "name": "UPC Lizarzaburu",
+      "latitude": -1.661274,
+      "longitude": -78.650913,
+      "address": "Av. Lizarzaburu y Pedro Vicente Maldonado, Riobamba"
+    },
+    {
+      "name": "UPC La Panadería",
+      "latitude": -1.669831,
+      "longitude": -78.646274,
+      "address": "Av. 10 de Agosto y Av. Unidad Nacional, Riobamba"
+    },
+    {
+      "name": "UPC La Politécnica",
+      "latitude": -1.671379,
+      "longitude": -78.652756,
+      "address": "Av. Canónigo Ramos y Av. Unidad Nacional, Riobamba"
+    },
+    {
+      "name": "UPC El Rosario",
+      "latitude": -1.666023,
+      "longitude": -78.654920,
+      "address": "Av. Pedro Vicente Maldonado y Carabobo, Riobamba"
+    }
+  ]
+
+}

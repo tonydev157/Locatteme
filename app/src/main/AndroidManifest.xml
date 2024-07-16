@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Permiso para acceso a Internet -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Configuración de OpenGL ES 2.0 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" />
@@ -26,9 +29,6 @@
             android:theme="@style/Theme.Locatteme" />
         <activity
             android:name=".view.HomeFragments.UserProfileFragment"
-            android:exported="false" />
-        <activity
-            android:name=".view.PostDetailActivity"
             android:exported="false" />
         <activity
             android:name=".view.ForgotPasswordActivity"
