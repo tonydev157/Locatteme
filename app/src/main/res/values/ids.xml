@@ -43,4 +43,5 @@
     <item name="postTitle" type="id" />
     <item name="postDetails" type="id" />
     <item name="nombresTextView" type="id" />
+    <item name="recyclerViewPostsLoD" type="id" />
 </resources>
