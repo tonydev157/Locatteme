@@ -1,7 +1,12 @@
 package com.tonymen.locatteme.view
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -13,17 +18,25 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.ActivityHomeBinding
+import com.tonymen.locatteme.model.JSONHelper
+import com.tonymen.locatteme.model.UPC
 import com.tonymen.locatteme.view.HomeFragments.CreatePostFragment
 import com.tonymen.locatteme.view.HomeFragments.FollowingFragment
 import com.tonymen.locatteme.view.HomeFragments.HomeFragment
 import com.tonymen.locatteme.view.HomeFragments.ProfileFragment
 import com.tonymen.locatteme.view.HomeFragments.SearchFragment
 import com.tonymen.locatteme.viewmodel.HomeViewModel
+import kotlin.math.*
 
 class HomeActivity : AppCompatActivity() {
 
@@ -33,6 +46,7 @@ class HomeActivity : AppCompatActivity() {
     private val viewModel: HomeViewModel by viewModels()
     private var isCreatePostButtonEnlarged = false
     var isPostSaved = false // Variable to track if the post is saved
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +54,7 @@ class HomeActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val navView: BottomNavigationView = binding.bottomNavigationView
 
@@ -205,7 +220,7 @@ class HomeActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_find_upc -> {
-                // Acción para "Encuentra UPC más cercana"
+                findNearestUPC()
                 true
             }
             R.id.menu_safety_numbers -> {
@@ -227,7 +242,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showPopupMenu(view: View) {
         val popup = PopupMenu(this, view)
         val inflater: MenuInflater = popup.menuInflater
@@ -235,7 +249,7 @@ class HomeActivity : AppCompatActivity() {
         popup.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_find_upc -> {
-                    // Acción para "Encuentra UPC más cercana"
+                    findNearestUPC()
                     true
                 }
                 R.id.menu_safety_numbers -> {
@@ -257,5 +271,70 @@ class HomeActivity : AppCompatActivity() {
             }
         }
         popup.show()
+    }
+
+    private fun findNearestUPC() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        } else {
+            getLastKnownLocation()
+        }
+    }
+
+    private fun getLastKnownLocation() {
+        try {
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener(this, OnSuccessListener<Location> { location ->
+                    if (location != null) {
+                        // Log para verificar la ubicación actual
+                        Log.d("Location", "Current location: (${location.latitude}, ${location.longitude})")
+                        val nearestUPC = getNearestUPC(location.latitude, location.longitude)
+                        if (nearestUPC != null) {
+                            val uri = "geo:${nearestUPC.latitude},${nearestUPC.longitude}?q=${nearestUPC.latitude},${nearestUPC.longitude}(${nearestUPC.name})"
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+                            startActivity(intent)
+                        } else {
+                            Toast.makeText(this, "No se encontró ninguna UPC cercana", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(this, "No se pudo obtener la ubicación actual", Toast.LENGTH_SHORT).show()
+                    }
+                })
+                .addOnFailureListener {
+                    Toast.makeText(this, "Error al obtener la ubicación", Toast.LENGTH_SHORT).show()
+                }
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+            Toast.makeText(this, "No se pudo obtener la ubicación: permiso denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun getNearestUPC(lat: Double, lon: Double): UPC? {
+        val upcs = JSONHelper.loadUPCs(this)
+        var nearestUPC: UPC? = null
+        var minDistance = Double.MAX_VALUE
+
+        for ((_, upcList) in upcs) {
+            for (upc in upcList) {
+                val distance = calculateDistance(lat, lon, upc.latitude, upc.longitude)
+                if (distance < minDistance) {
+                    minDistance = distance
+                    nearestUPC = upc
+                }
+            }
+        }
+        return nearestUPC
+    }
+
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val earthRadius = 6371.0 // km
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = sin(dLat / 2) * sin(dLat / 2) +
+                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+                sin(dLon / 2) * sin(dLon / 2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return earthRadius * c
     }
 }
