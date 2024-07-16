@@ -216,6 +216,16 @@ class HomeActivity : AppCompatActivity() {
         inflater.inflate(R.menu.config_menu, menu)
         return true
     }
+    //Numeros de emergencia metodo
+    private fun showEmergencyNumbersDialog() {
+        val builder = AlertDialog.Builder(this)
+        val inflater = layoutInflater
+        val dialogLayout = inflater.inflate(R.layout.dialog_emergency_numbers, null)
+        builder.setView(dialogLayout)
+        builder.setPositiveButton("OK", null)
+        builder.show()
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -224,7 +234,7 @@ class HomeActivity : AppCompatActivity() {
                 true
             }
             R.id.menu_safety_numbers -> {
-                // Acción para "Números de seguridad"
+                showEmergencyNumbersDialog()
                 true
             }
             R.id.menu_danger_zones -> {
@@ -244,7 +254,7 @@ class HomeActivity : AppCompatActivity() {
 
     private fun showPopupMenu(view: View) {
         val popup = PopupMenu(this, view)
-        val inflater: MenuInflater = popup.menuInflater
+        val inflater = popup.menuInflater
         inflater.inflate(R.menu.config_menu, popup.menu)
         popup.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
@@ -253,7 +263,7 @@ class HomeActivity : AppCompatActivity() {
                     true
                 }
                 R.id.menu_safety_numbers -> {
-                    // Acción para "Números de seguridad"
+                    showEmergencyNumbersDialog()
                     true
                 }
                 R.id.menu_danger_zones -> {
@@ -272,6 +282,7 @@ class HomeActivity : AppCompatActivity() {
         }
         popup.show()
     }
+
 
     private fun findNearestUPC() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
