@@ -29,7 +29,6 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: HomeFViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var postAdapter: HomePostsAdapter
-    private val posts = mutableListOf<Post>()
     private var lastVisible: DocumentSnapshot? = null
     private var isLoading = false
 
@@ -44,14 +43,15 @@ class HomeFragment : Fragment() {
         setupRecyclerView()
         setupSwipeRefresh()
         loadUserProfile()
-        loadPosts()
+        observeViewModel()
+        setupIconClickListener()
 
         return binding.root
     }
 
     private fun setupRecyclerView() {
         recyclerView = binding.recyclerView
-        postAdapter = HomePostsAdapter(posts, requireContext())
+        postAdapter = HomePostsAdapter(requireContext())
         recyclerView.adapter = postAdapter
         recyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -107,21 +107,21 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun observeViewModel() {
+        viewModel.posts.observe(viewLifecycleOwner, { posts ->
+            postAdapter.updatePosts(posts)
+        })
+        viewModel.loadPosts(lastVisible) { newLastVisible ->
+            lastVisible = newLastVisible
+            isLoading = false
+        }
+    }
+
     private fun loadPosts() {
         isLoading = true
-        viewModel.getPosts(lastVisible).addOnSuccessListener { documents ->
-            if (documents.isEmpty) {
-                isLoading = false
-                return@addOnSuccessListener
-            }
-            lastVisible = documents.documents[documents.size() - 1]
-            val postList = documents.mapNotNull { it.toObject(Post::class.java) }
-            posts.addAll(postList)
-            postAdapter.notifyDataSetChanged()
+        viewModel.loadPosts(lastVisible) { newLastVisible ->
+            lastVisible = newLastVisible
             isLoading = false
-        }.addOnFailureListener {
-            isLoading = false
-            Toast.makeText(context, "Error al cargar publicaciones", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -130,10 +130,20 @@ class HomeFragment : Fragment() {
     }
 
     fun refreshContent() {
-        posts.clear()
+        postAdapter.updatePosts(emptyList())
         lastVisible = null
         loadPosts()
         binding.swipeRefreshLayout.isRefreshing = false
+    }
+
+    private fun setupIconClickListener() {
+        binding.headerLayout.findViewById<View>(R.id.ic_located_or_deceased).setOnClickListener {
+            val fragment = LocatedOrDeceasedFragment()
+            val transaction = parentFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragmentContainer, fragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
     }
 
     override fun onDestroyView() {

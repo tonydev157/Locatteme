@@ -52,6 +52,14 @@
                 android:src="@drawable/ic_notifications"
                 app:tint="?android:textColorPrimary"
                 android:background="@color/itemPostBackground"/>
+            <ImageView
+                android:id="@+id/ic_located_or_deceased"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:src="@drawable/ic_located_or_deceased"
+                app:tint="?android:textColorPrimary"
+                android:background="@color/itemPostBackground"/>
         </LinearLayout>
 
         <LinearLayout

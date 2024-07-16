@@ -1,0 +1,27 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.HomeFragments.LocatedOrDeceasedFragment">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.tonymen.locatteme.viewmodel.LocatedOrDeceasedViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:background="?android:attr/windowBackground">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewPostsLoD"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:scrollbars="vertical"
+            android:background="?android:attr/windowBackground" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
