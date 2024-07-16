@@ -345,7 +345,7 @@
                     android:textColor="@color/backgroundColor" />
 
                 <Button
-                    android:id="@+id/comentariosButton"
+                    android:id="@+id/commentsButton"
                     style="@style/ButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

@@ -108,6 +108,10 @@ class PostDetailFragment : Fragment() {
         binding.deleteButton.setOnClickListener {
             showDeleteConfirmationDialog()
         }
+
+        binding.commentsButton.setOnClickListener {
+            openCommentsFragment()
+        }
     }
 
     private fun openEditPostFragment() {
@@ -124,6 +128,18 @@ class PostDetailFragment : Fragment() {
                 replace(R.id.fragmentContainer, fragment)
                 addToBackStack(null)
             }
+        }
+    }
+
+    private fun openCommentsFragment() {
+        val fragment = PostCommentsFragment().apply {
+            arguments = Bundle().apply {
+                putString("postId", postId)
+            }
+        }
+        parentFragmentManager.commit {
+            replace(R.id.fragmentContainer, fragment)
+            addToBackStack(null)
         }
     }
 
