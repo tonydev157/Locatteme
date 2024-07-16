@@ -1,5 +1,6 @@
 package com.tonymen.locatteme.view.adapters
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -108,10 +109,23 @@ class LocatedOrDeceasedAdapter(
             holder.estadoOverlayTextView.setTextColor(holder.itemView.context.getColor(R.color.red))
         }
 
-        val openPostDetailListener = View.OnClickListener {
+        holder.itemView.setOnClickListener {
             val fragment = PostDetailFragment().apply {
                 arguments = Bundle().apply {
                     putString("postId", post.id)
+                    putString("fotoGrande", post.fotoGrande)
+                    putString("nombres", post.nombres)
+                    putString("apellidos", post.apellidos)
+                    putInt("edad", post.edad)
+                    putString("provincia", post.provincia)
+                    putString("ciudad", post.ciudad)
+                    putString("nacionalidad", post.nacionalidad)
+                    putString("estado", post.estado)
+                    putString("lugarDesaparicion", post.lugarDesaparicion)
+                    putString("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
+                    putString("caracteristicas", post.caracteristicas)
+                    putString("autorId", post.autorId)
+                    putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
                 }
             }
             val transaction = (holder.itemView.context as AppCompatActivity).supportFragmentManager.beginTransaction()
@@ -119,17 +133,6 @@ class LocatedOrDeceasedAdapter(
             transaction.addToBackStack(null)
             transaction.commit()
         }
-
-        holder.imageView.setOnClickListener(openPostDetailListener)
-        holder.nombresTextView.setOnClickListener(openPostDetailListener)
-        holder.apellidosTextView.setOnClickListener(openPostDetailListener)
-        holder.edadTextView.setOnClickListener(openPostDetailListener)
-        holder.provinciaTextView.setOnClickListener(openPostDetailListener)
-        holder.ciudadTextView.setOnClickListener(openPostDetailListener)
-        holder.nacionalidadTextView.setOnClickListener(openPostDetailListener)
-        holder.lugarDesaparicionTextView.setOnClickListener(openPostDetailListener)
-        holder.fechaDesaparicionTextView.setOnClickListener(openPostDetailListener)
-        holder.caracteristicasTextView.setOnClickListener(openPostDetailListener)
 
         holder.commentIcon.setOnClickListener {
             val fragment = PostCommentsFragment().apply {
