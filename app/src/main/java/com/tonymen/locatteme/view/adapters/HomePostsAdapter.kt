@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
@@ -23,11 +25,7 @@ import com.tonymen.locatteme.view.HomeFragments.UserProfileFragment
 import org.ocpsoft.prettytime.PrettyTime
 import java.util.Date
 
-class HomePostsAdapter(
-    private val context: Context
-) : RecyclerView.Adapter<HomePostsAdapter.PostViewHolder>() {
-
-    private var posts: List<Post> = listOf()
+class HomePostsAdapter(private val context: Context) : PagingDataAdapter<Post, HomePostsAdapter.PostViewHolder>(POST_COMPARATOR) {
 
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val profileImageView: ImageView = itemView.findViewById(R.id.profileImageView)
@@ -53,115 +51,120 @@ class HomePostsAdapter(
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val post = posts[position]
+        val post = getItem(position)
 
-        Glide.with(holder.itemView.context)
-            .load(post.fotoGrande)
-            .centerCrop()
-            .into(holder.imageView)
+        if (post != null) {
+            Glide.with(holder.itemView.context)
+                .load(post.fotoGrande)
+                .centerCrop()
+                .into(holder.imageView)
 
-        val db = FirebaseFirestore.getInstance()
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-        db.collection("users").document(post.autorId).get().addOnSuccessListener { document ->
-            val user = document.toObject(User::class.java)
-            user?.let {
-                holder.usernameTextView.text = it.username
-                Glide.with(holder.itemView.context)
-                    .load(it.profileImageUrl)
-                    .circleCrop()
-                    .into(holder.profileImageView)
+            val db = FirebaseFirestore.getInstance()
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+            db.collection("users").document(post.autorId).get().addOnSuccessListener { document ->
+                val user = document.toObject(User::class.java)
+                user?.let {
+                    holder.usernameTextView.text = it.username
+                    Glide.with(holder.itemView.context)
+                        .load(it.profileImageUrl)
+                        .circleCrop()
+                        .into(holder.profileImageView)
 
-                val isCurrentUser = currentUserId == user.id
+                    val isCurrentUser = currentUserId == user.id
 
-                // Set the click listener on the profile image and username to navigate to the user's profile
-                val clickListener = View.OnClickListener {
-                    val fragment = if (isCurrentUser) {
-                        ProfileFragment()
-                    } else {
-                        UserProfileFragment.newInstance(user.id)
+                    // Set the click listener on the profile image and username to navigate to the user's profile
+                    val clickListener = View.OnClickListener {
+                        val fragment = if (isCurrentUser) {
+                            ProfileFragment()
+                        } else {
+                            UserProfileFragment.newInstance(user.id)
+                        }
+                        val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                        transaction.replace(R.id.fragmentContainer, fragment)
+                        transaction.addToBackStack(null)
+                        transaction.commit()
                     }
-                    val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-                    transaction.replace(R.id.fragmentContainer, fragment)
-                    transaction.addToBackStack(null)
-                    transaction.commit()
+
+                    holder.profileImageView.setOnClickListener(clickListener)
+                    holder.usernameTextView.setOnClickListener(clickListener)
                 }
-
-                holder.profileImageView.setOnClickListener(clickListener)
-                holder.usernameTextView.setOnClickListener(clickListener)
             }
-        }
 
-        val prettyTime = PrettyTime()
-        holder.fechaPublicacionTextView.text = "Publicado hace: ${prettyTime.format(Date(post.fechaPublicacion.seconds * 1000))}"
-        holder.nombresTextView.text = "Nombre: ${post.nombres}"
-        holder.apellidosTextView.text = "Apellidos: ${post.apellidos}"
-        holder.edadTextView.text = "Edad: ${post.edad}"
-        holder.provinciaTextView.text = "Provincia: ${post.provincia}"
-        holder.ciudadTextView.text = "Ciudad: ${post.ciudad}"
-        holder.nacionalidadTextView.text = "Nacionalidad: ${post.nacionalidad}"
-        holder.estadoTextView.text = "Estado: ${post.estado}"
-        holder.lugarDesaparicionTextView.text = "Lugar de Desaparición: ${post.lugarDesaparicion}"
-        holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
-        holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
+            val prettyTime = PrettyTime()
+            holder.fechaPublicacionTextView.text = "Publicado hace: ${prettyTime.format(Date(post.fechaPublicacion.seconds * 1000))}"
+            holder.nombresTextView.text = "Nombre: ${post.nombres}"
+            holder.apellidosTextView.text = "Apellidos: ${post.apellidos}"
+            holder.edadTextView.text = "Edad: ${post.edad}"
+            holder.provinciaTextView.text = "Provincia: ${post.provincia}"
+            holder.ciudadTextView.text = "Ciudad: ${post.ciudad}"
+            holder.nacionalidadTextView.text = "Nacionalidad: ${post.nacionalidad}"
+            holder.estadoTextView.text = "Estado: ${post.estado}"
+            holder.lugarDesaparicionTextView.text = "Lugar de Desaparición: ${post.lugarDesaparicion}"
+            holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
+            holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
 
-        // Click listeners to open PostDetailFragment
-        val openPostDetailListener = View.OnClickListener {
-            val fragment = PostDetailFragment()
-            val bundle = Bundle().apply {
-                putString("postId", post.id)
-                putString("fotoGrande", post.fotoGrande)
-                putString("nombres", post.nombres)
-                putString("apellidos", post.apellidos)
-                putInt("edad", post.edad)
-                putString("provincia", post.provincia)
-                putString("ciudad", post.ciudad)
-                putString("nacionalidad", post.nacionalidad)
-                putString("estado", post.estado)
-                putString("lugarDesaparicion", post.lugarDesaparicion)
-                putString("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
-                putString("caracteristicas", post.caracteristicas)
-                putString("autorId", post.autorId)
-                putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
+            // Click listeners to open PostDetailFragment
+            val openPostDetailListener = View.OnClickListener {
+                val fragment = PostDetailFragment()
+                val bundle = Bundle().apply {
+                    putString("postId", post.id)
+                    putString("fotoGrande", post.fotoGrande)
+                    putString("nombres", post.nombres)
+                    putString("apellidos", post.apellidos)
+                    putInt("edad", post.edad)
+                    putString("provincia", post.provincia)
+                    putString("ciudad", post.ciudad)
+                    putString("nacionalidad", post.nacionalidad)
+                    putString("estado", post.estado)
+                    putString("lugarDesaparicion", post.lugarDesaparicion)
+                    putString("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
+                    putString("caracteristicas", post.caracteristicas)
+                    putString("autorId", post.autorId)
+                    putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
+                }
+                fragment.arguments = bundle
+                val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                transaction.replace(R.id.fragmentContainer, fragment)
+                transaction.addToBackStack(null)
+                transaction.commit()
             }
-            fragment.arguments = bundle
-            val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.fragmentContainer, fragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
-        }
 
-        holder.imageView.setOnClickListener(openPostDetailListener)
-        holder.nombresTextView.setOnClickListener(openPostDetailListener)
-        holder.apellidosTextView.setOnClickListener(openPostDetailListener)
-        holder.edadTextView.setOnClickListener(openPostDetailListener)
-        holder.provinciaTextView.setOnClickListener(openPostDetailListener)
-        holder.ciudadTextView.setOnClickListener(openPostDetailListener)
-        holder.nacionalidadTextView.setOnClickListener(openPostDetailListener)
-        holder.estadoTextView.setOnClickListener(openPostDetailListener)
-        holder.lugarDesaparicionTextView.setOnClickListener(openPostDetailListener)
-        holder.fechaDesaparicionTextView.setOnClickListener(openPostDetailListener)
-        holder.caracteristicasTextView.setOnClickListener(openPostDetailListener)
+            holder.imageView.setOnClickListener(openPostDetailListener)
+            holder.nombresTextView.setOnClickListener(openPostDetailListener)
+            holder.apellidosTextView.setOnClickListener(openPostDetailListener)
+            holder.edadTextView.setOnClickListener(openPostDetailListener)
+            holder.provinciaTextView.setOnClickListener(openPostDetailListener)
+            holder.ciudadTextView.setOnClickListener(openPostDetailListener)
+            holder.nacionalidadTextView.setOnClickListener(openPostDetailListener)
+            holder.estadoTextView.setOnClickListener(openPostDetailListener)
+            holder.lugarDesaparicionTextView.setOnClickListener(openPostDetailListener)
+            holder.fechaDesaparicionTextView.setOnClickListener(openPostDetailListener)
+            holder.caracteristicasTextView.setOnClickListener(openPostDetailListener)
 
-        // Click listener to open PostCommentsFragment
-        holder.commentIcon.setOnClickListener {
-            val fragment = PostCommentsFragment()
-            val bundle = Bundle().apply {
-                putString("postId", post.id)
+            // Click listener to open PostCommentsFragment
+            holder.commentIcon.setOnClickListener {
+                val fragment = PostCommentsFragment()
+                val bundle = Bundle().apply {
+                    putString("postId", post.id)
+                }
+                fragment.arguments = bundle
+                val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                transaction.replace(R.id.fragmentContainer, fragment)
+                transaction.addToBackStack(null)
+                transaction.commit()
             }
-            fragment.arguments = bundle
-            val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.fragmentContainer, fragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
         }
     }
 
-    override fun getItemCount(): Int {
-        return posts.size
-    }
+    companion object {
+        private val POST_COMPARATOR = object : DiffUtil.ItemCallback<Post>() {
+            override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+                return oldItem.id == newItem.id
+            }
 
-    fun updatePosts(newPosts: List<Post>) {
-        posts = newPosts.filter { it.estado == "Desaparecido" }
-        notifyDataSetChanged()
+            override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 }

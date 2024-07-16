@@ -7,19 +7,18 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentHomeBinding
-import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.User
 import com.tonymen.locatteme.view.adapters.HomePostsAdapter
 import com.tonymen.locatteme.viewmodel.HomeFViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
@@ -27,10 +26,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
     private lateinit var viewModel: HomeFViewModel
-    private lateinit var recyclerView: RecyclerView
     private lateinit var postAdapter: HomePostsAdapter
-    private var lastVisible: DocumentSnapshot? = null
-    private var isLoading = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,19 +46,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        recyclerView = binding.recyclerView
         postAdapter = HomePostsAdapter(requireContext())
-        recyclerView.adapter = postAdapter
-        recyclerView.layoutManager = LinearLayoutManager(context)
-
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (!recyclerView.canScrollVertically(1) && !isLoading) {
-                    loadMorePosts()
-                }
-            }
-        })
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = postAdapter
+        }
     }
 
     private fun setupSwipeRefresh() {
@@ -108,31 +96,15 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        viewModel.posts.observe(viewLifecycleOwner, { posts ->
-            postAdapter.updatePosts(posts)
-        })
-        viewModel.loadPosts(lastVisible) { newLastVisible ->
-            lastVisible = newLastVisible
-            isLoading = false
+        lifecycleScope.launch {
+            viewModel.posts.collectLatest { pagingData ->
+                postAdapter.submitData(pagingData)
+            }
         }
-    }
-
-    private fun loadPosts() {
-        isLoading = true
-        viewModel.loadPosts(lastVisible) { newLastVisible ->
-            lastVisible = newLastVisible
-            isLoading = false
-        }
-    }
-
-    private fun loadMorePosts() {
-        loadPosts()
     }
 
     fun refreshContent() {
-        postAdapter.updatePosts(emptyList())
-        lastVisible = null
-        loadPosts()
+        postAdapter.refresh()
         binding.swipeRefreshLayout.isRefreshing = false
     }
 
