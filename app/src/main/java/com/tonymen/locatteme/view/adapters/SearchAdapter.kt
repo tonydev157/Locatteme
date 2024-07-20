@@ -2,6 +2,7 @@ package com.tonymen.locatteme.view.adapters
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -70,20 +71,19 @@ class SearchAdapter(
             itemView.setOnClickListener {
                 val context = it.context
                 if (context is FragmentActivity) {
-                    if (user.id == currentUserId) {
-                        // Si el usuario clicado es el mismo usuario autenticado, redirigir a ProfileFragment
-                        context.supportFragmentManager.beginTransaction()
-                            .replace(R.id.fragmentContainer, ProfileFragment())
-                            .addToBackStack(null)
-                            .commit()
+                    val fragment = if (user.id == currentUserId) {
+                        ProfileFragment()
                     } else {
-                        // Si es otro usuario, redirigir a UserProfileFragment
-                        val userProfileFragment = UserProfileFragment.newInstance(user.id)
-                        context.supportFragmentManager.beginTransaction()
-                            .replace(R.id.fragmentContainer, userProfileFragment)
-                            .addToBackStack(null)
-                            .commit()
+                        UserProfileFragment().apply {
+                            arguments = Bundle().apply {
+                                putString("userId", user.id)
+                            }
+                        }
                     }
+                    context.supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, fragment)
+                        .addToBackStack(null)
+                        .commit()
                 }
             }
         }

@@ -3,6 +3,7 @@ package com.tonymen.locatteme.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.User
@@ -12,6 +13,7 @@ import java.util.*
 class SearchViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
+    private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> get() = _users
@@ -31,7 +33,7 @@ class SearchViewModel : ViewModel() {
             .addOnSuccessListener { documents ->
                 val userList = documents.mapNotNull { it.toObject(User::class.java) }
                 val filteredList = userList.filter {
-                    it.username.lowercase(Locale.getDefault()).contains(lowercaseQuery)
+                    it.username.lowercase(Locale.getDefault()).contains(lowercaseQuery) && it.id != currentUserId
                 }
                 _users.value = filteredList
             }

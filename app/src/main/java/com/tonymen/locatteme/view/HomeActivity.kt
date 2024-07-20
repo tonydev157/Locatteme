@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.OnSuccessListener
@@ -95,6 +96,18 @@ class HomeActivity : AppCompatActivity() {
         // Add settings icon functionality
         binding.settingsIcon.setOnClickListener { view ->
             showPopupMenu(view)
+        }
+
+        // Listener to update the BottomNavigationView selection
+        supportFragmentManager.addOnBackStackChangedListener {
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            when (currentFragment) {
+                is HomeFragment -> binding.bottomNavigationView.selectedItemId = R.id.navigation_home
+                is FollowingFragment -> binding.bottomNavigationView.selectedItemId = R.id.navigation_following
+                is CreatePostFragment -> binding.bottomNavigationView.selectedItemId = R.id.navigation_create_post
+                is SearchFragment -> binding.bottomNavigationView.selectedItemId = R.id.navigation_search
+                is ProfileFragment -> binding.bottomNavigationView.selectedItemId = R.id.navigation_profile
+            }
         }
     }
 
@@ -190,7 +203,7 @@ class HomeActivity : AppCompatActivity() {
             super.onBackPressed()
         } else if (currentFragment is HomeFragment) {
             if (backPressedOnce) {
-                finish()
+                finishAffinity() // This will close the app
             } else {
                 this.backPressedOnce = true
                 Toast.makeText(this, "Presiona nuevamente para salir", Toast.LENGTH_SHORT).show()
@@ -333,7 +346,6 @@ class HomeActivity : AppCompatActivity() {
             fusedLocationClient.lastLocation
                 .addOnSuccessListener(this, OnSuccessListener<Location> { location ->
                     if (location != null) {
-                        // Log para verificar la ubicación actual
                         Log.d("Location", "Current location: (${location.latitude}, ${location.longitude})")
                         val nearestUPC = getNearestUPC(location.latitude, location.longitude)
                         if (nearestUPC != null) {
@@ -376,7 +388,7 @@ class HomeActivity : AppCompatActivity() {
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val earthRadius = 6371.0 // km
         val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lat2 - lon1)
+        val dLon = Math.toRadians(lon2 - lon1)
         val a = sin(dLat / 2) * sin(dLat / 2) +
                 cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
                 sin(dLon / 2) * sin(dLon / 2)

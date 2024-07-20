@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
@@ -23,6 +24,8 @@ import com.tonymen.locatteme.view.FollowersNFragment
 import com.tonymen.locatteme.view.FollowingNFragment
 import com.tonymen.locatteme.view.adapters.UserPostsAdapter
 import com.tonymen.locatteme.viewmodel.ProfileViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class ProfileFragment : Fragment() {
 
@@ -31,14 +34,23 @@ class ProfileFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var adapter: UserPostsAdapter
+    private var userId: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
         profileViewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
+
+        userId = auth.currentUser?.uid
+
+        if (userId == null) {
+            Toast.makeText(context, "Error: Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.popBackStack()
+            return binding.root
+        }
 
         setupRecyclerView()
         loadUserProfile()
@@ -47,10 +59,8 @@ class ProfileFragment : Fragment() {
             showChangeProfilePictureDialog()
         }
 
-        // Añadir los click listeners para seguidores y seguidos
-        val userId = auth.currentUser?.uid ?: ""
         val followersClickListener = View.OnClickListener {
-            val fragment = FollowersNFragment.newInstance(userId)
+            val fragment = FollowersNFragment.newInstance(userId!!)
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
@@ -58,7 +68,7 @@ class ProfileFragment : Fragment() {
         }
 
         val followingClickListener = View.OnClickListener {
-            val fragment = FollowingNFragment.newInstance(userId)
+            val fragment = FollowingNFragment.newInstance(userId!!)
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
@@ -70,7 +80,6 @@ class ProfileFragment : Fragment() {
         binding.followersLabel.setOnClickListener(followersClickListener)
         binding.followingLabel.setOnClickListener(followingClickListener)
 
-        // Listener para el botón "Editar cuenta"
         binding.buttonLogout.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, AccountOptionsFragment())
@@ -89,45 +98,48 @@ class ProfileFragment : Fragment() {
     }
 
     private fun loadUserProfile() {
-        val userId = auth.currentUser?.uid ?: return
+        userId?.let { id ->
+            lifecycleScope.launch {
+                try {
+                    val document = profileViewModel.getUser(id)
+                    if (document != null) {
+                        val nombre = document.getString("nombre") ?: ""
+                        val apellido = document.getString("apellido") ?: ""
+                        val username = document.getString("username") ?: ""
+                        val profileImageUrl = document.getString("profileImageUrl") ?: ""
+                        val seguidores = document.get("seguidores") as? List<*>
+                        val seguidos = document.get("seguidos") as? List<*>
 
-        profileViewModel.getUser(userId).addOnSuccessListener { document ->
-            if (_binding != null && document != null) {
-                val nombre = document.getString("nombre") ?: ""
-                val apellido = document.getString("apellido") ?: ""
-                val username = document.getString("username") ?: ""
-                val profileImageUrl = document.getString("profileImageUrl") ?: ""
-                val seguidores = document.get("seguidores") as? List<*>
-                val seguidos = document.get("seguidos") as? List<*>
+                        binding.profileTextView.text = "$nombre $apellido"
+                        binding.fullNameTextView.text = "@$username"
+                        binding.followersCount.text = (seguidores?.size ?: 0).toString()
+                        binding.followingCount.text = (seguidos?.size ?: 0).toString()
 
-                binding.profileTextView.text = "$nombre $apellido"
-                binding.fullNameTextView.text = "@$username"
-                binding.followersCount.text = (seguidores?.size ?: 0).toString()
-                binding.followingCount.text = (seguidos?.size ?: 0).toString()
-
-                if (profileImageUrl.isNotEmpty()) {
-                    Glide.with(this)
-                        .load(profileImageUrl)
-                        .circleCrop()
-                        .into(binding.profileImageView)
+                        if (profileImageUrl.isNotEmpty()) {
+                            Glide.with(this@ProfileFragment)
+                                .load(profileImageUrl)
+                                .circleCrop()
+                                .into(binding.profileImageView)
+                        }
+                    }
+                } catch (exception: Exception) {
+                    Toast.makeText(context, "Error al cargar el perfil: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
-            }
-        }.addOnFailureListener { exception ->
-            if (_binding != null) {
-                Toast.makeText(context, "Error al cargar el perfil: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun loadUserPosts() {
-        val userId = auth.currentUser?.uid ?: return
-        profileViewModel.getUserPosts(userId).addOnSuccessListener { documents ->
-            val posts = documents.mapNotNull { it.toObject(Post::class.java) }
-            adapter.updatePosts(posts)
-            binding.postsCount.text = posts.size.toString() // Actualizar el contador de publicaciones
-        }.addOnFailureListener { exception ->
-            if (_binding != null) {
-                Toast.makeText(context, "Error al cargar las publicaciones: ${exception.message}", Toast.LENGTH_SHORT).show()
+        userId?.let { id ->
+            lifecycleScope.launch {
+                try {
+                    val documents = profileViewModel.getUserPosts(id)
+                    val posts = documents.mapNotNull { it.toObject(Post::class.java) }
+                    adapter.updatePosts(posts)
+                    binding.postsCount.text = posts.size.toString() // Actualizar el contador de publicaciones
+                } catch (exception: Exception) {
+                    Toast.makeText(context, "Error al cargar las publicaciones: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -159,31 +171,20 @@ class ProfileFragment : Fragment() {
     }
 
     private fun uploadImageToFirebase(imageUri: Uri) {
-        val userId = auth.currentUser?.uid ?: return
-        val storageRef = profileViewModel.getStorageReference(userId)
-
-        storageRef.putFile(imageUri)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    profileViewModel.updateProfileImageUrl(userId, uri.toString())
-                        .addOnSuccessListener {
-                            if (_binding != null) {
-                                Toast.makeText(context, "Imagen de perfil actualizada", Toast.LENGTH_SHORT).show()
-                                loadUserProfile()
-                            }
-                        }
-                        .addOnFailureListener { exception ->
-                            if (_binding != null) {
-                                Toast.makeText(context, "Error al actualizar la imagen de perfil: ${exception.message}", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                }
-            }
-            .addOnFailureListener { exception ->
-                if (_binding != null) {
+        userId?.let { id ->
+            lifecycleScope.launch {
+                try {
+                    val storageRef = profileViewModel.getStorageReference(id)
+                    storageRef.putFile(imageUri).await()
+                    val uri = storageRef.downloadUrl.await()
+                    profileViewModel.updateProfileImageUrl(id, uri.toString())
+                    Toast.makeText(context, "Imagen de perfil actualizada", Toast.LENGTH_SHORT).show()
+                    loadUserProfile()
+                } catch (exception: Exception) {
                     Toast.makeText(context, "Error al subir la imagen: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+        }
     }
 
     override fun onDestroyView() {
@@ -194,5 +195,4 @@ class ProfileFragment : Fragment() {
     companion object {
         private const val REQUEST_CODE_PICK_IMAGE = 1001
     }
-
 }

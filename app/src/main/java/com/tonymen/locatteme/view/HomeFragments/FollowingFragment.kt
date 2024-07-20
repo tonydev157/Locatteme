@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +20,8 @@ import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.User
 import com.tonymen.locatteme.view.adapters.FollowingPostsAdapter
 import com.tonymen.locatteme.viewmodel.FollowingViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class FollowingFragment : Fragment() {
 
@@ -36,7 +39,7 @@ class FollowingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentFollowingBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
         viewModel = ViewModelProvider(this).get(FollowingViewModel::class.java)
@@ -99,24 +102,27 @@ class FollowingFragment : Fragment() {
         if (allPostsLoaded) return
 
         isLoading = true
-        viewModel.getFollowingPosts(lastVisible).addOnSuccessListener { documents ->
-            if (documents.isEmpty) {
-                allPostsLoaded = true
-                isLoading = false
-                if (posts.isEmpty()) {
-                    binding.noPostsTextView.visibility = View.VISIBLE
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val documents = viewModel.getFollowingPosts(lastVisible).await()
+                if (documents.isEmpty) {
+                    allPostsLoaded = true
+                    isLoading = false
+                    if (posts.isEmpty()) {
+                        binding.noPostsTextView.visibility = View.VISIBLE
+                    }
+                    return@launch
                 }
-                return@addOnSuccessListener
+                lastVisible = documents.documents.lastOrNull()
+                val postList = documents.mapNotNull { it.toObject(Post::class.java) }
+                posts.addAll(postList)
+                postAdapter.notifyDataSetChanged()
+                binding.noPostsTextView.visibility = View.GONE
+                isLoading = false
+            } catch (e: Exception) {
+                isLoading = false
+                Toast.makeText(context, "Error al cargar publicaciones", Toast.LENGTH_SHORT).show()
             }
-            lastVisible = documents.documents.lastOrNull()
-            val postList = documents.mapNotNull { it.toObject(Post::class.java) }
-            posts.addAll(postList)
-            postAdapter.notifyDataSetChanged()
-            binding.noPostsTextView.visibility = View.GONE
-            isLoading = false
-        }.addOnFailureListener {
-            isLoading = false
-            Toast.makeText(context, "Error al cargar publicaciones", Toast.LENGTH_SHORT).show()
         }
     }
 

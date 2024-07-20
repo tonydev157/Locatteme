@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
@@ -21,6 +22,7 @@ import com.tonymen.locatteme.view.FollowersNFragment
 import com.tonymen.locatteme.view.FollowingNFragment
 import com.tonymen.locatteme.view.adapters.UserPostsAdapter
 import com.tonymen.locatteme.viewmodel.ProfileViewModel
+import kotlinx.coroutines.launch
 
 class UserProfileFragment : Fragment() {
 
@@ -58,54 +60,55 @@ class UserProfileFragment : Fragment() {
     private fun loadUserProfile() {
         if (userId.isEmpty()) return
 
-        profileViewModel.getUser(userId).addOnSuccessListener { document ->
-            if (_binding != null && document != null) {
-                Log.d("UserProfileFragment", "Document data: ${document.data}")
+        lifecycleScope.launch {
+            try {
+                val document = profileViewModel.getUser(userId)
+                if (document != null) {
+                    Log.d("UserProfileFragment", "Document data: ${document.data}")
 
-                val nombre = document.getString("nombre") ?: ""
-                val apellido = document.getString("apellido") ?: ""
-                val username = document.getString("username") ?: ""
-                val profileImageUrl = document.getString("profileImageUrl") ?: ""
-                val seguidores = document.get("seguidores") as? List<*>
-                val seguidos = document.get("seguidos") as? List<*>
+                    val nombre = document.getString("nombre") ?: ""
+                    val apellido = document.getString("apellido") ?: ""
+                    val username = document.getString("username") ?: ""
+                    val profileImageUrl = document.getString("profileImageUrl") ?: ""
+                    val seguidores = document.get("seguidores") as? List<*>
+                    val seguidos = document.get("seguidos") as? List<*>
 
-                binding.profileTextView.text = "$nombre $apellido"
-                binding.fullNameTextView.text = "@$username"
-                binding.followersCount.text = (seguidores?.size ?: 0).toString()
-                binding.followingCount.text = (seguidos?.size ?: 0).toString()
+                    binding.profileTextView.text = "$nombre $apellido"
+                    binding.fullNameTextView.text = "@$username"
+                    binding.followersCount.text = (seguidores?.size ?: 0).toString()
+                    binding.followingCount.text = (seguidos?.size ?: 0).toString()
 
-                if (profileImageUrl.isNotEmpty()) {
-                    Glide.with(this)
-                        .load(profileImageUrl)
-                        .circleCrop()
-                        .into(binding.profileImageView)
-                }
+                    if (profileImageUrl.isNotEmpty()) {
+                        Glide.with(this@UserProfileFragment)
+                            .load(profileImageUrl)
+                            .circleCrop()
+                            .into(binding.profileImageView)
+                    }
 
-                if (userId != currentUserId) {
-                    binding.followButton.visibility = View.VISIBLE
+                    if (userId != currentUserId) {
+                        binding.followButton.visibility = View.VISIBLE
+                    } else {
+                        binding.followButton.visibility = View.GONE
+                    }
                 } else {
-                    binding.followButton.visibility = View.GONE
+                    Log.e("UserProfileFragment", "Document is null")
                 }
-            } else {
-                Log.e("UserProfileFragment", "Document is null or binding is null")
-            }
-        }.addOnFailureListener { exception ->
-            if (_binding != null) {
+            } catch (exception: Exception) {
                 Toast.makeText(context, "Error al cargar el perfil: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-
     private fun loadUserPosts() {
         if (userId.isEmpty()) return
 
-        profileViewModel.getUserPosts(userId).addOnSuccessListener { documents ->
-            val posts = documents.mapNotNull { it.toObject(Post::class.java) }
-            adapter.updatePosts(posts)
-            binding.postsCount.text = posts.size.toString() // Actualizar el contador de publicaciones
-        }.addOnFailureListener { exception ->
-            if (_binding != null) {
+        lifecycleScope.launch {
+            try {
+                val documents = profileViewModel.getUserPosts(userId)
+                val posts = documents.mapNotNull { it.toObject(Post::class.java) }
+                adapter.updatePosts(posts)
+                binding.postsCount.text = posts.size.toString() // Actualizar el contador de publicaciones
+            } catch (exception: Exception) {
                 Toast.makeText(context, "Error al cargar las publicaciones: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
         }
