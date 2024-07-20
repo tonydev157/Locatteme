@@ -237,10 +237,10 @@ class HomeActivity : AppCompatActivity() {
                 showEmergencyNumbersDialog()
                 true
             }
-            R.id.menu_danger_zones -> {
-                // Acción para "Zonas más peligrosas"
-                true
-            }
+//            R.id.menu_danger_zones -> {
+//                // Acción para "Zonas más peligrosas"
+//                true
+//            }
             R.id.menu_logout -> {
                 auth.signOut()
                 val intent = Intent(this, MainActivity::class.java)
@@ -266,10 +266,10 @@ class HomeActivity : AppCompatActivity() {
                     showEmergencyNumbersDialog()
                     true
                 }
-                R.id.menu_danger_zones -> {
-                    // Acción para "Zonas más peligrosas"
-                    true
-                }
+//                R.id.menu_danger_zones -> {
+//                    // Acción para "Zonas más peligrosas"
+//                    true
+//                }
                 R.id.menu_logout -> {
                     auth.signOut()
                     val intent = Intent(this, MainActivity::class.java)

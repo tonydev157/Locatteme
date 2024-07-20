@@ -1,5 +1,6 @@
 package com.tonymen.locatteme.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -67,6 +68,10 @@ class DeleteAccountFragment : Fragment() {
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(requireContext(), "Cuenta eliminada con éxito", Toast.LENGTH_SHORT).show()
                                 // Redirige al usuario a la pantalla de inicio de sesión o cierra la sesión
+                                val intent = Intent(requireContext(), MainActivity::class.java).apply {
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                }
+                                startActivity(intent)
                             }
                         } catch (e: Exception) {
                             withContext(Dispatchers.Main) {
@@ -81,6 +86,7 @@ class DeleteAccountFragment : Fragment() {
             }
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

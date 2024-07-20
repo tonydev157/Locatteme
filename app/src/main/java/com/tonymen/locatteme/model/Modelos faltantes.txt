@@ -1,0 +1,37 @@
+package com.tonymen.locatteme.model
+
+import com.google.firebase.Timestamp
+
+data class DangerousPerson(
+    val id: String = "",
+    val publicadoPorId: String = "",
+    val fotoUrl: String = "",
+    val descripcion: String = "",
+    val timestamp: Timestamp = Timestamp.now()
+)
+
+
+package com.tonymen.locatteme.model
+
+import com.google.firebase.Timestamp
+
+data class Event(
+    val id: String = "",
+    val nombre: String = "",
+    val descripcion: String = "",
+    val lugar: String = "",
+    val fechaEvento: Timestamp = Timestamp.now(),
+    val organizadorId: String = ""
+)
+
+
+
+
+package com.tonymen.locatteme.model
+
+data class BannedUser(
+    val id: String = "",
+    val correo: String = "",
+    val razonBan: String = "",
+    val timestamp: Timestamp = Timestamp.now()
+)

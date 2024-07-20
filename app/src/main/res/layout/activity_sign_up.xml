@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="24dp"
+        tools:ignore="ExtraText">
 
         <TextView
             android:layout_width="wrap_content"
@@ -94,7 +95,15 @@
                 android:contentDescription="@string/show_password"
                 android:src="@drawable/ic_eye_off"
                 tools:ignore="TouchTargetSizeCheck" />
+
         </LinearLayout>
+        <TextView
+            android:id="@+id/passwordRequirementsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="La contraseña debe tener de 8 a 16 caracteres entre mayúsculas, minúsculas y números. No se permiten caracteres especiales."
+            android:textColor="@color/textColorSecondary"
+            android:layout_marginTop="4dp"/>
 
         <EditText
             android:id="@+id/confirmPasswordEditText"
@@ -117,7 +126,9 @@
             style="@style/ButtonStyle"
             android:text="Registrarse con Google"
             android:minHeight="48dp"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
+            />
 
         <Button
             android:id="@+id/registerButton"

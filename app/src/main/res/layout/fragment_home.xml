@@ -43,7 +43,8 @@
                 android:padding="8dp"
                 android:src="@drawable/ic_chat"
                 app:tint="?android:textColorPrimary"
-                android:background="@color/itemPostBackground"/>
+                android:background="@color/itemPostBackground"
+                android:visibility="gone"/>
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -51,7 +52,8 @@
                 android:padding="8dp"
                 android:src="@drawable/ic_notifications"
                 app:tint="?android:textColorPrimary"
-                android:background="@color/itemPostBackground"/>
+                android:background="@color/itemPostBackground"
+                android:visibility="gone"/>
             <ImageView
                 android:id="@+id/ic_located_or_deceased"
                 android:layout_width="wrap_content"

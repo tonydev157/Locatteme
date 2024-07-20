@@ -76,17 +76,7 @@ class SignUpActivity : AppCompatActivity() {
                     binding.progressBar.visibility = View.GONE
                     setButtonsEnabled(true)
                     if (isUnique) {
-                        if (isGoogleSignUp) {
-                            googleIdToken?.let {
-                                registerUserWithGoogle(firstName, lastName, username, age, idNumber, email, password, phone, it)
-                            } ?: Toast.makeText(this, "Error de autenticación con Google.", Toast.LENGTH_SHORT).show()
-                        } else {
-                            if (email.endsWith("@gmail.com")) {
-                                silentGoogleSignIn(email, firstName, lastName, username, age, idNumber, password, phone)
-                            } else {
-                                registerUser(firstName, lastName, username, age, idNumber, email, password, phone)
-                            }
-                        }
+                        registerUser(firstName, lastName, username, age, idNumber, email, password, phone)
                     } else {
                         Toast.makeText(this, "Los datos ingresados ya están en uso.", Toast.LENGTH_SHORT).show()
                     }
@@ -144,62 +134,17 @@ class SignUpActivity : AppCompatActivity() {
         binding.emailEditText.isEnabled = false
     }
 
-    private fun silentGoogleSignIn(email: String, firstName: String, lastName: String, username: String, age: Int, idNumber: String, password: String, phone: String) {
-        val account = GoogleSignIn.getLastSignedInAccount(this)
-        if (account != null && account.email == email) {
-            googleIdToken = account.idToken
-            checkGoogleAccountExistence(firstName, lastName, username, age, idNumber, email, password, phone)
-        } else {
-            googleSignInClient.silentSignIn().addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val account = task.result
-                    googleIdToken = account?.idToken
-                    checkGoogleAccountExistence(firstName, lastName, username, age, idNumber, email, password, phone)
-                } else {
-                    registerUser(firstName, lastName, username, age, idNumber, email, password, phone)
-                }
-            }
-        }
-    }
-
-    private fun checkGoogleAccountExistence(firstName: String, lastName: String, username: String, age: Int, idNumber: String, email: String, password: String, phone: String) {
-        auth.fetchSignInMethodsForEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val signInMethods = task.result?.signInMethods
-                    if (signInMethods.isNullOrEmpty()) {
-                        googleIdToken?.let {
-                            registerUserWithGoogle(firstName, lastName, username, age, idNumber, email, password, phone, it)
-                        } ?: Toast.makeText(this, "Error de autenticación con Google.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "Este correo ya está registrado. Inicia sesión.", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(this, "Error al verificar la cuenta: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
-
-    private fun registerUserWithGoogle(firstName: String, lastName: String, username: String, age: Int, idNumber: String, email: String, password: String, phone: String, idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
+    private fun registerUser(firstName: String, lastName: String, username: String, age: Int, idNumber: String, email: String, password: String, phone: String) {
+        binding.progressBar.visibility = View.VISIBLE
+        setButtonsEnabled(false)
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
+                binding.progressBar.visibility = View.GONE
+                setButtonsEnabled(true)
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    if (user != null) {
-                        user.linkWithCredential(credential)
-                            .addOnCompleteListener { linkTask ->
-                                if (linkTask.isSuccessful) {
-                                    val newUser = User(user.uid, firstName, lastName, username, age, idNumber, email, phone)
-                                    viewModel.addUser(newUser)
-                                    sendEmailVerification()
-                                } else {
-                                    user.delete().addOnCompleteListener {
-                                        Toast.makeText(this, "Error al vincular Google como proveedor: ${linkTask.exception?.message}", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            }
-                    }
+                    val user = User(auth.currentUser!!.uid, firstName, lastName, username, age, idNumber, email, phone)
+                    viewModel.addUser(user)
+                    sendEmailVerification()
                 } else {
                     if (task.exception is FirebaseAuthUserCollisionException) {
                         Toast.makeText(this, "Este correo ya está registrado. Inicia sesión.", Toast.LENGTH_SHORT).show()
@@ -223,34 +168,6 @@ class SignUpActivity : AppCompatActivity() {
                     Toast.makeText(this, "Error al enviar el correo de verificación.", Toast.LENGTH_SHORT).show()
                 }
             }
-    }
-
-    private fun registerUser(firstName: String, lastName: String, username: String, age: Int, idNumber: String, email: String, password: String, phone: String) {
-        binding.progressBar.visibility = View.VISIBLE
-        setButtonsEnabled(false)
-        checkIfUserDataIsUnique(firstName, lastName, username, age, idNumber, email, phone) { isUnique ->
-            binding.progressBar.visibility = View.GONE
-            setButtonsEnabled(true)
-            if (isUnique) {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
-                        if (task.isSuccessful) {
-                            val user = User(auth.currentUser!!.uid, firstName, lastName, username, age, idNumber, email, phone)
-                            viewModel.addUser(user)
-                            sendEmailVerification()
-                        } else {
-                            if (task.exception is FirebaseAuthUserCollisionException) {
-                                Toast.makeText(this, "Este correo ya está registrado. Inicia sesión.", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(this, "Error al registrarse. Inténtalo de nuevo.", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-            } else {
-                Log.d("SignUpActivity", "User data is not unique")
-                Toast.makeText(this, "Los datos ingresados ya están en uso.", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     private fun validateInput(firstName: String, lastName: String, username: String, age: Int?, idNumber: String, email: String, password: String, confirmPassword: String, phone: String): Boolean {

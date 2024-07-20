@@ -61,7 +61,9 @@
             style="@style/ButtonStyle"
             android:layout_marginTop="16dp"
             android:minHeight="48dp"
-            android:text="Iniciar sesión con Google" />
+            android:text="Iniciar sesión con Google"
+            android:visibility="gone" />
+
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -82,7 +84,8 @@
             style="@style/ButtonStyle"
             android:layout_marginTop="16dp"
             android:minHeight="48dp"
-            android:text="Enviar Correo de Verificación" />
+            android:text="Enviar Correo de Verificación"
+            android:visibility="gone"/>
 
     </LinearLayout>
 </ScrollView>
