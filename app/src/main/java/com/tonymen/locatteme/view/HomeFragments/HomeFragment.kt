@@ -1,5 +1,3 @@
-package com.tonymen.locatteme.view.HomeFragments
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +9,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentHomeBinding
-import com.tonymen.locatteme.model.User
+import com.tonymen.locatteme.view.HomeFragments.LocatedOrDeceasedFragment
+import com.tonymen.locatteme.view.HomeFragments.ProfileFragment
 import com.tonymen.locatteme.view.adapters.HomePostsAdapter
 import com.tonymen.locatteme.viewmodel.HomeFViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -60,10 +58,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadUserProfile() {
-        val userId = auth.currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-        db.collection("users").document(userId).get().addOnSuccessListener { document ->
-            val user = document.toObject(User::class.java)
+        viewModel.loadUserProfile()
+    }
+
+    private fun observeViewModel() {
+        viewModel.user.observe(viewLifecycleOwner) { user ->
             user?.let {
                 binding.usernameTextView.text = it.username
                 if (!it.profileImageUrl.isNullOrEmpty()) {
@@ -72,7 +71,6 @@ class HomeFragment : Fragment() {
                         .circleCrop()
                         .into(binding.profileImageView)
                 } else {
-                    // Si no hay imagen en la base de datos, mostrar imagen predeterminada
                     binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
                 }
 
@@ -88,14 +86,8 @@ class HomeFragment : Fragment() {
                 binding.profileImageView.setOnClickListener(clickListener)
                 binding.usernameTextView.setOnClickListener(clickListener)
             }
-        }.addOnFailureListener {
-            // En caso de error, mostrar imagen predeterminada
-            binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
-            Toast.makeText(context, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
         }
-    }
 
-    private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.posts.collectLatest { pagingData ->
                 postAdapter.submitData(pagingData)

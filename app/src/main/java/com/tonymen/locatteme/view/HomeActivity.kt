@@ -1,5 +1,6 @@
 package com.tonymen.locatteme.view
 
+import HomeFragment
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -33,7 +34,6 @@ import com.tonymen.locatteme.model.JSONHelper
 import com.tonymen.locatteme.model.UPC
 import com.tonymen.locatteme.view.HomeFragments.CreatePostFragment
 import com.tonymen.locatteme.view.HomeFragments.FollowingFragment
-import com.tonymen.locatteme.view.HomeFragments.HomeFragment
 import com.tonymen.locatteme.view.HomeFragments.ProfileFragment
 import com.tonymen.locatteme.view.HomeFragments.SearchFragment
 import com.tonymen.locatteme.viewmodel.HomeViewModel
