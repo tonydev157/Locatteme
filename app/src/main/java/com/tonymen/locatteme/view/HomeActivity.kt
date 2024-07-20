@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.OnSuccessListener
@@ -47,6 +48,8 @@ class HomeActivity : AppCompatActivity() {
     private var isCreatePostButtonEnlarged = false
     var isPostSaved = false // Variable to track if the post is saved
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var isNavigating = false
+    private val navigationHandler = android.os.Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,29 +64,23 @@ class HomeActivity : AppCompatActivity() {
         navView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
-                    handleNavigation(HomeFragment())
+                    handleNavigation(HomeFragment(), "HomeFragment")
                     true
                 }
                 R.id.navigation_following -> {
-                    handleNavigation(FollowingFragment())
+                    handleNavigation(FollowingFragment(), "FollowingFragment")
                     true
                 }
                 R.id.navigation_create_post -> {
-                    if (isCreatePostButtonEnlarged) {
-                        loadFragment(CreatePostFragment())
-                        resetCreatePostButton()
-                        disableCreatePostButton()
-                    } else {
-                        enlargeCreatePostButton()
-                    }
+                    handleCreatePostNavigation()
                     true
                 }
                 R.id.navigation_search -> {
-                    handleNavigation(SearchFragment())
+                    handleNavigation(SearchFragment(), "SearchFragment")
                     true
                 }
                 R.id.navigation_profile -> {
-                    handleNavigation(ProfileFragment())
+                    handleNavigation(ProfileFragment(), "ProfileFragment")
                     true
                 }
                 else -> false
@@ -101,26 +98,67 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleNavigation(fragment: Fragment) {
+    private fun handleCreatePostNavigation() {
+        if (isNavigating) return
+        isNavigating = true
+        navigationHandler.postDelayed({ isNavigating = false }, 500)  // 500 ms delay
+
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         if (currentFragment is CreatePostFragment && !isPostSaved) {
             showExitWarningDialog {
                 resetCreatePostButton()
-                loadFragment(fragment)
+                removeFragmentFromBackStack("CreatePostFragment")
+                loadFragment(CreatePostFragment(), "CreatePostFragment")
+                disableCreatePostButton()
+            }
+        } else {
+            if (isCreatePostButtonEnlarged) {
+                removeFragmentFromBackStack("CreatePostFragment")
+                loadFragment(CreatePostFragment(), "CreatePostFragment")
+                resetCreatePostButton()
+                disableCreatePostButton()
+            } else {
+                enlargeCreatePostButton()
+            }
+        }
+    }
+
+    fun handleNavigation(fragment: Fragment, tag: String) {
+        if (isNavigating) return
+        isNavigating = true
+        navigationHandler.postDelayed({ isNavigating = false }, 500)  // 500 ms delay
+
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+        if (currentFragment is CreatePostFragment && !isPostSaved) {
+            showExitWarningDialog {
+                resetCreatePostButton()
+                removeFragmentFromBackStack("CreatePostFragment")
+                loadFragment(fragment, tag)
             }
         } else {
             if (isCreatePostButtonEnlarged) {
                 resetCreatePostButton()
             }
-            loadFragment(fragment)
+            loadFragment(fragment, tag)
         }
     }
 
-    fun loadFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, fragment)
-            .addToBackStack(null)
-            .commit()
+    fun loadFragment(fragment: Fragment, tag: String) {
+        val fragmentManager = supportFragmentManager
+        val existingFragment = fragmentManager.findFragmentByTag(tag)
+
+        if (existingFragment != null) {
+            fragmentManager.popBackStack(tag, 0)
+        } else {
+            fragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment, tag)
+                .addToBackStack(tag)
+                .commit()
+        }
+    }
+
+    fun removeFragmentFromBackStack(tag: String) {
+        supportFragmentManager.popBackStackImmediate(tag, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     fun refreshCurrentFragment() {
@@ -128,6 +166,12 @@ class HomeActivity : AppCompatActivity() {
         if (currentFragment is HomeFragment) {
             currentFragment.refreshContent()
         }
+    }
+
+    fun closeCreatePostFragment() {
+        removeFragmentFromBackStack("CreatePostFragment")
+        resetCreatePostButton()
+        binding.bottomNavigationView.selectedItemId = R.id.navigation_home
     }
 
     override fun onBackPressed() {
@@ -216,6 +260,7 @@ class HomeActivity : AppCompatActivity() {
         inflater.inflate(R.menu.config_menu, menu)
         return true
     }
+
     //Numeros de emergencia metodo
     private fun showEmergencyNumbersDialog() {
         val builder = AlertDialog.Builder(this)
@@ -225,7 +270,6 @@ class HomeActivity : AppCompatActivity() {
         builder.setPositiveButton("OK", null)
         builder.show()
     }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -237,10 +281,6 @@ class HomeActivity : AppCompatActivity() {
                 showEmergencyNumbersDialog()
                 true
             }
-//            R.id.menu_danger_zones -> {
-//                // Acción para "Zonas más peligrosas"
-//                true
-//            }
             R.id.menu_logout -> {
                 auth.signOut()
                 val intent = Intent(this, MainActivity::class.java)
@@ -266,10 +306,6 @@ class HomeActivity : AppCompatActivity() {
                     showEmergencyNumbersDialog()
                     true
                 }
-//                R.id.menu_danger_zones -> {
-//                    // Acción para "Zonas más peligrosas"
-//                    true
-//                }
                 R.id.menu_logout -> {
                     auth.signOut()
                     val intent = Intent(this, MainActivity::class.java)
@@ -282,7 +318,6 @@ class HomeActivity : AppCompatActivity() {
         }
         popup.show()
     }
-
 
     private fun findNearestUPC() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -341,7 +376,7 @@ class HomeActivity : AppCompatActivity() {
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val earthRadius = 6371.0 // km
         val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
+        val dLon = Math.toRadians(lat2 - lon1)
         val a = sin(dLat / 2) * sin(dLat / 2) +
                 cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
                 sin(dLon / 2) * sin(dLon / 2)

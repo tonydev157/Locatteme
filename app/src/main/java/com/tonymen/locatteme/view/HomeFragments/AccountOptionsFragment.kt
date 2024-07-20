@@ -19,15 +19,15 @@ class AccountOptionsFragment : Fragment() {
         _binding = FragmentAccountOptionsBinding.inflate(inflater, container, false)
 
         binding.editProfileTextView.setOnClickListener {
-            (activity as HomeActivity).loadFragment(EditProfileFragment())
+            (activity as HomeActivity).loadFragment(EditProfileFragment(), "EditProfileFragment")
         }
 
         binding.changePasswordTextView.setOnClickListener {
-            (activity as HomeActivity).loadFragment(ChangePasswordFragment())
+            (activity as HomeActivity).loadFragment(ChangePasswordFragment(), "ChangePasswordFragment")
         }
 
         binding.deleteuser.setOnClickListener {
-            (activity as HomeActivity).loadFragment(DeleteAccountFragment())
+            (activity as HomeActivity).loadFragment(DeleteAccountFragment(), "DeleteAccountFragment")
         }
 
         return binding.root
