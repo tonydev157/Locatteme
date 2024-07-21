@@ -478,7 +478,8 @@ class CreatePostFragment : Fragment() {
     }
 
     private fun validateNombre(editText: EditText) {
-        val pattern = Regex("^[A-Z][a-zA-Z]*$")
+        // Permite letras mayúsculas, minúsculas y la letra "ñ"
+        val pattern = Regex("^[A-ZÑ][a-zA-ZñÑ]*$")
         if (!pattern.matches(editText.text.toString().trim())) {
             editText.error = "Nombre inválido."
             editText.setBackgroundResource(R.drawable.edit_text_border_red)
@@ -488,7 +489,8 @@ class CreatePostFragment : Fragment() {
     }
 
     private fun validateApellido(editText: EditText) {
-        val pattern = Regex("^[A-Z][a-zA-Z]*$")
+        // Permite letras mayúsculas, minúsculas y la letra "ñ"
+        val pattern = Regex("^[A-ZÑ][a-zA-ZñÑ]*$")
         if (!pattern.matches(editText.text.toString().trim())) {
             editText.error = "Apellido inválido."
             editText.setBackgroundResource(R.drawable.edit_text_border_red)
@@ -496,6 +498,7 @@ class CreatePostFragment : Fragment() {
             editText.setBackgroundResource(R.drawable.edit_text_border_green)
         }
     }
+
 
     private fun validateContacto(editText: EditText) {
         val pattern = Regex("^09[0-9]{8}$")

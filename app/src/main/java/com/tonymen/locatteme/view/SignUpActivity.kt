@@ -173,7 +173,7 @@ class SignUpActivity : AppCompatActivity() {
     private fun validateInput(firstName: String, lastName: String, username: String, age: Int?, idNumber: String, email: String, password: String, confirmPassword: String, phone: String): Boolean {
         var isValid = true
 
-        if (firstName.isEmpty() || !firstName.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+        if (firstName.isEmpty() || !firstName.matches(Regex("^[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]*\$"))) {
             binding.firstNameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
             binding.firstNameEditText.error = "Nombre inválido"
             isValid = false
@@ -181,7 +181,7 @@ class SignUpActivity : AppCompatActivity() {
             binding.firstNameEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
 
-        if (lastName.isEmpty() || !lastName.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+        if (lastName.isEmpty() || !lastName.matches(Regex("^[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]*\$"))) {
             binding.lastNameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
             binding.lastNameEditText.error = "Apellido inválido"
             isValid = false
@@ -189,7 +189,7 @@ class SignUpActivity : AppCompatActivity() {
             binding.lastNameEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
 
-        if (username.isEmpty() || !username.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*\$"))) {
+        if (username.isEmpty() || !username.matches(Regex("^[a-zA-ZñÑ][a-zA-ZñÑ0-9]*\$"))) {
             binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
             binding.usernameEditText.error = "Username inválido"
             isValid = false
@@ -272,9 +272,10 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun isValidPassword(password: String): Boolean {
-        val passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,16}$"
+        val passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#\$%^&+=]).{8,16}$"
         return password.matches(passwordRegex.toRegex())
     }
+
 
     override fun onStop() {
         super.onStop()
@@ -296,7 +297,7 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun setupRealTimeValidation() {
         binding.firstNameEditText.addTextChangedListener(createTextWatcher(binding.firstNameEditText) { text ->
-            if (text.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+            if (text.matches(Regex("^[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]*\$"))) {
                 binding.firstNameEditText.setBackgroundResource(R.drawable.edit_text_valid)
                 binding.firstNameEditText.error = null
             } else {
@@ -306,7 +307,7 @@ class SignUpActivity : AppCompatActivity() {
         })
 
         binding.lastNameEditText.addTextChangedListener(createTextWatcher(binding.lastNameEditText) { text ->
-            if (text.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+            if (text.matches(Regex("^[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]*\$"))) {
                 binding.lastNameEditText.setBackgroundResource(R.drawable.edit_text_valid)
                 binding.lastNameEditText.error = null
             } else {
@@ -316,7 +317,7 @@ class SignUpActivity : AppCompatActivity() {
         })
 
         binding.usernameEditText.addTextChangedListener(createTextWatcher(binding.usernameEditText) { text ->
-            if (text.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*\$"))) {
+            if (text.matches(Regex("^[a-zA-ZñÑ][a-zA-ZñÑ0-9]*\$"))) {
                 binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_valid)
                 binding.usernameEditText.error = null
             } else {
@@ -347,7 +348,7 @@ class SignUpActivity : AppCompatActivity() {
         })
 
         binding.emailEditText.addTextChangedListener(createTextWatcher(binding.emailEditText) { text ->
-            if (Patterns.EMAIL_ADDRESS.matcher(text).matches()) {
+            if (Patterns.EMAIL_ADDRESS.matcher(text).matches() || text.matches(Regex("^[a-zA-Z0-9ñ._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"))) {
                 binding.emailEditText.setBackgroundResource(R.drawable.edit_text_valid)
                 binding.emailEditText.error = null
             } else {

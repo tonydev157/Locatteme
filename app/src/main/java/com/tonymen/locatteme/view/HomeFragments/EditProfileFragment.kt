@@ -79,6 +79,7 @@ class EditProfileFragment : Fragment() {
     }
 
     private fun updateUserProfile(nombre: String, apellido: String, username: String, edad: Int, cedula: String, telefono: String) {
+        showLoading(true)
         val userId = auth.currentUser?.uid ?: return
 
         val userUpdates = mapOf(
@@ -91,12 +92,21 @@ class EditProfileFragment : Fragment() {
         )
 
         db.collection("users").document(userId).update(userUpdates).addOnSuccessListener {
+            showLoading(false)
             Toast.makeText(requireContext(), "Perfil actualizado", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
         }.addOnFailureListener { e ->
+            showLoading(false)
             Toast.makeText(requireContext(), "Error al actualizar el perfil: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.saveButton.isEnabled = !isLoading
+        binding.cancelButton.isEnabled = !isLoading
+    }
+
 
     private fun validateInput(nombre: String, apellido: String, username: String, edad: Int?, cedula: String, telefono: String): Boolean {
         var isValid = true

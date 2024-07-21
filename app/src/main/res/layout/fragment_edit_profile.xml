@@ -64,6 +64,13 @@
         android:inputType="phone"
         android:minHeight="48dp" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"/>
+
     <Button
         android:id="@+id/saveButton"
         android:layout_width="match_parent"
@@ -78,3 +85,4 @@
         android:text="Cancelar"
         style="@style/ButtonStyle"/>
 </LinearLayout>
+

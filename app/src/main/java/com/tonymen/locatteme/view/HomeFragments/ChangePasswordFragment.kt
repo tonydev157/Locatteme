@@ -101,17 +101,19 @@ class ChangePasswordFragment : Fragment() {
     }
 
     private fun isValidPassword(password: String): Boolean {
-        val passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[^\\W_]{8,16}$"
+        val passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#\$%^&+=!]).{8,16}$"
         return password.matches(passwordRegex.toRegex())
     }
 
     private fun changePassword(currentPassword: String, newPassword: String) {
+        showLoading(true)
         val user = auth.currentUser
         if (user != null) {
             val credential = EmailAuthProvider.getCredential(user.email!!, currentPassword)
             user.reauthenticate(credential).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     user.updatePassword(newPassword).addOnCompleteListener { updateTask ->
+                        showLoading(false)
                         if (updateTask.isSuccessful) {
                             Toast.makeText(requireContext(), "Contraseña actualizada", Toast.LENGTH_SHORT).show()
                             requireActivity().onBackPressed()
@@ -120,12 +122,19 @@ class ChangePasswordFragment : Fragment() {
                         }
                     }
                 } else {
+                    showLoading(false)
                     binding.currentPasswordEditText.setBackgroundResource(R.drawable.edit_text_invalid)
                     binding.currentPasswordEditText.error = "Contraseña actual incorrecta"
                     Toast.makeText(requireContext(), "Error de autenticación: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.changePasswordButton.isEnabled = !isLoading
+        binding.cancelButton.isEnabled = !isLoading
     }
 
     private fun setupRealTimeValidation() {
@@ -160,6 +169,7 @@ class ChangePasswordFragment : Fragment() {
         })
     }
 
+
     private fun createTextWatcher(editText: EditText, validation: (String) -> Unit): TextWatcher {
         return object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -171,6 +181,7 @@ class ChangePasswordFragment : Fragment() {
             }
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
