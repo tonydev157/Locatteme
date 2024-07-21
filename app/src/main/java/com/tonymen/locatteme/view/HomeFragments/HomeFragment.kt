@@ -2,7 +2,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentHomeBinding
 import com.tonymen.locatteme.view.HomeFragments.LocatedOrDeceasedFragment
-import com.tonymen.locatteme.view.HomeFragments.ProfileFragment
+import com.tonymen.locatteme.view.HomeFragments.UserProfileFragment
 import com.tonymen.locatteme.view.adapters.HomePostsAdapter
 import com.tonymen.locatteme.viewmodel.HomeFViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -75,16 +74,7 @@ class HomeFragment : Fragment() {
                 }
 
                 // Set click listeners to navigate to the profile fragment
-                val clickListener = View.OnClickListener {
-                    val fragment = ProfileFragment()
-                    val transaction = parentFragmentManager.beginTransaction()
-                    transaction.replace(R.id.fragmentContainer, fragment)
-                    transaction.addToBackStack(null)
-                    transaction.commit()
-                }
 
-                binding.profileImageView.setOnClickListener(clickListener)
-                binding.usernameTextView.setOnClickListener(clickListener)
             }
         }
 

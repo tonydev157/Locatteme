@@ -20,7 +20,6 @@ import com.tonymen.locatteme.model.User
 import com.tonymen.locatteme.utils.TimestampUtil
 import com.tonymen.locatteme.view.HomeFragments.PostCommentsFragment
 import com.tonymen.locatteme.view.HomeFragments.PostDetailFragment
-import com.tonymen.locatteme.view.HomeFragments.ProfileFragment
 import com.tonymen.locatteme.view.HomeFragments.UserProfileFragment
 import org.ocpsoft.prettytime.PrettyTime
 import java.util.Date
@@ -32,8 +31,7 @@ class HomePostsAdapter(private val context: Context) :
         val profileImageView: ImageView = itemView.findViewById(R.id.profileImageView)
         val usernameTextView: TextView = itemView.findViewById(R.id.usernameTextView)
         val imageView: ImageView = itemView.findViewById(R.id.postImageView)
-        val fechaPublicacionTextView: TextView =
-            itemView.findViewById(R.id.fechaPublicacionTextView)
+        val fechaPublicacionTextView: TextView = itemView.findViewById(R.id.fechaPublicacionTextView)
         val nombresTextView: TextView = itemView.findViewById(R.id.nombresTextView)
         val apellidosTextView: TextView = itemView.findViewById(R.id.apellidosTextView)
         val edadTextView: TextView = itemView.findViewById(R.id.edadTextView)
@@ -41,17 +39,14 @@ class HomePostsAdapter(private val context: Context) :
         val ciudadTextView: TextView = itemView.findViewById(R.id.ciudadTextView)
         val nacionalidadTextView: TextView = itemView.findViewById(R.id.nacionalidadTextView)
         val estadoTextView: TextView = itemView.findViewById(R.id.estadoTextView)
-        val lugarDesaparicionTextView: TextView =
-            itemView.findViewById(R.id.lugarDesaparicionTextView)
-        val fechaDesaparicionTextView: TextView =
-            itemView.findViewById(R.id.fechaDesaparicionTextView)
+        val lugarDesaparicionTextView: TextView = itemView.findViewById(R.id.lugarDesaparicionTextView)
+        val fechaDesaparicionTextView: TextView = itemView.findViewById(R.id.fechaDesaparicionTextView)
         val caracteristicasTextView: TextView = itemView.findViewById(R.id.caracteristicasTextView)
         val commentIcon: ImageView = itemView.findViewById(R.id.commentIcon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_post_home, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_post_home, parent, false)
         return PostViewHolder(view)
     }
 
@@ -79,16 +74,14 @@ class HomePostsAdapter(private val context: Context) :
 
                     // Set the click listener on the profile image and username to navigate to the user's profile
                     val clickListener = View.OnClickListener {
-                        val fragment = if (isCurrentUser) {
-                            ProfileFragment()
-                        } else {
-                            UserProfileFragment.newInstance(user.id)
+                        if (!isCurrentUser) {
+                            val fragment = UserProfileFragment.newInstance(user.id)
+                            val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                            transaction.replace(R.id.fragmentContainer, fragment)
+                            transaction.addToBackStack(null)
+                            transaction.commit()
                         }
-                        val transaction =
-                            (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-                        transaction.replace(R.id.fragmentContainer, fragment)
-                        transaction.addToBackStack(null)
-                        transaction.commit()
+                        // No hacer nada si es el perfil del usuario actual
                     }
 
                     holder.profileImageView.setOnClickListener(clickListener)
@@ -106,10 +99,8 @@ class HomePostsAdapter(private val context: Context) :
             holder.ciudadTextView.text = "Ciudad: ${post.ciudad}"
             holder.nacionalidadTextView.text = "Nacionalidad: ${post.nacionalidad}"
             holder.estadoTextView.text = "Estado: ${post.estado}"
-            holder.lugarDesaparicionTextView.text =
-                "Lugar de Desaparición: ${post.lugarDesaparicion}"
-            holder.fechaDesaparicionTextView.text =
-                "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
+            holder.lugarDesaparicionTextView.text = "Lugar de Desaparición: ${post.lugarDesaparicion}"
+            holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
             holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
 
             // Click listeners to open PostDetailFragment
@@ -126,20 +117,13 @@ class HomePostsAdapter(private val context: Context) :
                     putString("nacionalidad", post.nacionalidad)
                     putString("estado", post.estado)
                     putString("lugarDesaparicion", post.lugarDesaparicion)
-                    putString(
-                        "fechaDesaparicion",
-                        TimestampUtil.formatTimestampToString(post.fechaDesaparicion)
-                    )
+                    putString("fechaDesaparicion", TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
                     putString("caracteristicas", post.caracteristicas)
                     putString("autorId", post.autorId)
-                    putString(
-                        "fechaPublicacion",
-                        TimestampUtil.formatTimestampToString(post.fechaPublicacion)
-                    )
+                    putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
                 }
                 fragment.arguments = bundle
-                val transaction =
-                    (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
                 transaction.replace(R.id.fragmentContainer, fragment)
                 transaction.addToBackStack(null)
                 transaction.commit()
@@ -164,8 +148,7 @@ class HomePostsAdapter(private val context: Context) :
                     putString("postId", post.id)
                 }
                 fragment.arguments = bundle
-                val transaction =
-                    (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
                 transaction.replace(R.id.fragmentContainer, fragment)
                 transaction.addToBackStack(null)
                 transaction.commit()

@@ -74,15 +74,14 @@ class FollowingPostsAdapter(
 
                 // Set the click listener on the profile image and username to navigate to the user's profile
                 val clickListener = View.OnClickListener {
-                    val fragment = if (isCurrentUser) {
-                        ProfileFragment()
-                    } else {
-                        UserProfileFragment.newInstance(user.id)
+                    if (!isCurrentUser) {
+                        val fragment = UserProfileFragment.newInstance(user.id)
+                        val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                        transaction.replace(R.id.fragmentContainer, fragment)
+                        transaction.addToBackStack(null)
+                        transaction.commit()
                     }
-                    val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-                    transaction.replace(R.id.fragmentContainer, fragment)
-                    transaction.addToBackStack(null)
-                    transaction.commit()
+                    // No hacer nada si es el perfil del usuario actual
                 }
 
                 holder.profileImageView.setOnClickListener(clickListener)

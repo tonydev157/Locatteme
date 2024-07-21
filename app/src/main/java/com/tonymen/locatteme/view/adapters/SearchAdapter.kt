@@ -66,7 +66,12 @@ class SearchAdapter(
         fun bind(user: User) {
             binding.username.text = user.username
             binding.fullName.text = "${user.nombre} ${user.apellido}"
-            Glide.with(binding.profileImage.context).load(user.profileImageUrl).circleCrop().into(binding.profileImage)
+            val profileImageUrl = user.profileImageUrl
+            if (!profileImageUrl.isNullOrEmpty()) {
+                Glide.with(binding.profileImage.context).load(profileImageUrl).circleCrop().into(binding.profileImage)
+            } else {
+                binding.profileImage.setImageResource(R.drawable.ic_profile_placeholder)
+            }
 
             itemView.setOnClickListener {
                 val context = it.context
