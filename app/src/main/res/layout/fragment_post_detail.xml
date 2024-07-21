@@ -298,6 +298,31 @@
                 app:layout_constraintTop_toBottomOf="@id/fechaDesaparicionTextView" />
 
             <TextView
+                android:id="@+id/numerosContactoLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Números de Contacto: "
+                android:textColor="@color/textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/caracteristicasTextView" />
+
+            <TextView
+                android:id="@+id/numerosContactoTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/numerosContactoLabelTextView"
+                app:layout_constraintTop_toBottomOf="@id/caracteristicasTextView" />
+
+            <TextView
                 android:id="@+id/publicadoPorTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -310,7 +335,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/caracteristicasTextView" />
+                app:layout_constraintTop_toBottomOf="@id/numerosContactoTextView" />
 
             <LinearLayout
                 android:layout_width="0dp"

@@ -67,6 +67,9 @@ class PostDetailFragment : Fragment() {
         val caracteristicas = arguments?.getString("caracteristicas")
         val autorId = arguments?.getString("autorId")
         val fechaPublicacionStr = arguments?.getString("fechaPublicacion")
+        val numerosContacto = arguments?.getStringArrayList("numerosContacto") ?: arrayListOf()
+
+        Log.d("PostDetailFragment", "Números de contacto: $numerosContacto")
 
         val fechaDesaparicion = TimestampUtil.parseStringToTimestamp(fechaDesaparicionStr)
         val fechaPublicacion = TimestampUtil.parseStringToTimestamp(fechaPublicacionStr)
@@ -91,6 +94,9 @@ class PostDetailFragment : Fragment() {
             lugarDesaparicionTextView.text = lugarDesaparicion
             fechaDesaparicionTextView.text = TimestampUtil.formatTimestampToString(fechaDesaparicion)
             caracteristicasTextView.text = caracteristicas
+
+            // Aquí configuramos el TextView de numeros de contacto
+            numerosContactoTextView.text = numerosContacto.joinToString(", ") { it }
         }
 
         if (autorId == auth.currentUser?.uid) {
@@ -113,6 +119,7 @@ class PostDetailFragment : Fragment() {
             openCommentsFragment()
         }
     }
+
 
     private fun openEditPostFragment() {
         if (postId.isNullOrEmpty()) {

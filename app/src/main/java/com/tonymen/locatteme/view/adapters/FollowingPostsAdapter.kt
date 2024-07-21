@@ -43,8 +43,10 @@ class FollowingPostsAdapter(
         val lugarDesaparicionTextView: TextView = itemView.findViewById(R.id.lugarDesaparicionTextView)
         val fechaDesaparicionTextView: TextView = itemView.findViewById(R.id.fechaDesaparicionTextView)
         val caracteristicasTextView: TextView = itemView.findViewById(R.id.caracteristicasTextView)
+        val numerosContactoTextView: TextView = itemView.findViewById(R.id.numerosContactoTextView) // Nueva TextView para números de contacto
         val commentIcon: ImageView = itemView.findViewById(R.id.commentIcon)
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_post_home, parent, false)
@@ -72,7 +74,6 @@ class FollowingPostsAdapter(
 
                 val isCurrentUser = currentUserId == user.id
 
-                // Set the click listener on the profile image and username to navigate to the user's profile
                 val clickListener = View.OnClickListener {
                     if (!isCurrentUser) {
                         val fragment = UserProfileFragment.newInstance(user.id)
@@ -81,7 +82,6 @@ class FollowingPostsAdapter(
                         transaction.addToBackStack(null)
                         transaction.commit()
                     }
-                    // No hacer nada si es el perfil del usuario actual
                 }
 
                 holder.profileImageView.setOnClickListener(clickListener)
@@ -102,7 +102,13 @@ class FollowingPostsAdapter(
         holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
         holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
 
-        // Click listeners to open PostDetailFragment
+        // Display numerosContacto
+        if (post.numerosContacto.isNotEmpty()) {
+            holder.numerosContactoTextView.text = "Contacto: ${post.numerosContacto.joinToString(", ")}"
+        } else {
+            holder.numerosContactoTextView.text = "No hay números de contacto disponibles"
+        }
+
         val openPostDetailListener = View.OnClickListener {
             val fragment = PostDetailFragment()
             val bundle = Bundle().apply {
@@ -120,6 +126,7 @@ class FollowingPostsAdapter(
                 putString("caracteristicas", post.caracteristicas)
                 putString("autorId", post.autorId)
                 putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
+                putStringArrayList("numerosContacto", ArrayList(post.numerosContacto)) // Pass numerosContacto to the fragment
             }
             fragment.arguments = bundle
             val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
@@ -140,7 +147,6 @@ class FollowingPostsAdapter(
         holder.fechaDesaparicionTextView.setOnClickListener(openPostDetailListener)
         holder.caracteristicasTextView.setOnClickListener(openPostDetailListener)
 
-        // Click listener to open PostCommentsFragment
         holder.commentIcon.setOnClickListener {
             val fragment = PostCommentsFragment()
             val bundle = Bundle().apply {

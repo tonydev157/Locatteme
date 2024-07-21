@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="@color/itemPostBackground">
+        android:background="@color/backgroundColor">
 
 
         <ImageView
@@ -22,7 +22,7 @@
             android:layout_gravity="end"
             android:padding="16dp"
             android:contentDescription="@string/settings"
-            android:background="@color/itemPostBackground"/>
+            android:background="@color/backgroundColor"/>
 
         <FrameLayout
             android:id="@+id/fragmentContainer"
@@ -40,7 +40,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="8dp"
             style="@style/EditTextStyle"
-            android:background="@color/itemPostBackground" />
+            android:background="@color/backgroundColor" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"

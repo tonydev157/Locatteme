@@ -42,8 +42,10 @@ class HomePostsAdapter(private val context: Context) :
         val lugarDesaparicionTextView: TextView = itemView.findViewById(R.id.lugarDesaparicionTextView)
         val fechaDesaparicionTextView: TextView = itemView.findViewById(R.id.fechaDesaparicionTextView)
         val caracteristicasTextView: TextView = itemView.findViewById(R.id.caracteristicasTextView)
+        val numerosContactoTextView: TextView = itemView.findViewById(R.id.numerosContactoTextView) // Nueva TextView para números de contacto
         val commentIcon: ImageView = itemView.findViewById(R.id.commentIcon)
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_post_home, parent, false)
@@ -103,6 +105,13 @@ class HomePostsAdapter(private val context: Context) :
             holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
             holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
 
+            // Display numerosContacto
+            if (post.numerosContacto.isNotEmpty()) {
+                holder.numerosContactoTextView.text = "Contacto: ${post.numerosContacto.joinToString(", ")}"
+            } else {
+                holder.numerosContactoTextView.text = "No hay números de contacto disponibles"
+            }
+
             // Click listeners to open PostDetailFragment
             val openPostDetailListener = View.OnClickListener {
                 val fragment = PostDetailFragment()
@@ -121,6 +130,7 @@ class HomePostsAdapter(private val context: Context) :
                     putString("caracteristicas", post.caracteristicas)
                     putString("autorId", post.autorId)
                     putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
+                    putStringArrayList("numerosContacto", ArrayList(post.numerosContacto)) // Pass numerosContacto to the fragment
                 }
                 fragment.arguments = bundle
                 val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
@@ -155,6 +165,7 @@ class HomePostsAdapter(private val context: Context) :
             }
         }
     }
+
 
     companion object {
         private val POST_COMPARATOR = object : DiffUtil.ItemCallback<Post>() {

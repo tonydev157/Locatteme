@@ -42,8 +42,10 @@ class LocatedOrDeceasedAdapter(
         val lugarDesaparicionTextView: TextView = itemView.findViewById(R.id.lugarDesaparicionTextView)
         val fechaDesaparicionTextView: TextView = itemView.findViewById(R.id.fechaDesaparicionTextView)
         val caracteristicasTextView: TextView = itemView.findViewById(R.id.caracteristicasTextView)
+        val numerosContactoTextView: TextView = itemView.findViewById(R.id.numerosContactoTextView) // Nueva TextView para números de contacto
         val commentIcon: ImageView = itemView.findViewById(R.id.commentIcon)
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_post_located_or_deceased, parent, false)
@@ -75,7 +77,6 @@ class LocatedOrDeceasedAdapter(
 
                 val isCurrentUser = currentUserId == user.id
 
-                // Set the click listener on the profile image and username to navigate to the user's profile
                 val clickListener = View.OnClickListener {
                     val fragment = if (isCurrentUser) {
                         ProfileFragment()
@@ -105,6 +106,13 @@ class LocatedOrDeceasedAdapter(
         holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
         holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
 
+        // Display numerosContacto
+        if (post.numerosContacto.isNotEmpty()) {
+            holder.numerosContactoTextView.text = "Contacto: ${post.numerosContacto.joinToString(", ")}"
+        } else {
+            holder.numerosContactoTextView.text = "No hay números de contacto disponibles"
+        }
+
         if (post.estado == "Localizado") {
             holder.estadoOverlayTextView.text = "Localizado"
             holder.estadoOverlayTextView.setTextColor(holder.itemView.context.getColor(R.color.green))
@@ -130,6 +138,7 @@ class LocatedOrDeceasedAdapter(
                     putString("caracteristicas", post.caracteristicas)
                     putString("autorId", post.autorId)
                     putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
+                    putStringArrayList("numerosContacto", ArrayList(post.numerosContacto)) // Pass numerosContacto to the fragment
                 }
             }
             val transaction = (holder.itemView.context as AppCompatActivity).supportFragmentManager.beginTransaction()
@@ -159,4 +168,5 @@ class LocatedOrDeceasedAdapter(
         posts = newPosts
         notifyDataSetChanged()
     }
+
 }
