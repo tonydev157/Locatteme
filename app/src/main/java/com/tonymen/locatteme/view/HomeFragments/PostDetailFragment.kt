@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 
 class PostDetailFragment : Fragment() {
 
@@ -120,7 +121,6 @@ class PostDetailFragment : Fragment() {
         }
     }
 
-
     private fun openEditPostFragment() {
         if (postId.isNullOrEmpty()) {
             Log.e("PostDetailFragment", "Post ID is null or empty!")
@@ -192,6 +192,8 @@ class PostDetailFragment : Fragment() {
                         Toast.makeText(requireContext(), "El documento no existe.", Toast.LENGTH_LONG).show()
                     }
                 }
+            } catch (e: CancellationException) {
+                Log.d("PostDetailFragment", "Coroutine cancelled", e)
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Log.e("PostDetailFragment", "Error deleting post", e)

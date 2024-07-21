@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +27,7 @@ import com.tonymen.locatteme.view.adapters.UserPostsAdapter
 import com.tonymen.locatteme.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.CancellationException
 
 class ProfileFragment : Fragment() {
 
@@ -47,7 +49,7 @@ class ProfileFragment : Fragment() {
         userId = auth.currentUser?.uid
 
         if (userId == null) {
-            Toast.makeText(context, "Error: Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            showToast("Error: Usuario no autenticado")
             parentFragmentManager.popBackStack()
             return binding.root
         }
@@ -121,9 +123,13 @@ class ProfileFragment : Fragment() {
                                 .circleCrop()
                                 .into(binding.profileImageView)
                         }
+                    } else {
+                        showToast("Documento de perfil no encontrado")
                     }
+                } catch (e: CancellationException) {
+                    Log.d("ProfileFragment", "Coroutine cancelled", e)
                 } catch (exception: Exception) {
-                    Toast.makeText(context, "Error al cargar el perfil: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    showToast("Error al cargar el perfil: ${exception.message}")
                 }
             }
         }
@@ -137,8 +143,10 @@ class ProfileFragment : Fragment() {
                     val posts = documents.mapNotNull { it.toObject(Post::class.java) }
                     adapter.updatePosts(posts)
                     binding.postsCount.text = posts.size.toString() // Actualizar el contador de publicaciones
+                } catch (e: CancellationException) {
+                    Log.d("ProfileFragment", "Coroutine cancelled", e)
                 } catch (exception: Exception) {
-                    Toast.makeText(context, "Error al cargar las publicaciones: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    showToast("Error al cargar las publicaciones: ${exception.message}")
                 }
             }
         }
@@ -178,12 +186,20 @@ class ProfileFragment : Fragment() {
                     storageRef.putFile(imageUri).await()
                     val uri = storageRef.downloadUrl.await()
                     profileViewModel.updateProfileImageUrl(id, uri.toString())
-                    Toast.makeText(context, "Imagen de perfil actualizada", Toast.LENGTH_SHORT).show()
+                    showToast("Imagen de perfil actualizada")
                     loadUserProfile()
+                } catch (e: CancellationException) {
+                    Log.d("ProfileFragment", "Coroutine cancelled", e)
                 } catch (exception: Exception) {
-                    Toast.makeText(context, "Error al subir la imagen: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    showToast("Error al subir la imagen: ${exception.message}")
                 }
             }
+        }
+    }
+
+    private fun showToast(message: String) {
+        if (isAdded) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 

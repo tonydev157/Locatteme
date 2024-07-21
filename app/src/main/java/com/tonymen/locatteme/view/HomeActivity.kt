@@ -23,7 +23,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.OnSuccessListener
@@ -158,16 +157,16 @@ class HomeActivity : AppCompatActivity() {
 
     fun loadFragment(fragment: Fragment, tag: String) {
         val fragmentManager = supportFragmentManager
-        val existingFragment = fragmentManager.findFragmentByTag(tag)
+        val transaction = fragmentManager.beginTransaction()
 
-        if (existingFragment != null) {
-            fragmentManager.popBackStack(tag, 0)
+        if (fragmentManager.findFragmentByTag(tag) == null) {
+            transaction.replace(R.id.fragmentContainer, fragment, tag)
+            transaction.addToBackStack(tag)
         } else {
-            fragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, fragment, tag)
-                .addToBackStack(tag)
-                .commit()
+            transaction.replace(R.id.fragmentContainer, fragment, tag)
         }
+
+        transaction.commit()
     }
 
     fun removeFragmentFromBackStack(tag: String) {
@@ -213,6 +212,7 @@ class HomeActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+
 
     private fun showExitWarningDialog(onExit: () -> Unit) {
         AlertDialog.Builder(this)
@@ -342,30 +342,30 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun getLastKnownLocation() {
-        try {
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener(this, OnSuccessListener<Location> { location ->
-                    if (location != null) {
-                        Log.d("Location", "Current location: (${location.latitude}, ${location.longitude})")
-                        val nearestUPC = getNearestUPC(location.latitude, location.longitude)
-                        if (nearestUPC != null) {
-                            val uri = "geo:${nearestUPC.latitude},${nearestUPC.longitude}?q=${nearestUPC.latitude},${nearestUPC.longitude}(${nearestUPC.name})"
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
-                            startActivity(intent)
-                        } else {
-                            Toast.makeText(this, "No se encontró ninguna UPC cercana", Toast.LENGTH_SHORT).show()
-                        }
-                    } else {
-                        Toast.makeText(this, "No se pudo obtener la ubicación actual", Toast.LENGTH_SHORT).show()
-                    }
-                })
-                .addOnFailureListener {
-                    Toast.makeText(this, "Error al obtener la ubicación", Toast.LENGTH_SHORT).show()
-                }
-        } catch (e: SecurityException) {
-            e.printStackTrace()
-            Toast.makeText(this, "No se pudo obtener la ubicación: permiso denegado", Toast.LENGTH_SHORT).show()
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Permiso de ubicación no concedido", Toast.LENGTH_SHORT).show()
+            return
         }
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener(this, OnSuccessListener<Location> { location ->
+                if (location != null) {
+                    Log.d("Location", "Current location: (${location.latitude}, ${location.longitude})")
+                    val nearestUPC = getNearestUPC(location.latitude, location.longitude)
+                    if (nearestUPC != null) {
+                        val uri = "geo:${nearestUPC.latitude},${nearestUPC.longitude}?q=${nearestUPC.latitude},${nearestUPC.longitude}(${nearestUPC.name})"
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(this, "No se encontró ninguna UPC cercana", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "No se pudo obtener la ubicación actual", Toast.LENGTH_SHORT).show()
+                }
+            })
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al obtener la ubicación", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun getNearestUPC(lat: Double, lon: Double): UPC? {
@@ -394,5 +394,18 @@ class HomeActivity : AppCompatActivity() {
                 sin(dLon / 2) * sin(dLon / 2)
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         return earthRadius * c
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            getLastKnownLocation()
+        } else {
+            Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
+        }
     }
 }

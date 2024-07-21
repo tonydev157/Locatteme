@@ -2,6 +2,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +17,7 @@ import com.tonymen.locatteme.view.adapters.HomePostsAdapter
 import com.tonymen.locatteme.viewmodel.HomeFViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 
 class HomeFragment : Fragment() {
 
@@ -72,15 +74,19 @@ class HomeFragment : Fragment() {
                 } else {
                     binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
                 }
-
-                // Set click listeners to navigate to the profile fragment
-
             }
         }
 
         lifecycleScope.launch {
-            viewModel.posts.collectLatest { pagingData ->
-                postAdapter.submitData(pagingData)
+            try {
+                viewModel.posts.collectLatest { pagingData ->
+                    postAdapter.submitData(pagingData)
+                }
+            } catch (e: CancellationException) {
+                // La coroutine fue cancelada, no necesitamos hacer nada
+            } catch (e: Exception) {
+                // Mostrar el error al usuario o registrar el error para depuración
+                Toast.makeText(requireContext(), "Error al cargar publicaciones: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }

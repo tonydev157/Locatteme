@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -20,7 +20,10 @@ import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.User
 import com.tonymen.locatteme.view.adapters.FollowingPostsAdapter
 import com.tonymen.locatteme.viewmodel.FollowingViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 
 class FollowingFragment : Fragment() {
@@ -77,24 +80,32 @@ class FollowingFragment : Fragment() {
     private fun loadUserProfile() {
         val userId = auth.currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
-        db.collection("users").document(userId).get().addOnSuccessListener { document ->
-            val user = document.toObject(User::class.java)
-            user?.let {
-                binding.usernameTextView.text = it.username
-                if (!it.profileImageUrl.isNullOrEmpty()) {
-                    Glide.with(this)
-                        .load(it.profileImageUrl)
-                        .circleCrop()
-                        .into(binding.profileImageView)
-                } else {
-                    // Si no hay imagen en la base de datos, mostrar imagen predeterminada
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val document = db.collection("users").document(userId).get().await()
+                val user = document.toObject(User::class.java)
+                withContext(Dispatchers.Main) {
+                    user?.let {
+                        binding.usernameTextView.text = it.username
+                        if (!it.profileImageUrl.isNullOrEmpty()) {
+                            Glide.with(this@FollowingFragment)
+                                .load(it.profileImageUrl)
+                                .circleCrop()
+                                .into(binding.profileImageView)
+                        } else {
+                            binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
+                        }
+                    }
+                }
+            } catch (e: CancellationException) {
+                // Manejo de la cancelación de la corrutina si es necesario
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
                     binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
+                    Toast.makeText(context, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
                 }
             }
-        }.addOnFailureListener {
-            // En caso de error, mostrar imagen predeterminada
-            binding.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
-            Toast.makeText(context, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -104,24 +115,30 @@ class FollowingFragment : Fragment() {
         isLoading = true
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val documents = viewModel.getFollowingPosts(lastVisible).await()
-                if (documents.isEmpty) {
-                    allPostsLoaded = true
-                    isLoading = false
-                    if (posts.isEmpty()) {
-                        binding.noPostsTextView.visibility = View.VISIBLE
+                val documents = viewModel.getFollowingPosts(lastVisible)
+                withContext(Dispatchers.Main) {
+                    if (documents.isEmpty) {
+                        allPostsLoaded = true
+                        isLoading = false
+                        if (posts.isEmpty()) {
+                            binding.noPostsTextView.visibility = View.VISIBLE
+                        }
+                        return@withContext
                     }
-                    return@launch
+                    lastVisible = documents.documents.lastOrNull()
+                    val postList = documents.mapNotNull { it.toObject(Post::class.java) }
+                    posts.addAll(postList)
+                    postAdapter.notifyDataSetChanged()
+                    binding.noPostsTextView.visibility = View.GONE
+                    isLoading = false
                 }
-                lastVisible = documents.documents.lastOrNull()
-                val postList = documents.mapNotNull { it.toObject(Post::class.java) }
-                posts.addAll(postList)
-                postAdapter.notifyDataSetChanged()
-                binding.noPostsTextView.visibility = View.GONE
-                isLoading = false
+            } catch (e: CancellationException) {
+                // Manejo de la cancelación de la corrutina si es necesario
             } catch (e: Exception) {
-                isLoading = false
-                Toast.makeText(context, "Error al cargar publicaciones", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    Toast.makeText(context, "Error al cargar publicaciones", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
