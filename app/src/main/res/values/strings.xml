@@ -31,5 +31,6 @@
     <string name="title_activity_send_verification_email">SendVerificationEmailActivity</string>
     <string name="comment_icon_description" />
     <string name="share_icon_description" />
+    <string name="message_icon" />
 
 </resources>

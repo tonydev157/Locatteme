@@ -38,13 +38,13 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
+                android:id="@+id/ic_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:src="@drawable/ic_chat"
                 app:tint="?android:textColorPrimary"
-                android:background="@color/itemPostBackground"
-                android:visibility="gone"/>
+                android:background="@color/backgroundColor"/>
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -52,7 +52,7 @@
                 android:padding="8dp"
                 android:src="@drawable/ic_notifications"
                 app:tint="?android:textColorPrimary"
-                android:background="@color/itemPostBackground"
+                android:background="@color/backgroundColor"
                 android:visibility="gone"/>
 
             <ImageView

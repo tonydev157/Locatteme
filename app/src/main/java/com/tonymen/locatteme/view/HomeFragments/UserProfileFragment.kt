@@ -1,7 +1,6 @@
 package com.tonymen.locatteme.view.HomeFragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,8 +20,10 @@ import com.tonymen.locatteme.model.Follow
 import com.tonymen.locatteme.view.FollowersNFragment
 import com.tonymen.locatteme.view.FollowingNFragment
 import com.tonymen.locatteme.view.adapters.UserPostsAdapter
+import com.tonymen.locatteme.view.homefragments.ChatFragment
 import com.tonymen.locatteme.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class UserProfileFragment : Fragment() {
 
@@ -64,8 +65,6 @@ class UserProfileFragment : Fragment() {
             try {
                 val document = profileViewModel.getUser(userId)
                 if (document != null) {
-                    Log.d("UserProfileFragment", "Document data: ${document.data}")
-
                     val nombre = document.getString("nombre") ?: ""
                     val apellido = document.getString("apellido") ?: ""
                     val username = document.getString("username") ?: ""
@@ -85,13 +84,7 @@ class UserProfileFragment : Fragment() {
                             .into(binding.profileImageView)
                     }
 
-                    if (userId != currentUserId) {
-                        binding.followButton.visibility = View.VISIBLE
-                    } else {
-                        binding.followButton.visibility = View.GONE
-                    }
-                } else {
-                    Log.e("UserProfileFragment", "Document is null")
+                    binding.followButton.visibility = if (userId != currentUserId) View.VISIBLE else View.GONE
                 }
             } catch (exception: Exception) {
                 Toast.makeText(context, "Error al cargar el perfil: ${exception.message}", Toast.LENGTH_SHORT).show()
@@ -134,6 +127,19 @@ class UserProfileFragment : Fragment() {
         binding.followButton.setOnClickListener {
             handleFollowButtonClick()
         }
+
+        binding.messageIcon.setOnClickListener {
+            openChatFragment()
+        }
+    }
+
+    private fun openChatFragment() {
+        val chatId = generateChatId(currentUserId, userId)
+        val chatFragment = ChatFragment.newInstance(chatId, currentUserId)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, chatFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun checkIfFollowing() {
@@ -144,11 +150,7 @@ class UserProfileFragment : Fragment() {
             .whereEqualTo("followedId", userId)
             .get()
             .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    binding.followButton.text = "Siguiendo"
-                } else {
-                    binding.followButton.text = "Seguir"
-                }
+                binding.followButton.text = if (querySnapshot.isEmpty) "Seguir" else "Siguiendo"
             }.addOnFailureListener { exception ->
                 Toast.makeText(context, "Error al verificar si sigue: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
@@ -192,14 +194,14 @@ class UserProfileFragment : Fragment() {
         val followedUserRef = db.collection("users").document(userId)
 
         db.runTransaction { transaction ->
-            val followQuery = followsRef.whereEqualTo("followerId", currentUserId)
+            followsRef.whereEqualTo("followerId", currentUserId)
                 .whereEqualTo("followedId", userId)
                 .get()
-            followQuery.addOnSuccessListener { querySnapshot ->
-                for (document in querySnapshot.documents) {
-                    followsRef.document(document.id).delete()
+                .addOnSuccessListener { querySnapshot ->
+                    for (document in querySnapshot.documents) {
+                        followsRef.document(document.id).delete()
+                    }
                 }
-            }
 
             transaction.update(userRef, "seguidos", FieldValue.arrayRemove(userId))
             transaction.update(followedUserRef, "seguidores", FieldValue.arrayRemove(currentUserId))
@@ -216,18 +218,21 @@ class UserProfileFragment : Fragment() {
         binding.followersCount.text = (currentCount + delta).toString()
     }
 
+    private fun generateChatId(userId1: String, userId2: String): String {
+        val ids = listOf(userId1, userId2).sorted()
+        return "${ids[0]}_${ids[1]}"
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
-        fun newInstance(userId: String): UserProfileFragment {
-            val fragment = UserProfileFragment()
-            val args = Bundle()
-            args.putString("userId", userId)
-            fragment.arguments = args
-            return fragment
+        fun newInstance(userId: String) = UserProfileFragment().apply {
+            arguments = Bundle().apply {
+                putString("userId", userId)
+            }
         }
     }
 }

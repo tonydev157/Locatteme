@@ -1,0 +1,70 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="message"
+            type="com.tonymen.locatteme.model.Message" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <!-- Mensaje enviado -->
+        <LinearLayout
+            android:id="@+id/sentMessageLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:visibility="gone"
+            android:background="@drawable/sent_message_background">
+
+            <TextView
+                android:id="@+id/textViewMessageSent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/sentMessegue"
+                android:textColor="@color/backgroundColorI" />
+
+            <TextView
+                android:id="@+id/textViewTimestampSent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:background="@color/sentMessegue"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <!-- Mensaje recibido -->
+        <LinearLayout
+            android:id="@+id/receivedMessageLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="start"
+            android:layout_gravity="start"
+            android:padding="8dp"
+            android:background="@drawable/received_message_background">
+
+            <TextView
+                android:id="@+id/textViewMessageReceived"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/receivedMessage"
+                android:textColor="@color/backgroundColorI" />
+
+            <TextView
+                android:id="@+id/textViewTimestampReceived"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:background="@color/receivedMessage"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+    </LinearLayout>
+</layout>

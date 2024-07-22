@@ -21,4 +21,8 @@
     <color name="borderColor">#BDBDBD</color> <!-- Color plomo para el borde -->
     <color name="homeBackgroundColor">#F0F0F0</color> <!-- Color plomo claro para HomeActivity -->
     <color name="profile_image_background_light">@android:color/transparent</color>
+    <color name="sentMessegue">#90EE90</color>
+    <color name="receivedMessage">#FFFDD0</color>
+
+
 </resources>

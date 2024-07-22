@@ -4,8 +4,8 @@ import com.google.firebase.Timestamp
 
 data class Message(
     val id: String = "",
-    val chatId: String = "",
-    val de: String = "",
-    val mensaje: String = "",
-    val timestamp: Timestamp = Timestamp.now()
+    val senderId: String = "",
+    val messageText: String = "",
+    val timestamp: Timestamp = Timestamp.now(),
+    val readBy: List<String> = emptyList()
 )

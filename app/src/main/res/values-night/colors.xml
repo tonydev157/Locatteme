@@ -19,4 +19,6 @@
     <color name="itemPostBackground">#000000</color> <!-- Color para item post en modo oscuro -->
     <color name="borderColor">#757575</color> <!-- Color plomo para el borde en modo oscuro -->
     <color name="homeBackgroundColor">#757575</color> <!-- Color plomo para HomeActivity en modo oscuro -->
+    <color name="sentMessegue">#006400</color>
+    <color name="receivedMessage">#696969</color>
 </resources>
