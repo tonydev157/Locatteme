@@ -34,7 +34,6 @@ import java.util.*
 import com.tonymen.locatteme.utils.dpToPx
 import com.bumptech.glide.request.target.Target
 
-
 class EditPostFragment : Fragment() {
 
     private var _binding: FragmentEditPostBinding? = null
@@ -91,6 +90,7 @@ class EditPostFragment : Fragment() {
             requireActivity().onBackPressed()
         }
     }
+
     private fun showLoading(isLoading: Boolean) {
         if (_binding == null) return // Asegúrate de que el binding no es nulo
         if (isLoading) {
@@ -103,8 +103,6 @@ class EditPostFragment : Fragment() {
             binding.cancelButton.isEnabled = true
         }
     }
-
-
 
     private fun loadPostData(postId: String) {
         Log.d("EditPostFragment", "Loading post data for ID: $postId")
@@ -169,13 +167,73 @@ class EditPostFragment : Fragment() {
         return estados.indexOf(estado)
     }
 
+    private fun validateFields(): Boolean {
+        var isValid = true
+
+        if (!validateField(binding.nombresEditText, binding.nombresErrorText)) isValid = false
+        if (!validateField(binding.apellidosEditText, binding.apellidosErrorText)) isValid = false
+        if (!validateField(binding.provinciaAutoComplete, binding.provinciaErrorText, errorMessage = "Provincia inválida")) isValid = false
+        if (!validateField(binding.ciudadAutoComplete, binding.ciudadErrorText, errorMessage = "Ciudad inválida")) isValid = false
+        if (!validateField(binding.nacionalidadAutoComplete, binding.nacionalidadErrorText, optional = true, errorMessage = "Nacionalidad inválida")) isValid = false
+        if (!validateField(binding.fechaDesaparicionEditText, binding.fechaDesaparicionErrorText)) isValid = false
+
+        return isValid
+    }
+
+    private fun validateField(editText: EditText, errorTextView: TextView, optional: Boolean = false): Boolean {
+        return if (editText.text.toString().trim().isEmpty() && !optional) {
+            errorTextView.visibility = View.VISIBLE
+            editText.setBackgroundResource(R.drawable.edit_text_border_red)
+            false
+        } else {
+            errorTextView.visibility = View.GONE
+            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+            true
+        }
+    }
+
+    private fun validateField(autoCompleteTextView: AutoCompleteTextView, errorTextView: TextView, optional: Boolean = false, errorMessage: String? = null): Boolean {
+        val text = autoCompleteTextView.text.toString().trim()
+        return if ((text.isEmpty() && !optional) || (!isAutoCompleteTextViewValid(autoCompleteTextView))) {
+            errorTextView.text = errorMessage ?: "Campo inválido"
+            errorTextView.visibility = View.VISIBLE
+            autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_red)
+            false
+        } else {
+            errorTextView.visibility = View.GONE
+            autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_green)
+            true
+        }
+    }
+
+    private fun isAutoCompleteTextViewValid(autoCompleteTextView: AutoCompleteTextView): Boolean {
+        val text = autoCompleteTextView.text.toString().trim()
+        return if (autoCompleteTextView == binding.provinciaAutoComplete) {
+            isProvinciaValida(text)
+        } else if (autoCompleteTextView == binding.ciudadAutoComplete) {
+            isCiudadValida(text)
+        } else if (autoCompleteTextView == binding.nacionalidadAutoComplete) {
+            text.isEmpty() || isNacionalidadValida(text) // Nacionalidad es opcional
+        } else {
+            false
+        }
+    }
+
     private fun savePostData() {
+        showLoading(true)
+        if (!validateFields()) {
+            showLoading(false) // Ocultar el ProgressBar si hay errores
+            return
+        }
+
         if (selectedPhotoUri != null) {
             uploadPhotoAndSaveData()
         } else {
             updatePostData(null, null)
         }
     }
+
+
 
     private fun uploadPhotoAndSaveData() {
         val storageRef = storage.reference
@@ -303,6 +361,13 @@ class EditPostFragment : Fragment() {
                 optional = true
             )
         }
+
+        binding.nombresEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+            if (source.contains(" ")) "" else null
+        })
+        binding.apellidosEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+            if (source.contains(" ")) "" else null
+        })
 
         binding.nombresEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -533,32 +598,18 @@ class EditPostFragment : Fragment() {
         binding.fechaDesaparicionEditText.setText(sdf.format(calendar.time))
     }
 
-    private fun validateField(
-        editText: EditText,
-        errorTextView: TextView,
-        optional: Boolean = false
-    ) {
-        if (editText.text.toString().trim().isEmpty() && !optional) {
-            errorTextView.visibility = View.VISIBLE
-            editText.setBackgroundResource(R.drawable.edit_text_border_red)
-        } else {
-            errorTextView.visibility = View.GONE
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
-        }
+    private fun isProvinciaValida(provincia: String): Boolean {
+        return ecuadorLocations.provinces.any { it.name == provincia }
     }
 
-    private fun validateField(
-        autoCompleteTextView: AutoCompleteTextView,
-        errorTextView: TextView,
-        optional: Boolean = false
-    ) {
-        if (autoCompleteTextView.text.toString().trim().isEmpty() && !optional) {
-            errorTextView.visibility = View.VISIBLE
-            autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_red)
-        } else {
-            errorTextView.visibility = View.GONE
-            autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_green)
-        }
+    private fun isCiudadValida(ciudad: String): Boolean {
+        val selectedProvincia = binding.provinciaAutoComplete.text.toString().trim()
+        val provinciaObj = ecuadorLocations.provinces.find { it.name == selectedProvincia }
+        return provinciaObj?.cities?.contains(ciudad) == true
+    }
+
+    private fun isNacionalidadValida(nacionalidad: String): Boolean {
+        return nationalities.nationalidades.contains(nacionalidad)
     }
 
     private fun validateNombre(editText: EditText) {
@@ -582,8 +633,6 @@ class EditPostFragment : Fragment() {
             editText.setBackgroundResource(R.drawable.edit_text_border_green)
         }
     }
-
-
 
     private fun validateContacto(editText: EditText) {
         val pattern = Regex("^09[0-9]{8}$")

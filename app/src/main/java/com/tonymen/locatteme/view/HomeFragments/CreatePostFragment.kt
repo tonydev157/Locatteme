@@ -84,16 +84,21 @@ class CreatePostFragment : Fragment() {
     }
 
     private fun setupListeners() {
+        // Configurar el Spinner de edad
         setupEdadSpinner()
+        // Configurar los AutoCompleteTextView para provincia, ciudad y nacionalidad
         setupProvinciaAutoComplete()
         setupCiudadAutoComplete()
         setupNacionalidadAutoComplete()
+        // Configurar los EditText para contactos
         setupContactos()
 
+        // Botón para subir una foto
         binding.uploadPhotoButton.setOnClickListener {
             openImagePicker()
         }
 
+        // Botón para guardar el post
         binding.guardarButton.setOnClickListener {
             guardarPost()
         }
@@ -102,6 +107,14 @@ class CreatePostFragment : Fragment() {
         binding.fechaDesaparicionEditText.setOnClickListener {
             showDatePickerDialog()
         }
+
+        // Añadir filtros de entrada para evitar espacios en los campos de nombres y apellidos
+        binding.nombresEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+            if (source.contains(" ")) "" else null
+        })
+        binding.apellidosEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+            if (source.contains(" ")) "" else null
+        })
 
         // Add focus change listeners to fields
         binding.nombresEditText.setOnFocusChangeListener { _, hasFocus ->
@@ -158,6 +171,7 @@ class CreatePostFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
     }
+
 
     private fun setupEdadSpinner() {
         val edades = (1..100).toList().map { it.toString() }
@@ -232,6 +246,8 @@ class CreatePostFragment : Fragment() {
             binding.ciudadAutoComplete.isEnabled = true
         }
     }
+
+
 
     private fun setupContactos() {
         binding.addContactoButton.setOnClickListener {
@@ -390,13 +406,47 @@ class CreatePostFragment : Fragment() {
         val fechaDesaparicion = binding.fechaDesaparicionEditText.text.toString().trim()
         val numerosContacto = getContactos()
 
+        var isValid = true
+
         if (nombres.isEmpty() || apellidos.isEmpty() || selectedPhotoUri == null || fechaDesaparicion.isEmpty()) {
             Toast.makeText(context, "Por favor completa todos los campos obligatorios", Toast.LENGTH_SHORT).show()
             validateField(binding.nombresEditText, binding.nombresErrorText)
             validateField(binding.apellidosEditText, binding.apellidosErrorText)
-            validateField(binding.provinciaAutoComplete, binding.provinciaErrorText)
-            validateField(binding.ciudadAutoComplete, binding.ciudadErrorText)
             validateField(binding.fechaDesaparicionEditText, binding.fechaDesaparicionErrorText)
+            isValid = false
+        }
+
+        if (!isProvinciaValida(provincia)) {
+            binding.provinciaErrorText.text = "Provincia inválida"
+            binding.provinciaErrorText.visibility = View.VISIBLE
+            binding.provinciaAutoComplete.setBackgroundResource(R.drawable.edit_text_border_red)
+            isValid = false
+        } else {
+            binding.provinciaErrorText.visibility = View.GONE
+            binding.provinciaAutoComplete.setBackgroundResource(R.drawable.edit_text_border_green)
+        }
+
+        if (!isCiudadValida(ciudad)) {
+            binding.ciudadErrorText.text = "Ciudad inválida"
+            binding.ciudadErrorText.visibility = View.VISIBLE
+            binding.ciudadAutoComplete.setBackgroundResource(R.drawable.edit_text_border_red)
+            isValid = false
+        } else {
+            binding.ciudadErrorText.visibility = View.GONE
+            binding.ciudadAutoComplete.setBackgroundResource(R.drawable.edit_text_border_green)
+        }
+
+        if (nacionalidad.isNotEmpty() && !isNacionalidadValida(nacionalidad)) {
+            binding.nacionalidadErrorText.text = "Nacionalidad inválida"
+            binding.nacionalidadErrorText.visibility = View.VISIBLE
+            binding.nacionalidadAutoComplete.setBackgroundResource(R.drawable.edit_text_border_red)
+            isValid = false
+        } else {
+            binding.nacionalidadErrorText.visibility = View.GONE
+            binding.nacionalidadAutoComplete.setBackgroundResource(R.drawable.edit_text_border_green)
+        }
+
+        if (!isValid) {
             return
         }
 
@@ -457,6 +507,20 @@ class CreatePostFragment : Fragment() {
         }
     }
 
+    private fun isProvinciaValida(provincia: String): Boolean {
+        return ecuadorLocations.provinces.any { it.name == provincia }
+    }
+
+    private fun isCiudadValida(ciudad: String): Boolean {
+        val selectedProvincia = binding.provinciaAutoComplete.text.toString().trim()
+        val provinciaObj = ecuadorLocations.provinces.find { it.name == selectedProvincia }
+        return provinciaObj?.cities?.contains(ciudad) == true
+    }
+
+    private fun isNacionalidadValida(nacionalidad: String): Boolean {
+        return nationalities.nationalidades.contains(nacionalidad)
+    }
+
     private fun validateField(editText: EditText, errorTextView: TextView, optional: Boolean = false) {
         if (editText.text.toString().trim().isEmpty() && !optional) {
             errorTextView.visibility = View.VISIBLE
@@ -468,7 +532,8 @@ class CreatePostFragment : Fragment() {
     }
 
     private fun validateField(autoCompleteTextView: AutoCompleteTextView, errorTextView: TextView, optional: Boolean = false) {
-        if (autoCompleteTextView.text.toString().trim().isEmpty() && !optional) {
+        val text = autoCompleteTextView.text.toString().trim()
+        if ((text.isEmpty() && !optional) || (!isAutoCompleteTextViewValid(autoCompleteTextView))) {
             errorTextView.visibility = View.VISIBLE
             autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_red)
         } else {
@@ -477,8 +542,22 @@ class CreatePostFragment : Fragment() {
         }
     }
 
+    private fun isAutoCompleteTextViewValid(autoCompleteTextView: AutoCompleteTextView): Boolean {
+        val text = autoCompleteTextView.text.toString().trim()
+        return if (autoCompleteTextView == binding.provinciaAutoComplete) {
+            isProvinciaValida(text)
+        } else if (autoCompleteTextView == binding.ciudadAutoComplete) {
+            isCiudadValida(text)
+        } else if (autoCompleteTextView == binding.nacionalidadAutoComplete) {
+            text.isEmpty() || isNacionalidadValida(text) // Nacionalidad es opcional
+        } else {
+            false
+        }
+    }
+
+
     private fun validateNombre(editText: EditText) {
-        // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes
+        // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes, pero no permite espacios
         val pattern = Regex("^[A-ZÁÉÍÓÚÑ][a-zA-ZáéíóúñÑ]*$")
         if (!pattern.matches(editText.text.toString().trim())) {
             editText.error = "Nombre inválido."
@@ -489,7 +568,7 @@ class CreatePostFragment : Fragment() {
     }
 
     private fun validateApellido(editText: EditText) {
-        // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes
+        // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes, pero no permite espacios
         val pattern = Regex("^[A-ZÁÉÍÓÚÑ][a-zA-ZáéíóúñÑ]*$")
         if (!pattern.matches(editText.text.toString().trim())) {
             editText.error = "Apellido inválido."
@@ -498,6 +577,7 @@ class CreatePostFragment : Fragment() {
             editText.setBackgroundResource(R.drawable.edit_text_border_green)
         }
     }
+//No espacios en blanco
 
 
 
