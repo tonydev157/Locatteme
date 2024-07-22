@@ -2,6 +2,8 @@ package com.tonymen.locatteme.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Patterns
 import android.view.View
 import android.widget.Toast
@@ -87,7 +89,7 @@ class LoginActivity : AppCompatActivity() {
                 val account = task.getResult(ApiException::class.java)!!
                 checkIfUserExists(account)
             } catch (e: ApiException) {
-                Toast.makeText(this, "Google sign-in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                showToast("Google sign-in failed: ${e.message}", Toast.LENGTH_LONG + 1000)
             }
         }
     }
@@ -101,10 +103,10 @@ class LoginActivity : AppCompatActivity() {
                     if (signInMethods?.isNotEmpty() == true) {
                         firebaseAuthWithGoogle(account)
                     } else {
-                        Toast.makeText(this, "Esta cuenta de Google no está registrada. Por favor, regístrate primero.", Toast.LENGTH_SHORT).show()
+                        showToast("Esta cuenta de Google no está registrada. Por favor, regístrate primero.", Toast.LENGTH_LONG + 1000)
                     }
                 } else {
-                    Toast.makeText(this, "Error al verificar la cuenta de Google.", Toast.LENGTH_SHORT).show()
+                    showToast("Error al verificar la cuenta de Google.", Toast.LENGTH_LONG + 1000)
                 }
             }
     }
@@ -118,7 +120,7 @@ class LoginActivity : AppCompatActivity() {
                     user?.reload()?.addOnCompleteListener {
                         user?.let {
                             if (!it.isEmailVerified) {
-                                Toast.makeText(this, "Cuenta no Verificada. Por favor verifica tu correo electrónico.", Toast.LENGTH_SHORT).show()
+                                showToast("Cuenta no Verificada. Por favor verifica tu correo electrónico.", Toast.LENGTH_LONG + 1000)
                                 auth.signOut()
                             } else {
                                 val intent = Intent(this, HomeActivity::class.java)
@@ -128,18 +130,18 @@ class LoginActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    Toast.makeText(this, "Firebase authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    showToast("Firebase authentication failed: ${task.exception?.message}", Toast.LENGTH_LONG + 1000)
                 }
             }
     }
 
     private fun validateInput(email: String, password: String): Boolean {
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Por favor, ingresa un correo electrónico válido.", Toast.LENGTH_SHORT).show()
+            showToast("Por favor, ingresa un correo electrónico válido.", Toast.LENGTH_LONG + 1000)
             return false
         }
         if (password.isEmpty()) {
-            Toast.makeText(this, "Por favor, ingresa una contraseña.", Toast.LENGTH_SHORT).show()
+            showToast("Por favor, ingresa una contraseña.", Toast.LENGTH_LONG + 1000)
             return false
         }
         return true
@@ -158,14 +160,21 @@ class LoginActivity : AppCompatActivity() {
                             startActivity(intent)
                             finish()
                         } else {
-                            Toast.makeText(this, "Cuenta no Verificada. Por favor verifica tu correo electrónico.", Toast.LENGTH_SHORT).show()
+                            showToast("Cuenta no Verificada. Verifica tu correo electrónico.", Toast.LENGTH_LONG + 1000)
                             auth.signOut()
                         }
                     }
                 } else {
-                    Toast.makeText(this, "Error al iniciar sesión. Inténtalo de nuevo.", Toast.LENGTH_SHORT).show()
+                    showToast("Error al iniciar sesión. Inténtalo de nuevo.", Toast.LENGTH_LONG + 1000)
                 }
             }
+    }
+
+    private fun showToast(message: String, duration: Int) {
+        val toast = Toast.makeText(this, message, Toast.LENGTH_LONG)
+        toast.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({ toast.cancel() }, duration.toLong())
     }
 
     companion object {

@@ -101,8 +101,21 @@ class ChangePasswordFragment : Fragment() {
     }
 
     private fun isValidPassword(password: String): Boolean {
-        val passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#\$%^&+=!]).{8,16}$"
-        return password.matches(passwordRegex.toRegex())
+        // Permite cualquier carácter excepto espacios y debe cumplir con los criterios especificados
+        if (password.contains(" ")) {
+            return false
+        }
+
+        val digitPattern = Regex(".*[0-9].*")
+        val lowerCasePattern = Regex(".*[a-z].*")
+        val upperCasePattern = Regex(".*[A-Z].*")
+        val specialCharPattern = Regex(".*[^a-zA-Z0-9].*")
+
+        return password.length in 8..20 &&
+                digitPattern.containsMatchIn(password) &&
+                lowerCasePattern.containsMatchIn(password) &&
+                upperCasePattern.containsMatchIn(password) &&
+                specialCharPattern.containsMatchIn(password)
     }
 
     private fun changePassword(currentPassword: String, newPassword: String) {
@@ -169,7 +182,6 @@ class ChangePasswordFragment : Fragment() {
         })
     }
 
-
     private fun createTextWatcher(editText: EditText, validation: (String) -> Unit): TextWatcher {
         return object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -181,7 +193,6 @@ class ChangePasswordFragment : Fragment() {
             }
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

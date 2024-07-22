@@ -272,9 +272,24 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun isValidPassword(password: String): Boolean {
-        val passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#\$%^&+=]).{8,16}$"
-        return password.matches(passwordRegex.toRegex())
+        // Primera validación: Permitir cualquier carácter excepto espacios
+        if (password.contains(" ")) {
+            return false
+        }
+
+        // Segunda validación: Verificar que contenga al menos un dígito, una letra minúscula, una letra mayúscula y un carácter especial
+        val digitPattern = Regex(".*[0-9].*")
+        val lowerCasePattern = Regex(".*[a-z].*")
+        val upperCasePattern = Regex(".*[A-Z].*")
+        val specialCharPattern = Regex(".*[^a-zA-Z0-9].*")
+
+        return password.length in 8..20 &&
+                digitPattern.containsMatchIn(password) &&
+                lowerCasePattern.containsMatchIn(password) &&
+                upperCasePattern.containsMatchIn(password) &&
+                specialCharPattern.containsMatchIn(password)
     }
+
 
 
     override fun onStop() {
