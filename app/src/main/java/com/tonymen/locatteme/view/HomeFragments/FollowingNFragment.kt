@@ -1,4 +1,4 @@
-package com.tonymen.locatteme.view
+package com.tonymen.locatteme.view.HomeFragments
 
 import android.os.Bundle
 import android.view.LayoutInflater

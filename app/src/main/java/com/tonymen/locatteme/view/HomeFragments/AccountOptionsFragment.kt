@@ -1,4 +1,4 @@
-package com.tonymen.locatteme.view
+package com.tonymen.locatteme.view.HomeFragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.tonymen.locatteme.databinding.FragmentAccountOptionsBinding
+import com.tonymen.locatteme.view.HomeActivity
 
 class AccountOptionsFragment : Fragment() {
 

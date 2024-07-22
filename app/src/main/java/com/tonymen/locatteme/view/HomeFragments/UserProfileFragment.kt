@@ -17,10 +17,10 @@ import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentUserProfileBinding
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.Follow
-import com.tonymen.locatteme.view.FollowersNFragment
-import com.tonymen.locatteme.view.FollowingNFragment
+import com.tonymen.locatteme.view.HomeFragments.FollowersNFragment
+import com.tonymen.locatteme.view.HomeFragments.FollowingNFragment
 import com.tonymen.locatteme.view.adapters.UserPostsAdapter
-import com.tonymen.locatteme.view.homefragments.ChatFragment
+import com.tonymen.locatteme.view.HomeFragments.ChatFragment
 import com.tonymen.locatteme.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 import java.util.UUID

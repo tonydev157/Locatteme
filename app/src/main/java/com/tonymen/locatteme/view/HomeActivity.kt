@@ -1,6 +1,6 @@
 package com.tonymen.locatteme.view
 
-import HomeFragment
+import com.tonymen.locatteme.view.HomeFragments.HomeFragment
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager

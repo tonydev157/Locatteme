@@ -1,4 +1,4 @@
-package com.tonymen.locatteme.view.homefragments
+package com.tonymen.locatteme.view.HomeFragments
 
 import android.os.Bundle
 import android.util.Log

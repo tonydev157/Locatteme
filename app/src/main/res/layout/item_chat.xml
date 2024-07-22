@@ -1,0 +1,43 @@
+<!-- item_chat.xml -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="chat"
+            type="com.tonymen.locatteme.model.Chat" />
+        <variable
+            name="currentUserId"
+            type="String" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/chatName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{chat.participants[0] == currentUserId ? chat.participants[1] : chat.participants[0]}"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/lastMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{chat.lastMessageText}"
+            android:textSize="14sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/lastMessageTimestamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{chat.lastMessageTimestamp.toDate().toString()}"
+            android:textSize="12sp"
+            android:textStyle="italic" />
+    </LinearLayout>
+</layout>

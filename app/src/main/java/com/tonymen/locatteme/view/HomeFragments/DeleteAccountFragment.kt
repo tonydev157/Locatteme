@@ -1,4 +1,4 @@
-package com.tonymen.locatteme.view
+package com.tonymen.locatteme.view.HomeFragments
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,6 +12,7 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.databinding.FragmentDeleteAccountBinding
+import com.tonymen.locatteme.view.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

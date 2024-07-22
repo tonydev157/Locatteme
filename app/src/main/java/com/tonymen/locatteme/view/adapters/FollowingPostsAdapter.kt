@@ -74,10 +74,14 @@ class FollowingPostsAdapter(
             val user = document.toObject(User::class.java)
             user?.let {
                 holder.usernameTextView.text = it.username
-                Glide.with(holder.itemView.context)
-                    .load(it.profileImageUrl)
-                    .circleCrop()
-                    .into(holder.profileImageView)
+                if (!it.profileImageUrl.isNullOrEmpty()) {
+                    Glide.with(holder.itemView.context)
+                        .load(it.profileImageUrl)
+                        .circleCrop()
+                        .into(holder.profileImageView)
+                } else {
+                    holder.profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
+                }
 
                 val isCurrentUser = currentUserId == user.id
 

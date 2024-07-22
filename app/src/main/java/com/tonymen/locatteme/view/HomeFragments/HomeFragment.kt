@@ -1,3 +1,5 @@
+package com.tonymen.locatteme.view.HomeFragments
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +15,7 @@ import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentHomeBinding
 import com.tonymen.locatteme.view.HomeFragments.LocatedOrDeceasedFragment
 import com.tonymen.locatteme.view.HomeFragments.UserProfileFragment
+import com.tonymen.locatteme.view.Homefragments.ActiveChatsFragment
 import com.tonymen.locatteme.view.adapters.HomePostsAdapter
 import com.tonymen.locatteme.viewmodel.HomeFViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -104,7 +107,16 @@ class HomeFragment : Fragment() {
             transaction.addToBackStack(null)
             transaction.commit()
         }
+
+        binding.headerLayout.findViewById<View>(R.id.ic_chat).setOnClickListener {
+            val fragment = ActiveChatsFragment()
+            val transaction = parentFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragmentContainer, fragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

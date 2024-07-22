@@ -20,9 +20,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentProfileBinding
 import com.tonymen.locatteme.model.Post
-import com.tonymen.locatteme.view.AccountOptionsFragment
-import com.tonymen.locatteme.view.FollowersNFragment
-import com.tonymen.locatteme.view.FollowingNFragment
+import com.tonymen.locatteme.view.HomeFragments.AccountOptionsFragment
+import com.tonymen.locatteme.view.HomeFragments.FollowersNFragment
+import com.tonymen.locatteme.view.HomeFragments.FollowingNFragment
 import com.tonymen.locatteme.view.adapters.UserPostsAdapter
 import com.tonymen.locatteme.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
