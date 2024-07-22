@@ -111,7 +111,10 @@ class EditProfileFragment : Fragment() {
     private fun validateInput(nombre: String, apellido: String, username: String, edad: Int?, cedula: String, telefono: String): Boolean {
         var isValid = true
 
-        if (nombre.isEmpty() || !nombre.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+        // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes
+        val nombreApellidoPattern = Regex("^[A-ZÁÉÍÓÚÑ][a-zA-ZáéíóúñÑ]*$")
+
+        if (nombre.isEmpty() || !nombre.matches(nombreApellidoPattern)) {
             binding.nombreEditText.setBackgroundResource(R.drawable.edit_text_invalid)
             binding.nombreEditText.error = "Nombre inválido"
             isValid = false
@@ -119,7 +122,7 @@ class EditProfileFragment : Fragment() {
             binding.nombreEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
 
-        if (apellido.isEmpty() || !apellido.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+        if (apellido.isEmpty() || !apellido.matches(nombreApellidoPattern)) {
             binding.apellidoEditText.setBackgroundResource(R.drawable.edit_text_invalid)
             binding.apellidoEditText.error = "Apellido inválido"
             isValid = false
@@ -127,7 +130,7 @@ class EditProfileFragment : Fragment() {
             binding.apellidoEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
 
-        if (username.isEmpty() || !username.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*\$"))) {
+        if (username.isEmpty() || !username.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*$"))) {
             binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_invalid)
             binding.usernameEditText.error = "Username inválido"
             isValid = false
@@ -151,7 +154,7 @@ class EditProfileFragment : Fragment() {
             binding.cedulaEditText.setBackgroundResource(R.drawable.edit_text_valid)
         }
 
-        if (telefono.length != 10 || !telefono.matches(Regex("^09[0-9]{8}\$"))) {
+        if (telefono.length != 10 || !telefono.matches(Regex("^09[0-9]{8}$"))) {
             binding.telefonoEditText.setBackgroundResource(R.drawable.edit_text_invalid)
             binding.telefonoEditText.error = "Teléfono inválido"
             isValid = false
@@ -161,6 +164,7 @@ class EditProfileFragment : Fragment() {
 
         return isValid
     }
+
 
     private fun isValidIdNumber(idNumber: String): Boolean {
         if (idNumber.length != 10) {
@@ -186,8 +190,11 @@ class EditProfileFragment : Fragment() {
     }
 
     private fun setupRealTimeValidation() {
+        // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes
+        val nombreApellidoPattern = Regex("^[A-ZÁÉÍÓÚÑ][a-zA-ZáéíóúñÑ]*$")
+
         binding.nombreEditText.addTextChangedListener(createTextWatcher(binding.nombreEditText) { text ->
-            if (text.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+            if (text.matches(nombreApellidoPattern)) {
                 binding.nombreEditText.setBackgroundResource(R.drawable.edit_text_valid)
                 binding.nombreEditText.error = null
             } else {
@@ -197,7 +204,7 @@ class EditProfileFragment : Fragment() {
         })
 
         binding.apellidoEditText.addTextChangedListener(createTextWatcher(binding.apellidoEditText) { text ->
-            if (text.matches(Regex("^[A-Z][a-zA-Z]*\$"))) {
+            if (text.matches(nombreApellidoPattern)) {
                 binding.apellidoEditText.setBackgroundResource(R.drawable.edit_text_valid)
                 binding.apellidoEditText.error = null
             } else {
@@ -207,7 +214,7 @@ class EditProfileFragment : Fragment() {
         })
 
         binding.usernameEditText.addTextChangedListener(createTextWatcher(binding.usernameEditText) { text ->
-            if (text.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*\$"))) {
+            if (text.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*$"))) {
                 binding.usernameEditText.setBackgroundResource(R.drawable.edit_text_valid)
                 binding.usernameEditText.error = null
             } else {
@@ -238,7 +245,7 @@ class EditProfileFragment : Fragment() {
         })
 
         binding.telefonoEditText.addTextChangedListener(createTextWatcher(binding.telefonoEditText) { text ->
-            if (text.matches(Regex("^09[0-9]{8}\$"))) {
+            if (text.matches(Regex("^09[0-9]{8}$"))) {
                 binding.telefonoEditText.setBackgroundResource(R.drawable.edit_text_valid)
                 binding.telefonoEditText.error = null
             } else {
@@ -247,6 +254,7 @@ class EditProfileFragment : Fragment() {
             }
         })
     }
+
 
     private fun createTextWatcher(editText: EditText, validation: (String) -> Unit): TextWatcher {
         return object : TextWatcher {
