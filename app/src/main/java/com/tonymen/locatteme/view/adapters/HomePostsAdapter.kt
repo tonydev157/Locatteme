@@ -1,17 +1,27 @@
 package com.tonymen.locatteme.view.adapters
 
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.R
@@ -22,7 +32,10 @@ import com.tonymen.locatteme.view.HomeFragments.PostCommentsFragment
 import com.tonymen.locatteme.view.HomeFragments.PostDetailFragment
 import com.tonymen.locatteme.view.HomeFragments.UserProfileFragment
 import org.ocpsoft.prettytime.PrettyTime
+import java.io.File
+import java.io.FileOutputStream
 import java.util.Date
+import android.graphics.drawable.Drawable
 
 class HomePostsAdapter(private val context: Context) :
     PagingDataAdapter<Post, HomePostsAdapter.PostViewHolder>(POST_COMPARATOR) {
@@ -42,10 +55,10 @@ class HomePostsAdapter(private val context: Context) :
         val lugarDesaparicionTextView: TextView = itemView.findViewById(R.id.lugarDesaparicionTextView)
         val fechaDesaparicionTextView: TextView = itemView.findViewById(R.id.fechaDesaparicionTextView)
         val caracteristicasTextView: TextView = itemView.findViewById(R.id.caracteristicasTextView)
-        val numerosContactoTextView: TextView = itemView.findViewById(R.id.numerosContactoTextView) // Nueva TextView para números de contacto
+        val numerosContactoTextView: TextView = itemView.findViewById(R.id.numerosContactoTextView)
         val commentIcon: ImageView = itemView.findViewById(R.id.commentIcon)
+        val shareIcon: ImageView = itemView.findViewById(R.id.shareIcon)
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_post_home, parent, false)
@@ -74,7 +87,6 @@ class HomePostsAdapter(private val context: Context) :
 
                     val isCurrentUser = currentUserId == user.id
 
-                    // Set the click listener on the profile image and username to navigate to the user's profile
                     val clickListener = View.OnClickListener {
                         if (!isCurrentUser) {
                             val fragment = UserProfileFragment.newInstance(user.id)
@@ -83,7 +95,6 @@ class HomePostsAdapter(private val context: Context) :
                             transaction.addToBackStack(null)
                             transaction.commit()
                         }
-                        // No hacer nada si es el perfil del usuario actual
                     }
 
                     holder.profileImageView.setOnClickListener(clickListener)
@@ -105,14 +116,12 @@ class HomePostsAdapter(private val context: Context) :
             holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
             holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
 
-            // Display numerosContacto
             if (post.numerosContacto.isNotEmpty()) {
                 holder.numerosContactoTextView.text = "Contacto: ${post.numerosContacto.joinToString(", ")}"
             } else {
                 holder.numerosContactoTextView.text = "No hay números de contacto disponibles"
             }
 
-            // Click listeners to open PostDetailFragment
             val openPostDetailListener = View.OnClickListener {
                 val fragment = PostDetailFragment()
                 val bundle = Bundle().apply {
@@ -130,7 +139,7 @@ class HomePostsAdapter(private val context: Context) :
                     putString("caracteristicas", post.caracteristicas)
                     putString("autorId", post.autorId)
                     putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
-                    putStringArrayList("numerosContacto", ArrayList(post.numerosContacto)) // Pass numerosContacto to the fragment
+                    putStringArrayList("numerosContacto", ArrayList(post.numerosContacto))
                 }
                 fragment.arguments = bundle
                 val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
@@ -151,7 +160,6 @@ class HomePostsAdapter(private val context: Context) :
             holder.fechaDesaparicionTextView.setOnClickListener(openPostDetailListener)
             holder.caracteristicasTextView.setOnClickListener(openPostDetailListener)
 
-            // Click listener to open PostCommentsFragment
             holder.commentIcon.setOnClickListener {
                 val fragment = PostCommentsFragment()
                 val bundle = Bundle().apply {
@@ -163,7 +171,58 @@ class HomePostsAdapter(private val context: Context) :
                 transaction.addToBackStack(null)
                 transaction.commit()
             }
+
+            holder.shareIcon.setOnClickListener {
+                sharePost(post)
+            }
         }
+    }
+
+    private fun sharePost(post: Post) {
+        Glide.with(context)
+            .asBitmap()
+            .load(post.fotoGrande)
+            .into(object : CustomTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    val path = MediaStore.Images.Media.insertImage(context.contentResolver, resource, "Post Image", null)
+                    val uri = Uri.parse(path)
+
+                    // Intent para compartir imagen y texto
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        type = "image/*"
+                        putExtra(Intent.EXTRA_TEXT, buildPostText(post))
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+
+                    // Crear un chooser para permitir al usuario elegir la aplicación con la que compartir
+                    val chooser = Intent.createChooser(shareIntent, "Compartir usando")
+
+                    // Iniciar la actividad para compartir
+                    context.startActivity(chooser)
+                }
+
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    // No se necesita hacer nada aquí
+                }
+            })
+    }
+
+    private fun buildPostText(post: Post): String {
+        return """
+        Nombre: ${post.nombres}
+        Apellidos: ${post.apellidos}
+        Edad: ${post.edad}
+        Provincia: ${post.provincia}
+        Ciudad: ${post.ciudad}
+        Nacionalidad: ${post.nacionalidad}
+        Estado: ${post.estado}
+        Lugar de Desaparición: ${post.lugarDesaparicion}
+        Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}
+        Características: ${post.caracteristicas}
+        Números de contacto: ${TextUtils.join(", ", post.numerosContacto)}
+    """.trimIndent()
     }
 
 

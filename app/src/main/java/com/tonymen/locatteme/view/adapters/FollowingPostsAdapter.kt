@@ -1,7 +1,13 @@
 package com.tonymen.locatteme.view.adapters
 
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +16,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.R
@@ -18,7 +26,6 @@ import com.tonymen.locatteme.model.User
 import com.tonymen.locatteme.utils.TimestampUtil
 import com.tonymen.locatteme.view.HomeFragments.PostCommentsFragment
 import com.tonymen.locatteme.view.HomeFragments.PostDetailFragment
-import com.tonymen.locatteme.view.HomeFragments.ProfileFragment
 import com.tonymen.locatteme.view.HomeFragments.UserProfileFragment
 import org.ocpsoft.prettytime.PrettyTime
 import java.util.Date
@@ -43,10 +50,10 @@ class FollowingPostsAdapter(
         val lugarDesaparicionTextView: TextView = itemView.findViewById(R.id.lugarDesaparicionTextView)
         val fechaDesaparicionTextView: TextView = itemView.findViewById(R.id.fechaDesaparicionTextView)
         val caracteristicasTextView: TextView = itemView.findViewById(R.id.caracteristicasTextView)
-        val numerosContactoTextView: TextView = itemView.findViewById(R.id.numerosContactoTextView) // Nueva TextView para números de contacto
+        val numerosContactoTextView: TextView = itemView.findViewById(R.id.numerosContactoTextView)
         val commentIcon: ImageView = itemView.findViewById(R.id.commentIcon)
+        val shareIcon: ImageView = itemView.findViewById(R.id.shareIcon)
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_post_home, parent, false)
@@ -102,11 +109,10 @@ class FollowingPostsAdapter(
         holder.fechaDesaparicionTextView.text = "Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}"
         holder.caracteristicasTextView.text = "Características: ${post.caracteristicas}"
 
-        // Display numerosContacto
-        if (post.numerosContacto.isNotEmpty()) {
-            holder.numerosContactoTextView.text = "Contacto: ${post.numerosContacto.joinToString(", ")}"
+        holder.numerosContactoTextView.text = if (post.numerosContacto.isNotEmpty()) {
+            "Contacto: ${post.numerosContacto.joinToString(", ")}"
         } else {
-            holder.numerosContactoTextView.text = "No hay números de contacto disponibles"
+            "No hay números de contacto disponibles"
         }
 
         val openPostDetailListener = View.OnClickListener {
@@ -126,7 +132,7 @@ class FollowingPostsAdapter(
                 putString("caracteristicas", post.caracteristicas)
                 putString("autorId", post.autorId)
                 putString("fechaPublicacion", TimestampUtil.formatTimestampToString(post.fechaPublicacion))
-                putStringArrayList("numerosContacto", ArrayList(post.numerosContacto)) // Pass numerosContacto to the fragment
+                putStringArrayList("numerosContacto", ArrayList(post.numerosContacto))
             }
             fragment.arguments = bundle
             val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
@@ -135,6 +141,7 @@ class FollowingPostsAdapter(
             transaction.commit()
         }
 
+        // Set listeners for all relevant views
         holder.imageView.setOnClickListener(openPostDetailListener)
         holder.nombresTextView.setOnClickListener(openPostDetailListener)
         holder.apellidosTextView.setOnClickListener(openPostDetailListener)
@@ -158,6 +165,57 @@ class FollowingPostsAdapter(
             transaction.addToBackStack(null)
             transaction.commit()
         }
+
+        holder.shareIcon.setOnClickListener {
+            sharePost(post)
+        }
+    }
+
+    private fun sharePost(post: Post) {
+        Glide.with(context)
+            .asBitmap()
+            .load(post.fotoGrande)
+            .into(object : CustomTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    val path = MediaStore.Images.Media.insertImage(context.contentResolver, resource, "Post Image", null)
+                    val uri = Uri.parse(path)
+
+                    // Intent para compartir imagen y texto
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        type = "image/*"
+                        putExtra(Intent.EXTRA_TEXT, buildPostText(post))
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+
+                    // Crear un chooser para permitir al usuario elegir la aplicación con la que compartir
+                    val chooser = Intent.createChooser(shareIntent, "Compartir usando")
+
+                    // Iniciar la actividad para compartir
+                    context.startActivity(chooser)
+                }
+
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    // No se necesita hacer nada aquí
+                }
+            })
+    }
+
+    private fun buildPostText(post: Post): String {
+        return """
+        Nombre: ${post.nombres}
+        Apellidos: ${post.apellidos}
+        Edad: ${post.edad}
+        Provincia: ${post.provincia}
+        Ciudad: ${post.ciudad}
+        Nacionalidad: ${post.nacionalidad}
+        Estado: ${post.estado}
+        Lugar de Desaparición: ${post.lugarDesaparicion}
+        Fecha de Desaparición: ${TimestampUtil.formatTimestampToString(post.fechaDesaparicion)}
+        Características: ${post.caracteristicas}
+        Números de contacto: ${TextUtils.join(", ", post.numerosContacto)}
+    """.trimIndent()
     }
 
     override fun getItemCount(): Int = posts.size
