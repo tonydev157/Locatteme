@@ -31,4 +31,9 @@
         <item name="android:background">@drawable/rounded_edittext_background_no_border</item> <!-- Fondo redondeado sin borde -->
     </style>
 
+    <!-- Estilo para el cursor transparente -->
+    <style name="EditTextCursorStyle" parent="Widget.AppCompat.EditText">
+        <item name="android:textCursorDrawable">@drawable/cursor_color</item>
+    </style>
+
 </resources>

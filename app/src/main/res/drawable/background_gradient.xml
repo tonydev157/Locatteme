@@ -2,18 +2,18 @@
     <item>
         <shape android:shape="rectangle">
             <gradient
-                android:startColor="#E3F2FD"
-            android:centerColor="#FFCDD2"
-            android:endColor="#F8BBD0"
+                android:startColor="@color/gradiente_1"
+            android:centerColor="@color/gradiente_2"
+            android:endColor="@color/gradiente_3"
             android:angle="45"/>
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
             <gradient
-                android:startColor="#F8BBD0"
-            android:centerColor="#C5CAE9"
-            android:endColor="#EDE7F6"
+                android:startColor="@color/gradiente_4"
+            android:centerColor="@color/gradiente_5"
+            android:endColor="@color/gradiente_6"
             android:angle="45"/>
         </shape>
     </item>

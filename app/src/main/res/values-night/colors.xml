@@ -6,7 +6,7 @@
         <color name="primaryColor">#1E88E5</color> <!-- Azul primario -->
         <color name="primaryDarkColor">#1565C0</color> <!-- Azul oscuro -->
         <color name="colorAccent">#FFC107</color> <!-- Amarillo, sin cambiar -->
-        <color name="backgroundColor">#121212</color>
+        <color name="backgroundColor">#2C2C2C</color>
         <color name="backgroundColorI">#FFFFFF</color>
         <color name="textColorPrimary">#FFFFFF</color>
         <color name="textColorSecondary">#B0BEC5</color>
@@ -21,4 +21,11 @@
         <color name="homeBackgroundColor">#757575</color> <!-- Color plomo para HomeActivity en modo oscuro -->
         <color name="sentMessegue">#006400</color>
         <color name="receivedMessage">#0D47A1</color> <!-- Azul oscuro -->
+        //Gradiente de colores
+        <color name="gradiente_1">#1B3A4B</color>
+        <color name="gradiente_2">#0D1B2A</color>
+        <color name="gradiente_3">#152D35</color>
+        <color name="gradiente_4">#152D35</color>
+        <color name="gradiente_5">#0D1B2A</color>
+        <color name="gradiente_6">#1B3A4B</color>
 </resources>

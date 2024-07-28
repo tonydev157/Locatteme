@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -12,18 +11,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:gravity="center"
         android:padding="24dp"
         android:background="@drawable/background_gradient">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <!-- ImageView para la imagen -->
+        <ImageView
+            android:id="@+id/logoImageView"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
             android:layout_gravity="center"
             android:layout_marginBottom="32dp"
-            android:text="Iniciar Sesión"
-            android:textColor="@color/primaryColor"
-            android:textSize="24sp"
-            android:background="@drawable/background_gradient"/>
+            android:layout_marginTop="75dp"
+            android:contentDescription="@string/app_name"
+            android:background="@drawable/rounded_image"
+            android:scaleType="centerCrop"
+            android:src="@drawable/logo_provisional"
+            android:clipToOutline="true"
+            android:outlineProvider="background" />
 
         <!-- TextInputLayout con borde visible -->
         <com.google.android.material.textfield.TextInputLayout
@@ -38,6 +43,7 @@
                 android:hint="Correo electrónico"
                 android:inputType="textEmailAddress"
                 android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle"
                 tools:ignore="TouchTargetSizeCheck" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -53,7 +59,8 @@
                 style="@style/EditTextNoBorderStyle"
                 android:hint="Contraseña"
                 android:inputType="textPassword"
-                android:paddingEnd="48dp"/>
+                android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -70,7 +77,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"/>
 
         <Button
             android:id="@+id/loginButton"
@@ -81,6 +89,20 @@
             android:textColor="@android:color/white"
             android:backgroundTint="@color/primaryColor" />
 
+        <TextView
+            android:id="@+id/forgotPasswordTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp"
+            android:background="@android:color/transparent"
+            android:minHeight="48dp"
+            android:onClick="onForgotPasswordClick"
+            android:text="¿Olvidaste tu contraseña?"
+            android:textColor="@color/primaryColor"
+            android:textSize="14sp" />
+
         <Button
             android:id="@+id/sendVerificationEmailButton"
             style="@style/ButtonStyle"
@@ -88,5 +110,23 @@
             android:minHeight="48dp"
             android:text="Enviar Correo de Verificación"
             android:visibility="gone"/>
+
+        <!-- Espacio flexible para empujar el botón "Crear cuenta" al fondo -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <!-- Botón transparente para "Crear cuenta" -->
+        <Button
+            android:id="@+id/createAccountButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/transparent_button_background"
+            android:text="Crear cuenta nueva"
+            android:textColor="@color/primaryColor"
+            android:textSize="14sp"
+            android:onClick="onCreateAccountClick"/>
     </LinearLayout>
 </ScrollView>

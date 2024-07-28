@@ -23,4 +23,12 @@
     <color name="profile_image_background_light">@android:color/transparent</color>
     <color name="sentMessegue">#90EE90</color>
     <color name="receivedMessage">#BBDEFB</color> <!-- Azul claro -->
+    //Gradiente de colores
+    <color name="gradiente_1">#E3F2FD</color>
+    <color name="gradiente_2">#FFCDD2</color>
+    <color name="gradiente_3">#F8BBD0</color>
+    <color name="gradiente_4">#F8BBD0</color>
+    <color name="gradiente_5">#C5CAE9</color>
+    <color name="gradiente_6">#EDE7F6</color>
+
 </resources>
