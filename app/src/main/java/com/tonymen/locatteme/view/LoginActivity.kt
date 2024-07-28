@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Patterns
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -55,16 +56,15 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        binding.showHidePasswordButton.setOnClickListener {
-            if (isPasswordVisible) {
-                binding.passwordEditText.inputType = 129
-                binding.showHidePasswordButton.setImageResource(R.drawable.ic_eye_off)
-            } else {
-                binding.passwordEditText.inputType = 144
-                binding.showHidePasswordButton.setImageResource(R.drawable.ic_eye)
+        // Manejador para la visibilidad de la contraseña
+        binding.passwordEditText.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= (binding.passwordEditText.right - binding.passwordEditText.compoundDrawables[2].bounds.width())) {
+                    togglePasswordVisibility()
+                    return@setOnTouchListener true
+                }
             }
-            isPasswordVisible = !isPasswordVisible
-            binding.passwordEditText.setSelection(binding.passwordEditText.text.length)
+            false
         }
 
         binding.sendVerificationEmailButton.setOnClickListener {
@@ -168,6 +168,21 @@ class LoginActivity : AppCompatActivity() {
                     showToast("Error al iniciar sesión. Inténtalo de nuevo.", Toast.LENGTH_LONG + 1000)
                 }
             }
+    }
+
+    private fun togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            binding.passwordEditText.inputType = 129 // Tipo de entrada para contraseña oculta
+            binding.passwordEditText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_off, 0)
+        } else {
+            binding.passwordEditText.inputType = 144 // Tipo de entrada para contraseña visible
+            binding.passwordEditText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye, 0)
+        }
+        isPasswordVisible = !isPasswordVisible
+        // Verifica que el texto no sea nulo antes de acceder a su longitud
+        binding.passwordEditText.text?.let {
+            binding.passwordEditText.setSelection(it.length)
+        }
     }
 
     private fun showToast(message: String, duration: Int) {

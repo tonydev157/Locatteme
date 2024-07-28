@@ -3,9 +3,9 @@
     <color name="red">#F44336</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="primaryColor">#1B5E20</color>
-    <color name="primaryDarkColor">#004D40</color>
-    <color name="colorAccent">#FFEB3B</color>
+    <color name="primaryColor">#1E88E5</color> <!-- Azul primario -->
+    <color name="primaryDarkColor">#1565C0</color> <!-- Azul oscuro -->
+    <color name="colorAccent">#FFC107</color> <!-- Amarillo, sin cambiar -->
     <color name="backgroundColor">#FFFFFF</color>
     <color name="backgroundColorI">#121212</color>
     <color name="textColorPrimary">#000000</color>
@@ -22,7 +22,5 @@
     <color name="homeBackgroundColor">#F0F0F0</color> <!-- Color plomo claro para HomeActivity -->
     <color name="profile_image_background_light">@android:color/transparent</color>
     <color name="sentMessegue">#90EE90</color>
-    <color name="receivedMessage">#FFFDD0</color>
-
-
+    <color name="receivedMessage">#BBDEFB</color> <!-- Azul claro -->
 </resources>

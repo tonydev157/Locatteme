@@ -3,10 +3,11 @@
     <style name="ButtonStyle" parent="Widget.AppCompat.Button.Colored">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:backgroundTint">@color/primaryColor</item>
+        <item name="android:background">@drawable/button_background</item>
         <item name="android:textColor">@color/backgroundColor</item>
         <item name="android:layout_marginTop">16dp</item>
         <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 
     <!-- EditText Style -->
@@ -18,4 +19,16 @@
         <item name="android:padding">10dp</item>
         <item name="android:layout_marginTop">8dp</item>
     </style>
+
+    <!-- Estilo para el TextInputEditText sin borde -->
+    <style name="EditTextNoBorderStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/editTextTextColor</item>
+        <item name="android:textColorHint">@color/hintColor</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:background">@drawable/rounded_edittext_background_no_border</item> <!-- Fondo redondeado sin borde -->
+    </style>
+
 </resources>

@@ -124,6 +124,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation ("com.google.android.gms:play-services-location:21.3.0")
     implementation ("com.google.firebase:firebase-appcheck-playintegrity:16.0.1")
+    implementation ("com.google.android.material:material:1.12.0")
+
 
 
 

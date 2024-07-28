@@ -15,7 +15,7 @@ import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentHomeBinding
 import com.tonymen.locatteme.view.HomeFragments.LocatedOrDeceasedFragment
 import com.tonymen.locatteme.view.HomeFragments.UserProfileFragment
-import com.tonymen.locatteme.view.Homefragments.ActiveChatsFragment
+import com.tonymen.locatteme.view.HomeFragments.ActiveChatsFragment
 import com.tonymen.locatteme.view.adapters.HomePostsAdapter
 import com.tonymen.locatteme.viewmodel.HomeFViewModel
 import kotlinx.coroutines.flow.collectLatest

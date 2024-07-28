@@ -1,0 +1,5 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/transparent"/> <!-- Fondo transparente -->
+    <corners android:radius="12dp"/> <!-- Bordes redondeados -->
+    <stroke android:width="2dp" android:color="@color/editTextBorderColor"/> <!-- Color del borde -->
+</shape>
