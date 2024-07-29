@@ -1,141 +1,187 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:fillViewport="true"
+    android:background="@drawable/background_gradient"
     tools:context=".view.SignUpActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
+        android:gravity="center"
         android:padding="24dp"
-        tools:ignore="ExtraText">
+        android:background="@drawable/background_gradient">
 
+        <!-- ImageView para la imagen -->
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Registro"
-            android:textSize="24sp"
-            android:textColor="@color/primaryDarkColor"
-            android:layout_gravity="center"
-            android:layout_marginBottom="32dp"/>
-
-        <EditText
-            android:id="@+id/firstNameEditText"
-            style="@style/EditTextStyle"
-            android:hint="Nombre"
-            android:inputType="text"
-            android:background="@drawable/edit_text_background"
-            android:minHeight="48dp" />
-
-        <EditText
-            android:id="@+id/lastNameEditText"
-            style="@style/EditTextStyle"
-            android:hint="Apellido"
-            android:inputType="text"
-            android:background="@drawable/edit_text_background"
-            android:minHeight="48dp" />
-
-        <EditText
-            android:id="@+id/usernameEditText"
-            style="@style/EditTextStyle"
-            android:hint="Username"
-            android:inputType="text"
-            android:background="@drawable/edit_text_background"
-            android:minHeight="48dp" />
-
-        <EditText
-            android:id="@+id/ageEditText"
-            style="@style/EditTextStyle"
-            android:hint="Edad"
-            android:inputType="number"
-            android:background="@drawable/edit_text_background"
-            android:minHeight="48dp" />
-
-        <EditText
-            android:id="@+id/idNumberEditText"
-            style="@style/EditTextStyle"
-            android:hint="Cédula de Identidad"
-            android:inputType="text"
-            android:background="@drawable/edit_text_background"
-            android:minHeight="48dp" />
-
-        <EditText
-            android:id="@+id/emailEditText"
-            style="@style/EditTextStyle"
-            android:hint="Correo Electrónico"
-            android:inputType="textEmailAddress"
-            android:background="@drawable/edit_text_background"
-            android:minHeight="48dp" />
-
-        <LinearLayout
+            android:id="@+id/register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="0dp">
+            android:text="@string/register"
+            android:textColor="@color/primaryColor"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textSize="45dp"
+            style="@style/RegisterTextViewStyle"
+            android:background="@drawable/transparent_background"/>
 
-            <EditText
+        <!-- TextInputLayout para el Nombre -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/EditTextNoBorderStyle"
+            android:layout_marginBottom="16dp"
+            android:padding="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/firstNameEditText"
+                style="@style/EditTextNoBorderStyle"
+                android:hint="Nombre"
+                android:inputType="text"
+                android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- TextInputLayout para el Apellido -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/EditTextNoBorderStyle"
+            android:layout_marginBottom="16dp"
+            android:padding="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/lastNameEditText"
+                style="@style/EditTextNoBorderStyle"
+                android:hint="Apellido"
+                android:inputType="text"
+                android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- TextInputLayout para el Username -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/EditTextNoBorderStyle"
+            android:layout_marginBottom="16dp"
+            android:padding="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/usernameEditText"
+                style="@style/EditTextNoBorderStyle"
+                android:hint="Username"
+                android:inputType="text"
+                android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- TextInputLayout para la Edad -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/EditTextNoBorderStyle"
+            android:layout_marginBottom="16dp"
+            android:padding="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/ageEditText"
+                style="@style/EditTextNoBorderStyle"
+                android:hint="Edad"
+                android:inputType="number"
+                android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- TextInputLayout para la Cédula de Identidad -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/EditTextNoBorderStyle"
+            android:layout_marginBottom="16dp"
+            android:padding="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/idNumberEditText"
+                style="@style/EditTextNoBorderStyle"
+                android:hint="Cédula de Identidad"
+                android:inputType="text"
+                android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- TextInputLayout para el Correo Electrónico -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/EditTextNoBorderStyle"
+            android:layout_marginBottom="16dp"
+            android:padding="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/emailEditText"
+                style="@style/EditTextNoBorderStyle"
+                android:hint="Correo Electrónico"
+                android:inputType="textEmailAddress"
+                android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- TextInputLayout para la Contraseña -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/EditTextNoBorderStyle"
+            app:endIconMode="password_toggle"
+            android:layout_marginBottom="16dp"
+            android:padding="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/passwordEditText"
-                style="@style/EditTextStyle"
+                style="@style/EditTextNoBorderStyle"
                 android:hint="Contraseña"
                 android:inputType="textPassword"
-                android:background="@drawable/edit_text_background"
-                android:layout_weight="1"
-                android:minHeight="48dp" />
+                android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <ImageButton
-                android:id="@+id/showHidePasswordButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/show_password"
-                android:src="@drawable/ic_eye_off"
-                tools:ignore="TouchTargetSizeCheck" />
-
-        </LinearLayout>
+        <!-- TextView para los requisitos de la contraseña -->
         <TextView
             android:id="@+id/passwordRequirementsTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="La contraseña debe tener de 8 a 20 caracteres entre mayúsculas, minúsculas, números y caracteres especiales."
-            android:textColor="@color/textColorSecondary"
-            android:layout_marginTop="4dp"/>
+            android:textColor="@color/backgroundColorI"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/transparent_background"/>
 
-        <EditText
-            android:id="@+id/confirmPasswordEditText"
-            style="@style/EditTextStyle"
-            android:hint="Confirmar Contraseña"
-            android:inputType="textPassword"
-            android:background="@drawable/edit_text_background"
-            android:minHeight="48dp" />
+        <!-- TextInputLayout para Confirmar Contraseña -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/EditTextNoBorderStyle"
+            app:endIconMode="password_toggle"
+            android:layout_marginBottom="16dp"
+            android:padding="10dp">
 
-        <EditText
-            android:id="@+id/phoneEditText"
-            style="@style/EditTextStyle"
-            android:hint="Teléfono"
-            android:inputType="phone"
-            android:background="@drawable/edit_text_background"
-            android:minHeight="48dp" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/confirmPasswordEditText"
+                style="@style/EditTextNoBorderStyle"
+                android:hint="Confirmar Contraseña"
+                android:inputType="textPassword"
+                android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- TextInputLayout para el Teléfono -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/EditTextNoBorderStyle"
+            android:layout_marginBottom="16dp"
+            android:padding="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/phoneEditText"
+                style="@style/EditTextNoBorderStyle"
+                android:hint="Teléfono"
+                android:inputType="phone"
+                android:paddingEnd="48dp"
+                android:theme="@style/EditTextCursorStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/googleSignInButton"
             style="@style/ButtonStyle"
-            android:text="Registrarse con Google"
-            android:minHeight="48dp"
             android:layout_marginTop="16dp"
-            android:visibility="gone"/>
-            />
-
-        <Button
-            android:id="@+id/registerButton"
-            style="@style/ButtonStyle"
-            android:text="Registrar"
             android:minHeight="48dp"
-            android:layout_marginTop="16dp"/>
+            android:text="Registrarse con Google"
+            android:visibility="gone" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -143,7 +189,23 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"/>
+
+        <Button
+            android:id="@+id/registerButton"
+            style="@style/ButtonStyle"
+            android:layout_marginTop="16dp"
+            android:minHeight="48dp"
+            android:text="Registrar"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/primaryColor" />
+
+        <!-- Espacio flexible para empujar el botón "Crear cuenta" al fondo -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
     </LinearLayout>
 </ScrollView>

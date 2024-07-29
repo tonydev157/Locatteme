@@ -5,6 +5,7 @@
     <string name="profile_username_label">usuario</string>
     <string name="post_image_desc">Imagen de la publicación</string>
     <string name="settings">Configuración</string>
+    <string name="register">Registrar</string>
     <string name="menu_find_upc">Encuentra UPC más cercana</string>
     <string name="menu_safety_numbers">Números de seguridad</string>
     <string name="menu_danger_zones">Zonas más peligrosas</string>

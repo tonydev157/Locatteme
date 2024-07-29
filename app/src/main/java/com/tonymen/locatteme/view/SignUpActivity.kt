@@ -36,7 +36,6 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private var isGoogleSignUp = false
     private var googleIdToken: String? = null
-    private var isPasswordVisible = false
     private val viewModel: SignUpViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,18 +81,6 @@ class SignUpActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
-
-        binding.showHidePasswordButton.setOnClickListener {
-            if (isPasswordVisible) {
-                binding.passwordEditText.inputType = 129
-                binding.showHidePasswordButton.setImageResource(R.drawable.ic_eye_off)
-            } else {
-                binding.passwordEditText.inputType = 144
-                binding.showHidePasswordButton.setImageResource(R.drawable.ic_eye)
-            }
-            isPasswordVisible = !isPasswordVisible
-            binding.passwordEditText.setSelection(binding.passwordEditText.text.length)
         }
 
         setupRealTimeValidation()
@@ -289,8 +276,6 @@ class SignUpActivity : AppCompatActivity() {
                 upperCasePattern.containsMatchIn(password) &&
                 specialCharPattern.containsMatchIn(password)
     }
-
-
 
     override fun onStop() {
         super.onStop()

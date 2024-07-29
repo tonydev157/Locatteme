@@ -20,13 +20,14 @@
             android:id="@+id/titleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Locatteme"
+            android:text="LocatteMe"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="?android:textColorPrimary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="@color/backgroundColor"/>
+            android:background="@color/backgroundColor"
+            android:fontFamily="@font/font_3_locatteme"/>
 
         <LinearLayout
             android:id="@+id/headerLayout"
@@ -51,8 +52,8 @@
 
             <ImageView
                 android:id="@+id/profileImageView"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
                 android:src="@drawable/ic_profile_placeholder"
                 android:background="@color/backgroundColor"
                 android:scaleType="centerCrop"

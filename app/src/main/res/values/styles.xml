@@ -28,17 +28,17 @@
         <item name="android:textColorHint">@color/hintColor</item>
         <item name="android:padding">10dp</item>
         <item name="android:layout_marginTop">8dp</item>
-        <item name="android:background">@drawable/rounded_edittext_background_no_border</item> <!-- Fondo redondeado sin borde -->
-
+        <item name="android:background">@drawable/rounded_edittext_background_no_border</item>
     </style>
 
-    //Cuadro de dialogo-Cambio de contraseña
+    <!-- Cuadro de dialogo-Cambio de contraseña -->
     <style name="CustomAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:background">@drawable/background_gradient</item>
     </style>
     <style name="CustomDialogTitleTextStyle" parent="TextAppearance.AppCompat.Large">
         <item name="android:textColor">@color/primaryColor</item>
     </style>
+
     <!-- Estilo para el diálogo con fondo transparente -->
     <style name="TransparentDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -51,10 +51,24 @@
         <item name="android:textColor">@color/primaryColor</item>
     </style>
 
-
     <!-- Estilo para el cursor transparente -->
     <style name="EditTextCursorStyle" parent="Widget.AppCompat.EditText">
         <item name="android:textCursorDrawable">@drawable/cursor_color</item>
     </style>
 
+    <!-- Define el estilo para la apariencia del hint -->
+    <style name="HintTextAppearance" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textColor">@color/primaryColor</item>
+    </style>
+
+    <style name="RegisterTextViewStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/primaryColor</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">45sp</item> <!-- Cambiar a sp para tamaños de texto -->
+        <item name="android:background">@drawable/transparent_background</item>
+        <item name="android:fontFamily">@font/font_1</item> <!-- Tipo de letra personalizada -->
+    </style>
 </resources>
