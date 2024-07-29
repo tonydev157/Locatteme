@@ -76,8 +76,14 @@ class HomeActivity : AppCompatActivity() {
                     true
                 }
                 R.id.navigation_create_post -> {
-                    handleCreatePostNavigation()
-                    true
+                    val user = auth.currentUser
+                    if (user == null || !user.isEmailVerified) {
+                        showToast("Autentica tu correo electrónico", 2000, R.color.primaryColor)
+                        false
+                    } else {
+                        handleCreatePostNavigation()
+                        true
+                    }
                 }
                 R.id.navigation_search -> {
                     handleNavigation(SearchFragment(), "SearchFragment")
@@ -114,16 +120,18 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        val user = auth.currentUser
+        if (user != null && !user.isEmailVerified) {
+            showToast("Por favor, verifica tu correo electrónico.", 2000, R.color.primaryColor)
+        }
+    }
+
     private fun handleCreatePostNavigation() {
         if (isNavigating) return
         isNavigating = true
         navigationHandler.postDelayed({ isNavigating = false }, 500)  // 500 ms delay
-
-        val user = auth.currentUser
-        if (user == null || !user.isEmailVerified) {
-            showToast("Autentica tu correo electrónico", 2000, R.color.primaryColor)
-            return
-        }
 
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         if (currentFragment is CreatePostFragment && !isPostSaved) {
