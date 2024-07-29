@@ -77,15 +77,22 @@ class SearchFragment : Fragment() {
     private fun setupSearchBar() {
         binding.searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val query = s.toString().lowercase()
                 updateSearchClearIconVisibility(query)
+
                 if (query.isNotEmpty()) {
                     if (isFilterApplied) {
                         viewModel.searchFilteredPosts(query)
                     } else {
                         if (query.startsWith("@")) {
-                            viewModel.searchUsers(query.substring(1))
+                            if (query.length > 1) {
+                                viewModel.searchUsers(query.substring(1))
+                            } else {
+                                // No hacer nada si solo es "@"
+                                adapter.updateUsers(emptyList())
+                            }
                         } else {
                             viewModel.searchPosts(query)
                         }
@@ -98,6 +105,7 @@ class SearchFragment : Fragment() {
                     }
                 }
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
 
@@ -111,6 +119,7 @@ class SearchFragment : Fragment() {
             }
         }
     }
+
 
     private fun updateSearchClearIconVisibility(query: String) {
         binding.searchClearIcon.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
