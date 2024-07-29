@@ -29,7 +29,28 @@
         <item name="android:padding">10dp</item>
         <item name="android:layout_marginTop">8dp</item>
         <item name="android:background">@drawable/rounded_edittext_background_no_border</item> <!-- Fondo redondeado sin borde -->
+
     </style>
+
+    //Cuadro de dialogo-Cambio de contraseña
+    <style name="CustomAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@drawable/background_gradient</item>
+    </style>
+    <style name="CustomDialogTitleTextStyle" parent="TextAppearance.AppCompat.Large">
+        <item name="android:textColor">@color/primaryColor</item>
+    </style>
+    <!-- Estilo para el diálogo con fondo transparente -->
+    <style name="TransparentDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <!-- Estilo para los botones del diálogo -->
+    <style name="DialogButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textColor">@color/primaryColor</item>
+    </style>
+
 
     <!-- Estilo para el cursor transparente -->
     <style name="EditTextCursorStyle" parent="Widget.AppCompat.EditText">

@@ -5,14 +5,18 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Patterns
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
+import android.widget.TextView
+import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.request.RequestOptions
+import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -59,6 +63,15 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        binding.createAccountButton.setOnClickListener {
+            val intent = Intent(this, SignUpActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.forgotPasswordTextView.setOnClickListener {
+            showForgotPasswordDialog()
+        }
+
         // Manejador para la visibilidad de la contraseña
         binding.passwordEditText.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
@@ -74,6 +87,74 @@ class LoginActivity : AppCompatActivity() {
             val intent = Intent(this, SendVerificationEmailActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun showForgotPasswordDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_forgot_password, null)
+        val emailEditText = dialogView.findViewById<EditText>(R.id.emailEditText)
+        val progressBar = dialogView.findViewById<ProgressBar>(R.id.progressBar)
+        val positiveButton = dialogView.findViewById<Button>(R.id.positiveButton)
+        val negativeButton = dialogView.findViewById<Button>(R.id.negativeButton)
+
+        val builder = AlertDialog.Builder(this, R.style.TransparentDialog)
+        builder.setView(dialogView)
+
+        // Crear un TextView personalizado para el título
+        val title = TextView(this)
+        title.text = "Restablecer contraseña"
+        title.setTextColor(ContextCompat.getColor(this, R.color.primaryColor))
+        title.textSize = 20f
+        title.setPadding(20, 20, 20, 20)
+        title.gravity = Gravity.CENTER
+        title.setBackgroundResource(R.drawable.background_gradient) // Aplica el gradiente al título
+
+        builder.setCustomTitle(title)
+
+        val dialog = builder.create()
+        dialog.setOnShowListener {
+            positiveButton.setOnClickListener {
+                val email = emailEditText.text.toString()
+                if (email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    progressBar.visibility = View.VISIBLE
+                    positiveButton.isEnabled = false
+                    negativeButton.isEnabled = false
+                    sendPasswordResetEmail(email, progressBar, dialog)
+                } else {
+                    showToast("Por favor, ingresa un correo electrónico válido.", 2000)
+                }
+            }
+
+            negativeButton.setOnClickListener {
+                dialog.dismiss()
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun sendPasswordResetEmail(email: String, progressBar: ProgressBar, dialog: AlertDialog) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                progressBar.visibility = View.GONE
+                if (task.isSuccessful) {
+                    showToast("Correo de restablecimiento enviado a $email", 2000, R.color.primaryColor)
+                    dialog.dismiss()
+                } else {
+                    showToast("Error al enviar el correo de restablecimiento.", 2000, R.color.primaryColor)
+                }
+                dialog.findViewById<Button>(R.id.positiveButton)?.isEnabled = true
+                dialog.findViewById<Button>(R.id.negativeButton)?.isEnabled = true
+            }
+    }
+
+    private fun showToast(message: String, duration: Int, color: Int) {
+        val toast = Toast.makeText(this, message, Toast.LENGTH_LONG)
+        val view = toast.view
+        val text = view?.findViewById<TextView>(android.R.id.message)
+        text?.setTextColor(ContextCompat.getColor(this, color))
+        toast.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({ toast.cancel() }, duration.toLong())
     }
 
     private fun signInWithGoogle() {
