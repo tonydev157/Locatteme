@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- Permiso para acceso a Internet -->
+
+    <!-- Permisos necesarios -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Permisos adicionales -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -52,18 +51,18 @@
             android:exported="false" />
         <activity
             android:name=".view.LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".view.HomeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".view.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".view.HomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.MainActivity"
+            android:exported="true"/>
 
         <meta-data
             android:name="com.google.android.gms.auth.api.credentials.CredentialsApi.CLIENT_ID"

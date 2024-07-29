@@ -43,6 +43,12 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        // Verifica si el usuario ya está autenticado y redirige a HomeActivity si es así
+        val currentUser = auth.currentUser
+        if (currentUser != null && currentUser.isEmailVerified) {
+            navigateToHome()
+        }
+
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -252,11 +258,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun validateInput(email: String, password: String): Boolean {
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            showToast("Por favor, ingresa un correo electrónico válido.", Toast.LENGTH_LONG + 1000)
+            showToast("Por favor, ingresa un correo electrónico válido.", Toast.LENGTH_LONG)
             return false
         }
         if (password.isEmpty()) {
-            showToast("Por favor, ingresa una contraseña.", Toast.LENGTH_LONG + 1000)
+            showToast("Por favor, ingresa una contraseña.", Toast.LENGTH_LONG)
             return false
         }
         return true
@@ -269,11 +275,15 @@ class LoginActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    val intent = Intent(this, HomeActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    if (user != null && user.isEmailVerified) {
+                        val intent = Intent(this, HomeActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        showToast("Por favor, verifica tu correo electrónico.", Toast.LENGTH_LONG)
+                    }
                 } else {
-                    showToast("Error al iniciar sesión. Inténtalo de nuevo.", Toast.LENGTH_LONG + 1000)
+                    showToast("Error al iniciar sesión. Inténtalo de nuevo.", Toast.LENGTH_LONG)
                 }
             }
     }
@@ -298,6 +308,12 @@ class LoginActivity : AppCompatActivity() {
         toast.show()
 
         Handler(Looper.getMainLooper()).postDelayed({ toast.cancel() }, duration.toLong())
+    }
+
+    private fun navigateToHome() {
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     companion object {

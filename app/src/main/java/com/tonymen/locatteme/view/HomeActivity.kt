@@ -63,6 +63,11 @@ class HomeActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        // Check if the user is authenticated, if not redirect to LoginActivity
+        if (auth.currentUser == null) {
+            navigateToLogin()
+        }
+
         val navView: BottomNavigationView = binding.bottomNavigationView
 
         navView.setOnItemSelectedListener { item ->
@@ -126,6 +131,12 @@ class HomeActivity : AppCompatActivity() {
         if (user != null && !user.isEmailVerified) {
             showToast("Por favor, verifica tu correo electrónico.", 2000, R.color.primaryColor)
         }
+    }
+
+    private fun navigateToLogin() {
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun handleCreatePostNavigation() {
@@ -318,9 +329,7 @@ class HomeActivity : AppCompatActivity() {
             }
             R.id.menu_logout -> {
                 auth.signOut()
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
+                navigateToLogin()
                 true
             }
             R.id.verification_account -> {
@@ -353,9 +362,7 @@ class HomeActivity : AppCompatActivity() {
                 }
                 R.id.menu_logout -> {
                     auth.signOut()
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    navigateToLogin()
                     true
                 }
                 R.id.verification_account -> {
@@ -457,7 +464,7 @@ class HomeActivity : AppCompatActivity() {
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val earthRadius = 6371.0 // km
         val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
+        val dLon = Math.toRadians(lat2 - lon2)
         val a = sin(dLat / 2) * sin(dLat / 2) +
                 cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
                 sin(dLon / 2) * sin(dLon / 2)
