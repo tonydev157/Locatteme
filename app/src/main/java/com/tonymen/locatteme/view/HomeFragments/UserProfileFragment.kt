@@ -17,13 +17,11 @@ import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentUserProfileBinding
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.Follow
-import com.tonymen.locatteme.view.HomeFragments.FollowersNFragment
-import com.tonymen.locatteme.view.HomeFragments.FollowingNFragment
 import com.tonymen.locatteme.view.adapters.UserPostsAdapter
-import com.tonymen.locatteme.view.HomeFragments.ChatFragment
 import com.tonymen.locatteme.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
-import java.util.UUID
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.CancellationException
 
 class UserProfileFragment : Fragment() {
 
@@ -64,7 +62,7 @@ class UserProfileFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val document = profileViewModel.getUser(userId)
-                if (document != null) {
+                if (document != null && isAdded) {
                     val nombre = document.getString("nombre") ?: ""
                     val apellido = document.getString("apellido") ?: ""
                     val username = document.getString("username") ?: ""
@@ -85,9 +83,13 @@ class UserProfileFragment : Fragment() {
                     }
 
                     binding.followButton.visibility = if (userId != currentUserId) View.VISIBLE else View.GONE
+                } else {
+                    showToast("Documento de perfil no encontrado")
                 }
+            } catch (e: CancellationException) {
+                // Manejar la cancelación de la coroutine
             } catch (exception: Exception) {
-                Toast.makeText(context, "Error al cargar el perfil: ${exception.message}", Toast.LENGTH_SHORT).show()
+                showToast("Error al cargar el perfil: ${exception.message}")
             }
         }
     }
@@ -98,11 +100,15 @@ class UserProfileFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val documents = profileViewModel.getUserPosts(userId)
-                val posts = documents.mapNotNull { it.toObject(Post::class.java) }
-                adapter.updatePosts(posts)
-                binding.postsCount.text = posts.size.toString() // Actualizar el contador de publicaciones
+                if (isAdded) {
+                    val posts = documents.mapNotNull { it.toObject(Post::class.java) }
+                    adapter.updatePosts(posts)
+                    binding.postsCount.text = posts.size.toString() // Actualizar el contador de publicaciones
+                }
+            } catch (e: CancellationException) {
+                // Manejar la cancelación de la coroutine
             } catch (exception: Exception) {
-                Toast.makeText(context, "Error al cargar las publicaciones: ${exception.message}", Toast.LENGTH_SHORT).show()
+                showToast("Error al cargar las publicaciones: ${exception.message}")
             }
         }
     }
@@ -128,7 +134,7 @@ class UserProfileFragment : Fragment() {
             handleFollowButtonClick()
         }
 
-        binding.messageIcon.setOnClickListener {
+        binding.messageButton.setOnClickListener {
             openChatFragment()
         }
     }
@@ -150,13 +156,18 @@ class UserProfileFragment : Fragment() {
             .whereEqualTo("followedId", userId)
             .get()
             .addOnSuccessListener { querySnapshot ->
-                binding.followButton.text = if (querySnapshot.isEmpty) "Seguir" else "Siguiendo"
+                if (isAdded) {
+                    binding.followButton.text = if (querySnapshot.isEmpty) "Seguir" else "Siguiendo"
+                }
             }.addOnFailureListener { exception ->
-                Toast.makeText(context, "Error al verificar si sigue: ${exception.message}", Toast.LENGTH_SHORT).show()
+                if (isAdded) {
+                    showToast("Error al verificar si sigue: ${exception.message}")
+                }
             }
     }
 
     private fun handleFollowButtonClick() {
+        showProgressBar(true) // Mostrar el ProgressBar cuando se hace clic en el botón
         if (binding.followButton.text == "Seguir") {
             followUser()
         } else {
@@ -180,10 +191,16 @@ class UserProfileFragment : Fragment() {
             transaction.update(userRef, "seguidos", FieldValue.arrayUnion(userId))
             transaction.update(followedUserRef, "seguidores", FieldValue.arrayUnion(currentUserId))
         }.addOnSuccessListener {
-            binding.followButton.text = "Siguiendo"
-            updateFollowersCount(1)
+            if (isAdded) {
+                binding.followButton.text = "Siguiendo"
+                updateFollowersCount(1)
+                showProgressBar(false) // Ocultar el ProgressBar después de completar la acción
+            }
         }.addOnFailureListener { exception ->
-            Toast.makeText(context, "Error al seguir: ${exception.message}", Toast.LENGTH_SHORT).show()
+            if (isAdded) {
+                showToast("Error al seguir: ${exception.message}")
+                showProgressBar(false) // Ocultar el ProgressBar en caso de error
+            }
         }
     }
 
@@ -206,21 +223,49 @@ class UserProfileFragment : Fragment() {
             transaction.update(userRef, "seguidos", FieldValue.arrayRemove(userId))
             transaction.update(followedUserRef, "seguidores", FieldValue.arrayRemove(currentUserId))
         }.addOnSuccessListener {
-            binding.followButton.text = "Seguir"
-            updateFollowersCount(-1)
+            if (isAdded) {
+                binding.followButton.text = "Seguir"
+                updateFollowersCount(-1)
+                showProgressBar(false) // Ocultar el ProgressBar después de completar la acción
+            }
         }.addOnFailureListener { exception ->
-            Toast.makeText(context, "Error al dejar de seguir: ${exception.message}", Toast.LENGTH_SHORT).show()
+            if (isAdded) {
+                showToast("Error al dejar de seguir: ${exception.message}")
+                showProgressBar(false) // Ocultar el ProgressBar en caso de error
+            }
         }
     }
 
+    private fun showProgressBar(show: Boolean) {
+        if (isAdded) {
+            binding.progressBar.visibility = if (show) View.VISIBLE else View.GONE
+            setInteractionEnabled(!show)
+        }
+    }
+
+    private fun setInteractionEnabled(enabled: Boolean) {
+        binding.followButton.isEnabled = enabled
+        binding.messageButton.isEnabled = enabled
+        binding.followersLayout.isEnabled = enabled
+        binding.followingLayout.isEnabled = enabled
+    }
+
     private fun updateFollowersCount(delta: Int) {
-        val currentCount = binding.followersCount.text.toString().toInt()
-        binding.followersCount.text = (currentCount + delta).toString()
+        if (isAdded) {
+            val currentCount = binding.followersCount.text.toString().toInt()
+            binding.followersCount.text = (currentCount + delta).toString()
+        }
     }
 
     private fun generateChatId(userId1: String, userId2: String): String {
         val ids = listOf(userId1, userId2).sorted()
         return "${ids[0]}_${ids[1]}"
+    }
+
+    private fun showToast(message: String) {
+        if (isAdded) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {

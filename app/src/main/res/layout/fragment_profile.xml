@@ -13,7 +13,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/backgroundColor"
+        android:background="@drawable/background_gradient"
         android:padding="16dp">
 
         <LinearLayout
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp"
-            android:background="@color/backgroundColor">
+            android:background="@drawable/transparent_background">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -29,7 +29,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:padding="16dp"
-                android:background="@color/backgroundColor">
+                android:background="@drawable/transparent_background">
 
                 <ImageView
                     android:id="@+id/profileImageView"
@@ -47,17 +47,16 @@
                     android:orientation="vertical"
                     android:layout_weight="1"
                     android:paddingStart="16dp"
-                    android:background="@color/backgroundColor">
+                    android:background="@drawable/transparent_background">
 
                     <TextView
                         android:id="@+id/profileTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorPrimary"
-                        android:textSize="18sp"
+                        android:background="@drawable/transparent_background"
                         android:text="Nombre"
-                        android:background="@color/backgroundColor"/>
-
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="18sp" />
                     <TextView
                         android:id="@+id/fullNameTextView"
                         android:layout_width="wrap_content"
@@ -65,7 +64,7 @@
                         android:textColor="@color/textColorSecondary"
                         android:layout_marginTop="4dp"
                         android:text="Username"
-                        android:background="@color/backgroundColor"/>
+                        android:background="@drawable/transparent_background"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -75,7 +74,7 @@
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:weightSum="3"
-                android:background="@color/backgroundColor">
+                android:background="@drawable/transparent_background">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -83,7 +82,7 @@
                     android:orientation="vertical"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@color/backgroundColor">
+                    android:background="@drawable/transparent_background">
 
                     <TextView
                         android:id="@+id/postsCount"
@@ -92,7 +91,7 @@
                         android:textColor="@color/textColorPrimary"
                         android:textSize="16sp"
                         android:text="0"
-                        android:background="@color/backgroundColor"/>
+                        android:background="@drawable/transparent_background"/>
 
                     <TextView
                         android:id="@+id/postsLabel"
@@ -101,7 +100,7 @@
                         android:textColor="@color/textColorSecondary"
                         android:textSize="14sp"
                         android:text="publicaciones"
-                        android:background="@color/backgroundColor"/>
+                        android:background="@drawable/transparent_background"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -110,7 +109,7 @@
                     android:orientation="vertical"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@color/backgroundColor">
+                    android:background="@drawable/transparent_background">
 
                     <TextView
                         android:id="@+id/followersCount"
@@ -119,7 +118,7 @@
                         android:textColor="@color/textColorPrimary"
                         android:textSize="16sp"
                         android:text="0"
-                        android:background="@color/backgroundColor"/>
+                        android:background="@drawable/transparent_background"/>
 
                     <TextView
                         android:id="@+id/followersLabel"
@@ -128,7 +127,7 @@
                         android:textColor="@color/textColorSecondary"
                         android:textSize="14sp"
                         android:text="seguidores"
-                        android:background="@color/backgroundColor"/>
+                        android:background="@drawable/transparent_background"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -137,7 +136,7 @@
                     android:orientation="vertical"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@color/backgroundColor">
+                    android:background="@drawable/transparent_background">
 
                     <TextView
                         android:id="@+id/followingCount"
@@ -146,7 +145,7 @@
                         android:textColor="@color/textColorPrimary"
                         android:textSize="16sp"
                         android:text="0"
-                        android:background="@color/backgroundColor"/>
+                        android:background="@drawable/transparent_background"/>
 
                     <TextView
                         android:id="@+id/followingLabel"
@@ -155,17 +154,30 @@
                         android:textColor="@color/textColorSecondary"
                         android:textSize="14sp"
                         android:text="seguidos"
-                        android:background="@color/backgroundColor"/>
+                        android:background="@drawable/transparent_background"/>
                 </LinearLayout>
             </LinearLayout>
+            <TextView
+                android:id="@+id/posts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/transparent_background"
+                android:paddingTop="25dp"
+                android:paddingBottom="-15dp"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:text="Publicaciones"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="18sp"
+                android:fontFamily="@font/font_3_locatteme"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewUserPosts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:layout_marginTop="16dp"
-                android:background="@color/backgroundColor"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/transparent_background"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="3" />
 

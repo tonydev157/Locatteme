@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="8dp"
-        android:background="@color/backgroundColor">
+        android:background="@drawable/background_gradient">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewPostsLoD"
@@ -21,7 +21,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:scrollbars="vertical"
-            android:background="@color/backgroundColor" />
+            android:background="@drawable/transparent_background" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
