@@ -32,5 +32,6 @@
     <string name="comment_icon_description" />
     <string name="share_icon_description" />
     <string name="message_icon" />
+    <string name="verification_accoun">Verificar cuenta</string>
 
 </resources>

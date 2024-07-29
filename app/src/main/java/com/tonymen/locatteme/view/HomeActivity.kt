@@ -1,12 +1,13 @@
 package com.tonymen.locatteme.view
 
-import com.tonymen.locatteme.view.HomeFragments.HomeFragment
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
@@ -15,6 +16,8 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
 import android.widget.PopupMenu
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -28,16 +31,17 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.ActivityHomeBinding
 import com.tonymen.locatteme.model.JSONHelper
 import com.tonymen.locatteme.model.UPC
-import com.tonymen.locatteme.view.HomeFragments.CreatePostFragment
-import com.tonymen.locatteme.view.HomeFragments.FollowingFragment
-import com.tonymen.locatteme.view.HomeFragments.ProfileFragment
-import com.tonymen.locatteme.view.HomeFragments.SearchFragment
+import com.tonymen.locatteme.view.HomeFragments.*
 import com.tonymen.locatteme.viewmodel.HomeViewModel
-import kotlin.math.*
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class HomeActivity : AppCompatActivity() {
 
@@ -49,7 +53,7 @@ class HomeActivity : AppCompatActivity() {
     var isPostSaved = false // Variable to track if the post is saved
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var isNavigating = false
-    private val navigationHandler = android.os.Handler()
+    private val navigationHandler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,6 +119,12 @@ class HomeActivity : AppCompatActivity() {
         isNavigating = true
         navigationHandler.postDelayed({ isNavigating = false }, 500)  // 500 ms delay
 
+        val user = auth.currentUser
+        if (user == null || !user.isEmailVerified) {
+            showToast("Autentica tu correo electrónico", 2000, R.color.primaryColor)
+            return
+        }
+
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         if (currentFragment is CreatePostFragment && !isPostSaved) {
             showExitWarningDialog {
@@ -135,7 +145,17 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    fun handleNavigation(fragment: Fragment, tag: String) {
+    private fun showToast(message: String, duration: Int, color: Int) {
+        val toast = Toast.makeText(this, message, Toast.LENGTH_LONG)
+        val view = toast.view
+        val text = view?.findViewById<TextView>(android.R.id.message)
+        text?.setTextColor(ContextCompat.getColor(this, color))
+        toast.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({ toast.cancel() }, duration.toLong())
+    }
+
+    private fun handleNavigation(fragment: Fragment, tag: String) {
         if (isNavigating) return
         isNavigating = true
         navigationHandler.postDelayed({ isNavigating = false }, 500)  // 500 ms delay
@@ -206,13 +226,12 @@ class HomeActivity : AppCompatActivity() {
             } else {
                 this.backPressedOnce = true
                 Toast.makeText(this, "Presiona nuevamente para salir", Toast.LENGTH_SHORT).show()
-                android.os.Handler().postDelayed({ backPressedOnce = false }, 2000)
+                Handler().postDelayed({ backPressedOnce = false }, 2000)
             }
         } else {
             super.onBackPressed()
         }
     }
-
 
     private fun showExitWarningDialog(onExit: () -> Unit) {
         AlertDialog.Builder(this)
@@ -240,7 +259,7 @@ class HomeActivity : AppCompatActivity() {
         isCreatePostButtonEnlarged = true
     }
 
-    public fun resetCreatePostButton() {
+    fun resetCreatePostButton() {
         val createPostMenuItem = binding.bottomNavigationView.menu.findItem(R.id.navigation_create_post)
         val scaleAnimation = ScaleAnimation(
             1.5f, 1f, 1.5f, 1f,
@@ -258,7 +277,7 @@ class HomeActivity : AppCompatActivity() {
         isCreatePostButtonEnlarged = false
     }
 
-    public fun enableCreatePostButton() {
+    fun enableCreatePostButton() {
         val createPostMenuItem = binding.bottomNavigationView.menu.findItem(R.id.navigation_create_post)
         createPostMenuItem.isEnabled = true
     }
@@ -271,17 +290,12 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.config_menu, menu)
-        return true
-    }
 
-    //Numeros de emergencia metodo
-    private fun showEmergencyNumbersDialog() {
-        val builder = AlertDialog.Builder(this)
-        val inflater = layoutInflater
-        val dialogLayout = inflater.inflate(R.layout.dialog_emergency_numbers, null)
-        builder.setView(dialogLayout)
-        builder.setPositiveButton("OK", null)
-        builder.show()
+        val user = auth.currentUser
+        if (user != null && user.isEmailVerified) {
+            menu?.findItem(R.id.verification_account)?.isVisible = false
+        }
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -301,6 +315,10 @@ class HomeActivity : AppCompatActivity() {
                 finish()
                 true
             }
+            R.id.verification_account -> {
+                sendVerificationEmail()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -309,6 +327,12 @@ class HomeActivity : AppCompatActivity() {
         val popup = PopupMenu(this, view)
         val inflater = popup.menuInflater
         inflater.inflate(R.menu.config_menu, popup.menu)
+
+        val user = auth.currentUser
+        if (user != null && user.isEmailVerified) {
+            popup.menu.findItem(R.id.verification_account).isVisible = false
+        }
+
         popup.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_find_upc -> {
@@ -326,10 +350,47 @@ class HomeActivity : AppCompatActivity() {
                     finish()
                     true
                 }
+                R.id.verification_account -> {
+                    sendVerificationEmail()
+                    true
+                }
                 else -> false
             }
         }
         popup.show()
+    }
+
+    private fun showEmergencyNumbersDialog() {
+        val builder = AlertDialog.Builder(this)
+        val inflater = layoutInflater
+        val dialogLayout = inflater.inflate(R.layout.dialog_emergency_numbers, null)
+        builder.setView(dialogLayout)
+        builder.setPositiveButton("OK", null)
+        builder.show()
+    }
+
+    private fun sendVerificationEmail() {
+        val user = auth.currentUser
+        val progressBar = ProgressBar(this)
+        val dialog = AlertDialog.Builder(this)
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
+        dialog.show()
+
+        user?.sendEmailVerification()
+            ?.addOnCompleteListener { task ->
+                dialog.dismiss()
+                if (task.isSuccessful) {
+                    showToast("Correo de verificación enviado.", 2000, R.color.primaryColor)
+                } else {
+                    showToast("Error al enviar el correo de verificación.", 2000, R.color.primaryColor)
+                }
+            }
+            ?.addOnFailureListener { exception ->
+                dialog.dismiss()
+                showToast("Error: ${exception.message}", 2000, R.color.primaryColor)
+            }
     }
 
     private fun findNearestUPC() {
