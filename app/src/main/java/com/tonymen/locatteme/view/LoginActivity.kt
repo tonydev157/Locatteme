@@ -72,6 +72,12 @@ class LoginActivity : AppCompatActivity() {
             showForgotPasswordDialog()
         }
 
+        binding.resendVerificationTextView.setOnClickListener {
+            binding.resendVerificationProgressBar.visibility = View.VISIBLE
+            binding.resendVerificationTextView.isEnabled = false
+            resendVerificationEmail()
+        }
+
         // Manejador para la visibilidad de la contraseña
         binding.passwordEditText.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
@@ -147,6 +153,31 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
+    private fun resendVerificationEmail() {
+        val user = auth.currentUser
+        if (user != null) {
+            user.sendEmailVerification()
+                .addOnCompleteListener { task ->
+                    binding.resendVerificationProgressBar.visibility = View.GONE
+                    binding.resendVerificationTextView.isEnabled = true
+                    if (task.isSuccessful) {
+                        showToast("Correo de verificación enviado.", 2000, R.color.primaryColor)
+                    } else {
+                        showToast("Error al enviar el correo de verificación.", 2000, R.color.primaryColor)
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    binding.resendVerificationProgressBar.visibility = View.GONE
+                    binding.resendVerificationTextView.isEnabled = true
+                    showToast("Error: ${exception.message}", 2000, R.color.primaryColor)
+                }
+        } else {
+            binding.resendVerificationProgressBar.visibility = View.GONE
+            binding.resendVerificationTextView.isEnabled = true
+            showToast("Error: No user is currently signed in.", 2000, R.color.primaryColor)
+        }
+    }
+
     private fun showToast(message: String, duration: Int, color: Int) {
         val toast = Toast.makeText(this, message, Toast.LENGTH_LONG)
         val view = toast.view
@@ -203,20 +234,20 @@ class LoginActivity : AppCompatActivity() {
                     val user = auth.currentUser
                     user?.reload()?.addOnCompleteListener {
                         user?.let {
-                            if (!it.isEmailVerified) {
-                                showToast("Cuenta no Verificada. Por favor verifica tu correo electrónico.", Toast.LENGTH_LONG + 1000)
-                                auth.signOut()
-                            } else {
-                                val intent = Intent(this, HomeActivity::class.java)
-                                startActivity(intent)
-                                finish()
-                            }
+                            // Permitir iniciar sesión sin verificar la cuenta
+                            val intent = Intent(this, HomeActivity::class.java)
+                            startActivity(intent)
+                            finish()
                         }
                     }
                 } else {
                     showToast("Firebase authentication failed: ${task.exception?.message}", Toast.LENGTH_LONG + 1000)
                 }
             }
+    }
+
+    private fun showResendVerificationOption() {
+        binding.resendVerificationTextView.visibility = View.VISIBLE
     }
 
     private fun validateInput(email: String, password: String): Boolean {
@@ -238,16 +269,9 @@ class LoginActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    user?.reload()?.addOnCompleteListener {
-                        if (user != null && user.isEmailVerified) {
-                            val intent = Intent(this, HomeActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            showToast("Cuenta no Verificada. Verifica tu correo electrónico.", Toast.LENGTH_LONG + 1000)
-                            auth.signOut()
-                        }
-                    }
+                    val intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 } else {
                     showToast("Error al iniciar sesión. Inténtalo de nuevo.", Toast.LENGTH_LONG + 1000)
                 }

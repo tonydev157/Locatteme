@@ -95,13 +95,37 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:minHeight="48dp"
             android:onClick="onForgotPasswordClick"
             android:text="¿Olvidaste tu contraseña?"
             android:textColor="@color/primaryColor"
             android:textSize="14sp" />
+
+        <!-- Botón para reenviar correo de verificación -->
+        <TextView
+            android:id="@+id/resendVerificationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="32dp"
+            android:background="@android:color/transparent"
+            android:minHeight="48dp"
+            android:visibility="gone"
+            android:text="Reenviar correo de verificación"
+            android:textColor="@color/primaryColor"
+            android:textSize="14sp" />
+
+        <!-- ProgressBar para reenviar correo de verificación -->
+        <ProgressBar
+            android:id="@+id/resendVerificationProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"/>
 
         <Button
             android:id="@+id/sendVerificationEmailButton"
