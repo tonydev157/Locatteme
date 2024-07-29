@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="8dp"
-        android:background="@color/backgroundColor">
+        android:background="@drawable/background_gradient">
 
         <TextView
             android:id="@+id/titleTextView"
@@ -26,7 +26,7 @@
             android:textColor="?android:textColorPrimary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="@color/backgroundColor"
+            android:background="@drawable/transparent_background"
             android:fontFamily="@font/font_3_locatteme"/>
 
 
@@ -36,7 +36,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/transparent_background">
 
             <ImageView
                 android:id="@+id/ic_chat"
@@ -62,7 +63,7 @@
                 android:id="@+id/ic_located_or_deceased"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/backgroundColor"
+                android:background="@drawable/transparent_background"
                 android:padding="8dp"
                 android:src="@drawable/ic_located_or_deceased"
                 app:tint="?android:textColorPrimary" />
@@ -76,14 +77,14 @@
             app:layout_constraintTop_toBottomOf="@id/titleTextView"
             app:layout_constraintStart_toStartOf="parent"
             android:padding="8dp"
-            android:background="@color/backgroundColor">
+            android:background="@drawable/transparent_background">
 
             <ImageView
                 android:id="@+id/profileImageView"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
                 android:src="@drawable/ic_profile_placeholder"
-                android:background="@color/backgroundColor"               android:scaleType="centerCrop"
+                android:background="@drawable/transparent_background"               android:scaleType="centerCrop"
                 android:layout_marginEnd="8dp" />
 
             <TextView
@@ -93,7 +94,7 @@
                 android:textSize="16sp"
                 android:textColor="?android:textColorPrimary"
                 android:layout_gravity="center_vertical"
-                android:background="@color/backgroundColor"/>
+                android:background="@drawable/transparent_background"/>
         </LinearLayout>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -103,7 +104,8 @@
             app:layout_constraintTop_toBottomOf="@id/userInfoLayout"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@drawable/transparent_background" >
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
@@ -111,7 +113,7 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:scrollbars="vertical"
-                android:background="@color/backgroundColor" />
+                android:background="@drawable/transparent_background" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

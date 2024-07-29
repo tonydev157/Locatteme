@@ -3,15 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
-    android:background="@drawable/border"
+    android:background="@drawable/rounded_background"
     android:orientation="vertical"
     android:padding="8dp">
 
     <!-- Nueva sección para la imagen de perfil y el nombre de usuario -->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/backgroundColor"
+        android:background="@drawable/transparent_background"
         android:orientation="horizontal"
         android:paddingBottom="8dp">
 
@@ -20,7 +21,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="8dp"
-            android:background="@color/backgroundColor"
+            android:background="@drawable/transparent_background"
             android:src="@drawable/ic_profile_placeholder" />
 
         <TextView
@@ -28,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:background="@color/backgroundColor"
+            android:background="@drawable/transparent_background"
             android:text="Username"
             android:textColor="@color/textColorPrimary"
             android:textSize="14sp"
@@ -41,7 +42,9 @@
         android:layout_height="300dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_profile_placeholder"
-        android:background="@color/backgroundColor" />
+        android:background="@drawable/rounded_image_background"
+        android:clipToOutline="true"
+        android:outlineProvider="background"/>
 
     <TextView
         android:id="@+id/fechaPublicacionTextView"
@@ -54,7 +57,7 @@
         android:textStyle="bold"
         android:gravity="end"
         android:textColor="@color/textColorSecondary"
-        android:background="@color/backgroundColor" />
+        android:background="@drawable/transparent_background" />
 
     <TextView
         android:id="@+id/nombresTextView"
@@ -65,7 +68,7 @@
         android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="@color/textColorPrimary"
-        android:background="@color/backgroundColor"/>
+        android:background="@drawable/transparent_background"/>
 
     <TextView
         android:id="@+id/apellidosTextView"
@@ -77,7 +80,7 @@
         android:text="Apellidos: "
         android:textSize="14sp"
         android:textColor="@color/textColorPrimary"
-        android:background="@color/backgroundColor" />
+        android:background="@drawable/transparent_background"/>
 
     <TextView
         android:id="@+id/edadTextView"
@@ -89,7 +92,7 @@
         android:text="Edad: "
         android:textSize="14sp"
         android:textColor="@color/textColorPrimary"
-        android:background="@color/backgroundColor" />
+        android:background="@drawable/transparent_background" />
 
     <TextView
         android:id="@+id/provinciaTextView"
@@ -101,7 +104,7 @@
         android:text="Provincia: "
         android:textSize="14sp"
         android:textColor="@color/textColorPrimary"
-        android:background="@color/backgroundColor"/>
+        android:background="@drawable/transparent_background"/>
 
     <TextView
         android:id="@+id/ciudadTextView"
@@ -113,7 +116,7 @@
         android:text="Ciudad: "
         android:textSize="14sp"
         android:textColor="@color/textColorPrimary"
-        android:background="@color/backgroundColor" />
+        android:background="@drawable/transparent_background"/>
 
     <TextView
         android:id="@+id/nacionalidadTextView"
@@ -125,7 +128,7 @@
         android:text="Nacionalidad: "
         android:textSize="14sp"
         android:textColor="@color/textColorPrimary"
-        android:background="@color/backgroundColor"/>
+        android:background="@drawable/transparent_background"/>
 
     <TextView
         android:id="@+id/estadoTextView"
@@ -137,7 +140,7 @@
         android:text="Estado: "
         android:textSize="14sp"
         android:textColor="@color/textColorPrimary"
-        android:background="@color/backgroundColor" />
+        android:background="@drawable/transparent_background" />
 
     <TextView
         android:id="@+id/lugarDesaparicionTextView"
@@ -149,7 +152,7 @@
         android:text="Lugar de Desaparición: "
         android:textSize="14sp"
         android:textColor="@color/textColorPrimary"
-        android:background="@color/backgroundColor" />
+        android:background="@drawable/transparent_background" />
 
     <TextView
         android:id="@+id/fechaDesaparicionTextView"
@@ -161,7 +164,7 @@
         android:text="Fecha de Desaparición: "
         android:textSize="14sp"
         android:textColor="@color/textColorPrimary"
-        android:background="@color/backgroundColor" />
+        android:background="@drawable/transparent_background" />
 
     <TextView
         android:id="@+id/caracteristicasTextView"
@@ -173,7 +176,7 @@
         android:text="Características: "
         android:textSize="14sp"
         android:textColor="@color/textColorPrimary"
-        android:background="@color/backgroundColor" />
+        android:background="@drawable/transparent_background" />
 
     <!-- Nuevo TextView para los números de contacto -->
 
@@ -181,7 +184,7 @@
         android:id="@+id/numerosContactoTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/backgroundColor"
+        android:background="@drawable/transparent_background"
         android:gravity="center_vertical"
         android:paddingTop="2dp"
         android:paddingBottom="2dp"
@@ -193,7 +196,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="8dp">
+        android:paddingTop="8dp"
+        android:background="@drawable/transparent_background">
 
         <ImageView
             android:id="@+id/shareIcon"
@@ -201,7 +205,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:layout_marginEnd="16dp"
-            android:background="@color/backgroundColor"
+            android:background="@drawable/transparent_background"
             android:contentDescription="@string/share_icon_description"
             android:src="@drawable/ic_share"
             app:tint="?android:textColorPrimary" />
@@ -219,7 +223,7 @@
             android:src="@drawable/ic_comment"
             android:contentDescription="@string/comment_icon_description"
             app:tint="?android:textColorPrimary"
-            android:background="@color/backgroundColor" />
+            android:background="@drawable/transparent_background" />
     </LinearLayout>
 
 </LinearLayout>

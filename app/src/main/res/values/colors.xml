@@ -25,10 +25,18 @@
     <color name="receivedMessage">#BBDEFB</color> <!-- Azul claro -->
     //Gradiente de colores
     <color name="gradiente_1">#E3F2FD</color>
-    <color name="gradiente_2">#FFCDD2</color>
+    <color name="gradiente_2">#FF8A80</color>
     <color name="gradiente_3">#F8BBD0</color>
-    <color name="gradiente_4">#F8BBD0</color>
+    <color name="gradiente_4">#D1C4E9</color>
     <color name="gradiente_5">#C5CAE9</color>
     <color name="gradiente_6">#EDE7F6</color>
+    //Gradiente de colores 2
+    <color name="gradiente_7">#EDE7F6</color>  <!-- Very light purple -->
+    <color name="gradiente_8">#E3F2FD</color>  <!-- Very light blue -->
+    <color name="gradiente_9">#E8F5E9</color>  <!-- Very light green -->
+    <color name="gradiente_10">#FFF8E1</color> <!-- Very light yellow -->
+    <color name="gradiente_11">#FFEBEE</color> <!-- Very light pink -->
+    <color name="gradiente_12">#FFCCBC</color> <!-- Very light peach -->
+
 
 </resources>

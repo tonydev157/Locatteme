@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="8dp"
-        android:background="@color/backgroundColor">
+        android:background="@drawable/background_gradient">
 
         <TextView
             android:id="@+id/titleTextView"
@@ -26,7 +26,7 @@
             android:textColor="?android:textColorPrimary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="@color/backgroundColor"
+            android:background="@drawable/transparent_background"
             android:fontFamily="@font/font_3_locatteme"/>
 
         <LinearLayout
@@ -36,7 +36,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="@color/backgroundColor">
+            android:background="@drawable/transparent_background">
 
         </LinearLayout>
 
@@ -48,14 +48,14 @@
             app:layout_constraintTop_toBottomOf="@id/titleTextView"
             app:layout_constraintStart_toStartOf="parent"
             android:padding="8dp"
-            android:background="@color/backgroundColor">
+            android:background="@drawable/transparent_background">
 
             <ImageView
                 android:id="@+id/profileImageView"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
                 android:src="@drawable/ic_profile_placeholder"
-                android:background="@color/backgroundColor"
+                android:background="@drawable/transparent_background"
                 android:scaleType="centerCrop"
                 android:layout_marginEnd="8dp" />
 
@@ -66,13 +66,14 @@
                 android:textSize="16sp"
                 android:textColor="?android:textColorPrimary"
                 android:layout_gravity="center_vertical"
-                android:background="@color/backgroundColor"/>
+                android:background="@drawable/transparent_background"/>
         </LinearLayout>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:background="@drawable/transparent_background"
             app:layout_constraintTop_toBottomOf="@id/userInfoLayout"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -84,7 +85,7 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:scrollbars="vertical"
-                android:background="@color/backgroundColor" />
+                android:background="@drawable/transparent_background" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -99,7 +100,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:background="@color/backgroundColor"/>
+            android:background="@drawable/transparent_background"/>
 
         <ProgressBar
             android:id="@+id/progressBar"

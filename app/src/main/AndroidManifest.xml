@@ -23,7 +23,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Locatteme"
+        android:theme="@style/Base.Theme.Locatteme"
         tools:targetApi="31">
 
         <!-- Añadir este bloque para el FileProvider -->

@@ -22,10 +22,18 @@
         <color name="sentMessegue">#006400</color>
         <color name="receivedMessage">#0D47A1</color> <!-- Azul oscuro -->
         //Gradiente de colores
-        <color name="gradiente_1">#1B3A4B</color>
-        <color name="gradiente_2">#0D1B2A</color>
-        <color name="gradiente_3">#152D35</color>
+        <color name="gradiente_1">#37474F</color>
+        <color name="gradiente_2">#263238</color>
+        <color name="gradiente_3">#455A64</color>
         <color name="gradiente_4">#152D35</color>
         <color name="gradiente_5">#0D1B2A</color>
         <color name="gradiente_6">#1B3A4B</color>
+        //Gradiente de colores 2
+        <color name="gradiente_7">#334E68</color>   <!-- Dark Blue Gray -->
+        <color name="gradiente_8">#2C3E50</color>   <!-- Darker Blue Gray -->
+        <color name="gradiente_9">#1F4E5F</color>   <!-- Dark Teal -->
+        <color name="gradiente_10">#274156</color>  <!-- Dark Slate Blue -->
+        <color name="gradiente_11">#203040</color>  <!-- Very Dark Blue -->
+        <color name="gradiente_12">#2B2D42</color>  <!-- Dark Purple Blue -->
+
 </resources>
