@@ -45,8 +45,11 @@ class LoginActivity : AppCompatActivity() {
 
         // Verifica si el usuario ya está autenticado y redirige a HomeActivity si es así
         val currentUser = auth.currentUser
-        if (currentUser != null && currentUser.isEmailVerified) {
+        if (currentUser != null) {
             navigateToHome()
+//            if (!currentUser.isEmailVerified) {
+//                showToast("Por favor, verifica tu correo electrónico.", Toast.LENGTH_LONG)
+//            }
         }
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -240,10 +243,10 @@ class LoginActivity : AppCompatActivity() {
                     val user = auth.currentUser
                     user?.reload()?.addOnCompleteListener {
                         user?.let {
-                            // Permitir iniciar sesión sin verificar la cuenta
-                            val intent = Intent(this, HomeActivity::class.java)
-                            startActivity(intent)
-                            finish()
+                            navigateToHome()
+//                            if (!user.isEmailVerified) {
+//                                showToast("Por favor, verifica tu correo electrónico.", Toast.LENGTH_LONG)
+//                            }
                         }
                     }
                 } else {
@@ -275,13 +278,10 @@ class LoginActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    if (user != null && user.isEmailVerified) {
-                        val intent = Intent(this, HomeActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    } else {
-                        showToast("Por favor, verifica tu correo electrónico.", Toast.LENGTH_LONG)
-                    }
+                    navigateToHome()
+//                    if (user != null && !user.isEmailVerified) {
+//                        showToast("Por favor, verifica tu correo electrónico.", Toast.LENGTH_LONG)
+//                    }
                 } else {
                     showToast("Error al iniciar sesión. Inténtalo de nuevo.", Toast.LENGTH_LONG)
                 }

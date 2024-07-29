@@ -63,9 +63,12 @@ class HomeActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Check if the user is authenticated, if not redirect to LoginActivity
-        if (auth.currentUser == null) {
+        // Check if the user is authenticated
+        val user = auth.currentUser
+        if (user == null) {
             navigateToLogin()
+        } else if (!user.isEmailVerified) {
+            showToast("Por favor, verifica tu correo electrónico.", 2000, R.color.primaryColor)
         }
 
         val navView: BottomNavigationView = binding.bottomNavigationView
@@ -81,7 +84,6 @@ class HomeActivity : AppCompatActivity() {
                     true
                 }
                 R.id.navigation_create_post -> {
-                    val user = auth.currentUser
                     if (user == null || !user.isEmailVerified) {
                         showToast("Autentica tu correo electrónico", 2000, R.color.primaryColor)
                         false
