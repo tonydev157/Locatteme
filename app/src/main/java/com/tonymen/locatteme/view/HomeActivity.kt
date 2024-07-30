@@ -13,8 +13,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.ScaleAnimation
 import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -26,6 +24,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.OnSuccessListener
@@ -177,15 +176,16 @@ class HomeActivity : AppCompatActivity() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         if (currentFragment is CreatePostFragment && !isPostSaved) {
             showExitWarningDialog {
-                resetCreatePostButton()
                 removeFragmentFromBackStack("CreatePostFragment")
                 loadFragment(fragment, tag)
             }
         } else {
-            if (isCreatePostButtonEnlarged) {
-                resetCreatePostButton()
+            val fragmentInStack = supportFragmentManager.findFragmentByTag(tag)
+            if (fragmentInStack != null) {
+                supportFragmentManager.popBackStack(tag, 0)
+            } else {
+                loadFragment(fragment, tag)
             }
-            loadFragment(fragment, tag)
         }
     }
 
@@ -203,18 +203,18 @@ class HomeActivity : AppCompatActivity() {
         transaction.commit()
     }
 
-    fun removeFragmentFromBackStack(tag: String) {
+    private fun removeFragmentFromBackStack(tag: String) {
         supportFragmentManager.popBackStackImmediate(tag, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
-    fun refreshCurrentFragment() {
+    private fun refreshCurrentFragment() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         if (currentFragment is HomeFragment) {
             currentFragment.refreshContent()
         }
     }
 
-    fun closeCreatePostFragment() {
+    private fun closeCreatePostFragment() {
         removeFragmentFromBackStack("CreatePostFragment")
         resetCreatePostButton()
         binding.bottomNavigationView.selectedItemId = R.id.navigation_home
@@ -255,30 +255,10 @@ class HomeActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun enlargeCreatePostButton() {
-        val createPostMenuItem = binding.bottomNavigationView.menu.findItem(R.id.navigation_create_post)
-        val scaleAnimation = ScaleAnimation(
-            1f, 1.5f, 1f, 1.5f,
-            Animation.RELATIVE_TO_SELF, 0.5f,
-            Animation.RELATIVE_TO_SELF, 0.5f
-        )
-        scaleAnimation.duration = 300
-        scaleAnimation.fillAfter = true
-
-        val createPostButtonView = findViewById<View>(createPostMenuItem.itemId)
-        createPostButtonView.startAnimation(scaleAnimation)
-
-        createPostMenuItem.isEnabled = true
-        binding.createPostHint.visibility = View.VISIBLE
-        isCreatePostButtonEnlarged = true
-    }
-
-    fun resetCreatePostButton() {
+    private fun resetCreatePostButton() {
         binding.createPostHint.visibility = View.GONE
         isCreatePostButtonEnlarged = false
     }
-
-
 
     fun enableCreatePostButton() {
         val createPostMenuItem = binding.bottomNavigationView.menu.findItem(R.id.navigation_create_post)
