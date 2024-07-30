@@ -18,18 +18,28 @@ import com.tonymen.locatteme.model.EcuadorLocations
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FilterDialogFragment(
-    private val applyFilter: (
-        startDisappearanceDate: String?, endDisappearanceDate: String?,
-        startPublicationDate: String?, endPublicationDate: String?,
-        status: String?, province: String?, city: String?
-    ) -> Unit
-) : DialogFragment() {
+class FilterDialogFragment : DialogFragment() {
 
     private var _binding: FragmentFilterDialogBinding? = null
     private val binding get() = _binding!!
     private lateinit var ecuadorLocations: EcuadorLocations
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    private var applyFilter: ((String?, String?, String?, String?, String?, String?, String?) -> Unit)? = null
+
+    companion object {
+        fun newInstance(
+            applyFilter: (
+                startDisappearanceDate: String?, endDisappearanceDate: String?,
+                startPublicationDate: String?, endPublicationDate: String?,
+                status: String?, province: String?, city: String?
+            ) -> Unit
+        ): FilterDialogFragment {
+            return FilterDialogFragment().apply {
+                this.applyFilter = applyFilter
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -166,13 +176,17 @@ class FilterDialogFragment(
             val province = binding.provinceSpinner.selectedItem?.toString().takeIf { it != "--" }
             val city = binding.citySpinner.selectedItem?.toString().takeIf { it != "--" }
 
-            applyFilter(startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city)
+            applyFilter?.invoke(startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city)
             dismiss()
         }
 
         binding.cancelButton.setOnClickListener {
             dismiss()
         }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

@@ -51,7 +51,7 @@ class SearchFragment : Fragment() {
             if (isFilterApplied) {
                 resetFilters()
             } else {
-                val filterDialog = FilterDialogFragment { startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city ->
+                val filterDialog = FilterDialogFragment.newInstance { startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city ->
                     applyFilter(startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city)
                 }
                 filterDialog.show(parentFragmentManager, "FilterDialog")
@@ -75,11 +75,13 @@ class SearchFragment : Fragment() {
     }
 
     private fun setupSearchBar() {
+        binding.searchBar.setText(viewModel.currentQuery) // Restaura el estado de la búsqueda
         binding.searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val query = s.toString().lowercase()
+                viewModel.currentQuery = query // Almacena el estado de la búsqueda
                 updateSearchClearIconVisibility(query)
 
                 if (query.isNotEmpty()) {
@@ -119,7 +121,6 @@ class SearchFragment : Fragment() {
             }
         }
     }
-
 
     private fun updateSearchClearIconVisibility(query: String) {
         binding.searchClearIcon.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
@@ -177,12 +178,14 @@ class SearchFragment : Fragment() {
         val query = binding.searchBar.text.toString().lowercase()
         viewModel.filterPosts(startDisappearanceDate, endDisappearanceDate, startPublicationDate, endPublicationDate, status, province, city, query)
         isFilterApplied = true
+        viewModel.isFilterApplied = true // Almacena el estado del filtro
         binding.filterIcon.setImageResource(R.drawable.ic_clear_filter) // Cambia el icono a la X
     }
 
     private fun resetFilters() {
         viewModel.clearFilters()
         isFilterApplied = false
+        viewModel.isFilterApplied = false // Almacena el estado del filtro
         binding.filterIcon.setImageResource(R.drawable.ic_filter) // Cambia el icono de vuelta al filtro
         binding.searchBar.text.clear() // Clear the search bar text
         adapter.updatePosts(emptyList()) // Clear the displayed posts
@@ -195,10 +198,27 @@ class SearchFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (isFilterApplied) {
+        if (viewModel.isFilterApplied) {
             binding.filterIcon.setImageResource(R.drawable.ic_clear_filter) // Asegura que el icono de la X se mantenga al volver a la pantalla
         } else {
             binding.filterIcon.setImageResource(R.drawable.ic_filter)
+        }
+
+        // Restaura los resultados de búsqueda
+        if (viewModel.currentQuery.isNotEmpty()) {
+            if (viewModel.isFilterApplied) {
+                viewModel.searchFilteredPosts(viewModel.currentQuery)
+            } else {
+                if (viewModel.currentQuery.startsWith("@")) {
+                    if (viewModel.currentQuery.length > 1) {
+                        viewModel.searchUsers(viewModel.currentQuery.substring(1))
+                    } else {
+                        adapter.updateUsers(emptyList())
+                    }
+                } else {
+                    viewModel.searchPosts(viewModel.currentQuery)
+                }
+            }
         }
     }
 }

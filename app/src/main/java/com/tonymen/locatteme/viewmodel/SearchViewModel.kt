@@ -26,6 +26,9 @@ class SearchViewModel : ViewModel() {
 
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
+    var currentQuery: String = ""
+    var isFilterApplied: Boolean = false
+
     fun searchUsers(query: String) {
         val lowercaseQuery = query.lowercase(Locale.getDefault())
         db.collection("users")
