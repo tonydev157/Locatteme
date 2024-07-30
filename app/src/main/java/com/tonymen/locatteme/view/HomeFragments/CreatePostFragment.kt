@@ -490,7 +490,6 @@ class CreatePostFragment : Fragment() {
                         binding.guardarButton.isEnabled = true
                         Toast.makeText(context, "Post guardado exitosamente", Toast.LENGTH_SHORT).show()
                         (activity as HomeActivity).isPostSaved = true // Update the flag in HomeActivity
-                        (activity as HomeActivity).resetCreatePostButton() // Reset the button state
                         (activity as HomeActivity).enableCreatePostButton() // Ensure button is enabled
                         requireActivity().onBackPressed()
                     }
@@ -506,6 +505,7 @@ class CreatePostFragment : Fragment() {
             })
         }
     }
+
 
     private fun isProvinciaValida(provincia: String): Boolean {
         return ecuadorLocations.provinces.any { it.name == provincia }

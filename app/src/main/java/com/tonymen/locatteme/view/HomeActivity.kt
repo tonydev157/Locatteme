@@ -149,20 +149,13 @@ class HomeActivity : AppCompatActivity() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         if (currentFragment is CreatePostFragment && !isPostSaved) {
             showExitWarningDialog {
-                resetCreatePostButton()
                 removeFragmentFromBackStack("CreatePostFragment")
                 loadFragment(CreatePostFragment(), "CreatePostFragment")
                 disableCreatePostButton()
             }
         } else {
-            if (isCreatePostButtonEnlarged) {
-                removeFragmentFromBackStack("CreatePostFragment")
-                loadFragment(CreatePostFragment(), "CreatePostFragment")
-                resetCreatePostButton()
-                disableCreatePostButton()
-            } else {
-                enlargeCreatePostButton()
-            }
+            loadFragment(CreatePostFragment(), "CreatePostFragment")
+            disableCreatePostButton()
         }
     }
 
@@ -281,22 +274,11 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun resetCreatePostButton() {
-        val createPostMenuItem = binding.bottomNavigationView.menu.findItem(R.id.navigation_create_post)
-        val scaleAnimation = ScaleAnimation(
-            1.5f, 1f, 1.5f, 1f,
-            Animation.RELATIVE_TO_SELF, 0.5f,
-            Animation.RELATIVE_TO_SELF, 0.5f
-        )
-        scaleAnimation.duration = 300
-        scaleAnimation.fillAfter = true
-
-        val createPostButtonView = findViewById<View>(createPostMenuItem.itemId)
-        createPostButtonView.startAnimation(scaleAnimation)
-
-        createPostMenuItem.isEnabled = true
         binding.createPostHint.visibility = View.GONE
         isCreatePostButtonEnlarged = false
     }
+
+
 
     fun enableCreatePostButton() {
         val createPostMenuItem = binding.bottomNavigationView.menu.findItem(R.id.navigation_create_post)
