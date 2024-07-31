@@ -1,14 +1,13 @@
 package com.tonymen.locatteme.view.HomeFragments
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.InputFilter
@@ -16,9 +15,12 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -34,13 +36,19 @@ import com.tonymen.locatteme.utils.SearchUtils
 import com.tonymen.locatteme.viewmodel.CreatePostViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.storage.StorageReference
+import com.tonymen.locatteme.utils.dpToPx
 import com.tonymen.locatteme.view.HomeActivity
+import com.yalantis.ucrop.UCrop
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import com.tonymen.locatteme.utils.dpToPx
-import com.yalantis.ucrop.UCrop
-import java.io.File
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class CreatePostFragment : Fragment() {
 
@@ -72,7 +80,7 @@ class CreatePostFragment : Fragment() {
         binding.photoPreviewImageView.visibility = View.VISIBLE
 
         // Observa cambios en la URI de la imagen
-        createPostViewModel.selectedPhotoUri.observe(viewLifecycleOwner, androidx.lifecycle.Observer { uri ->
+        createPostViewModel.selectedPhotoUri.observe(viewLifecycleOwner, { uri ->
             if (uri != null) {
                 Glide.with(this)
                     .load(uri)
@@ -102,38 +110,28 @@ class CreatePostFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        // Configurar el EditText de edad
         setupEdadEditText()
-        // Configurar los AutoCompleteTextView para provincia, ciudad y nacionalidad
         setupProvinciaAutoComplete()
         setupCiudadAutoComplete()
         setupNacionalidadAutoComplete()
-        // Configurar los EditText para contactos
         setupContactos()
 
-        // Botón para subir una foto
         binding.uploadPhotoButton.setOnClickListener {
             openImagePicker()
         }
 
-        // Botón para guardar el post
         binding.guardarButton.setOnClickListener {
             guardarPost()
         }
 
-        // Configurar el DatePicker para fecha de desaparición
         binding.fechaDesaparicionEditText.setOnClickListener {
             showDatePickerDialog()
         }
 
-        // Añadir filtros de entrada para evitar espacios en los campos de nombres y apellidos
-        binding.nombresEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
-            if (source.contains(" ")) "" else null
-        })
-        binding.apellidosEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
-            if (source.contains(" ")) "" else null
-        })
+        setupFieldValidation()
+    }
 
+    private fun setupFieldValidation() {
         // Add focus change listeners to fields
         binding.nombresEditText.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) validateNombre(binding.nombresEditText)
@@ -356,7 +354,7 @@ class CreatePostFragment : Fragment() {
         val destinationUri = Uri.fromFile(File(context?.cacheDir, "croppedImage.jpg"))
         UCrop.of(uri, destinationUri)
             .withAspectRatio(1f, 1f)
-            .withMaxResultSize(900, 900) // Resolución aumentada
+            .withMaxResultSize(900, 900)
             .start(requireContext(), this)
     }
 
@@ -365,7 +363,7 @@ class CreatePostFragment : Fragment() {
             val resultUri = UCrop.getOutput(data)
             resultUri?.let { uri ->
                 selectedPhotoUri = uri
-                createPostViewModel.setSelectedPhotoUri(uri) // Actualiza el ViewModel
+                createPostViewModel.setSelectedPhotoUri(uri)
 
                 // Limpiar la imagen anterior y caché
                 binding.photoPreviewImageView.setImageResource(0)
@@ -378,13 +376,9 @@ class CreatePostFragment : Fragment() {
                 // Carga la nueva imagen con Glide
                 Glide.with(this)
                     .load(uri)
-                    .override(900, 900) // Resolución aumentada
+                    .override(900, 900)
                     .into(binding.photoPreviewImageView)
                 binding.photoPreviewImageView.visibility = View.VISIBLE
-
-                // Forzar la actualización de la vista
-                binding.photoPreviewImageView.invalidate()
-                binding.photoPreviewImageView.requestLayout()
 
                 Toast.makeText(context, "Foto seleccionada correctamente", Toast.LENGTH_SHORT).show()
             } ?: run {
@@ -395,9 +389,6 @@ class CreatePostFragment : Fragment() {
         }
     }
 
-
-
-
     private fun handleCropError(data: Intent?) {
         val cropError = data?.let { UCrop.getError(it) }
         cropError?.let {
@@ -405,56 +396,6 @@ class CreatePostFragment : Fragment() {
         } ?: run {
             Toast.makeText(context, "Error desconocido al recortar la foto", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun uploadPostImagesToFirebase(
-        imageUri: Uri,
-        onSuccess: (String, String) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        val usuarioId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val postId = UUID.randomUUID().toString()
-        val storageRefSmall = createPostViewModel.getPostImageStorageReference(usuarioId, "${postId}_small")
-        val storageRefLarge = createPostViewModel.getPostImageStorageReference(usuarioId, "${postId}_large")
-
-        Glide.with(this)
-            .asBitmap()
-            .load(imageUri)
-            .override(900, 900) // tamaño grande aumentado
-            .into(object : CustomTarget<Bitmap>() {
-                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    uploadBitmapToStorage(storageRefLarge, resource, { largeImageUrl ->
-                        onSuccess(largeImageUrl, largeImageUrl)
-                    }, { exception ->
-                        onFailure(exception)
-                    })
-                }
-
-                override fun onLoadCleared(placeholder: Drawable?) {}
-            })
-    }
-
-    private fun uploadBitmapToStorage(
-        storageRef: StorageReference,
-        bitmap: Bitmap,
-        onSuccess: (String) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val data = baos.toByteArray()
-
-        storageRef.putBytes(data)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    onSuccess(uri.toString())
-                }.addOnFailureListener { exception ->
-                    onFailure(exception)
-                }
-            }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
     }
 
     private fun guardarPost() {
@@ -531,49 +472,96 @@ class CreatePostFragment : Fragment() {
 
         binding.progressBar.visibility = View.VISIBLE
         binding.guardarButton.isEnabled = false
+        activity?.window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
 
         selectedPhotoUri?.let { uri ->
-            uploadPostImagesToFirebase(uri, { smallImageUrl, largeImageUrl ->
-                val searchKeywords = SearchUtils.generateSearchKeywords(nombres, apellidos) // Generar palabras clave
-                val post = Post(
-                    id = UUID.randomUUID().toString(),
-                    fotoPequena = smallImageUrl,
-                    fotoGrande = largeImageUrl,
-                    nombres = nombres,
-                    apellidos = apellidos,
-                    edad = edad,
-                    provincia = provincia,
-                    ciudad = ciudad,
-                    nacionalidad = nacionalidad,
-                    lugarDesaparicion = lugarDesaparicion,
-                    fechaDesaparicion = Timestamp(fechaDesaparicionDate),
-                    caracteristicas = caracteristicas,
-                    fechaPublicacion = Timestamp.now(),
-                    autorId = usuarioId,
-                    numerosContacto = numerosContacto,
-                    searchKeywords = searchKeywords // Agregar palabras clave al post
-                )
+            lifecycleScope.launch {
+                try {
+                    val (smallImageUrl, largeImageUrl) = uploadPostImagesToFirebase(uri)
+                    val searchKeywords = SearchUtils.generateSearchKeywords(nombres, apellidos)
+                    val post = Post(
+                        id = UUID.randomUUID().toString(),
+                        fotoPequena = smallImageUrl,
+                        fotoGrande = largeImageUrl,
+                        nombres = nombres,
+                        apellidos = apellidos,
+                        edad = edad,
+                        provincia = provincia,
+                        ciudad = ciudad,
+                        nacionalidad = nacionalidad,
+                        lugarDesaparicion = lugarDesaparicion,
+                        fechaDesaparicion = Timestamp(fechaDesaparicionDate),
+                        caracteristicas = caracteristicas,
+                        fechaPublicacion = Timestamp.now(),
+                        autorId = usuarioId,
+                        numerosContacto = numerosContacto,
+                        searchKeywords = searchKeywords
+                    )
 
-                createPostViewModel.addPost(post)
-                    .addOnSuccessListener {
-                        binding.progressBar.visibility = View.GONE
-                        binding.guardarButton.isEnabled = true
-                        Toast.makeText(context, "Post guardado exitosamente", Toast.LENGTH_SHORT).show()
-                        (activity as HomeActivity).isPostSaved = true // Update the flag in HomeActivity
-                        (activity as HomeActivity).enableCreatePostButton() // Ensure button is enabled
-                        requireActivity().onBackPressed()
-                    }
-                    .addOnFailureListener { e ->
-                        binding.progressBar.visibility = View.GONE
-                        binding.guardarButton.isEnabled = true
-                        Toast.makeText(context, "Error al guardar el post: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-            }, { exception ->
-                binding.progressBar.visibility = View.GONE
-                binding.guardarButton.isEnabled = true
-                Toast.makeText(context, "Error al subir la imagen: ${exception.message}", Toast.LENGTH_SHORT).show()
-            })
+                    createPostViewModel.addPost(post)
+                        .addOnSuccessListener {
+                            binding.progressBar.visibility = View.GONE
+                            binding.guardarButton.isEnabled = true
+                            activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                            Toast.makeText(context, "Post guardado exitosamente", Toast.LENGTH_SHORT).show()
+                            (activity as HomeActivity).isPostSaved = true
+                            (activity as HomeActivity).enableCreatePostButton()
+                            requireActivity().onBackPressed()
+                        }
+                        .addOnFailureListener { e ->
+                            binding.progressBar.visibility = View.GONE
+                            binding.guardarButton.isEnabled = true
+                            activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                            Toast.makeText(context, "Error al guardar el post: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                } catch (e: Exception) {
+                    binding.progressBar.visibility = View.GONE
+                    binding.guardarButton.isEnabled = true
+                    activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                    Toast.makeText(context, "Error al subir la imagen: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
+    }
+
+    private suspend fun uploadPostImagesToFirebase(imageUri: Uri): Pair<String, String> = withContext(
+        Dispatchers.IO) {
+        val usuarioId = FirebaseAuth.getInstance().currentUser?.uid ?: throw Exception("Usuario no autenticado")
+        val postId = UUID.randomUUID().toString()
+        val storageRefLarge = createPostViewModel.getPostImageStorageReference(usuarioId, "${postId}_large")
+
+        val largeImageUrl = suspendCoroutine<String> { continuation ->
+            Glide.with(this@CreatePostFragment)
+                .asBitmap()
+                .load(imageUri)
+                .override(900, 900)
+                .into(object : CustomTarget<Bitmap>() {
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                        val baos = ByteArrayOutputStream()
+                        resource.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                        val data = baos.toByteArray()
+
+                        storageRefLarge.putBytes(data)
+                            .addOnSuccessListener {
+                                storageRefLarge.downloadUrl.addOnSuccessListener { uri ->
+                                    continuation.resume(uri.toString())
+                                }.addOnFailureListener { exception ->
+                                    continuation.resumeWithException(exception)
+                                }
+                            }
+                            .addOnFailureListener { exception ->
+                                continuation.resumeWithException(exception)
+                            }
+                    }
+
+                    override fun onLoadCleared(placeholder: Drawable?) {}
+                })
+        }
+
+        Pair(largeImageUrl, largeImageUrl)
     }
 
     private fun isProvinciaValida(provincia: String): Boolean {
@@ -613,19 +601,15 @@ class CreatePostFragment : Fragment() {
 
     private fun isAutoCompleteTextViewValid(autoCompleteTextView: AutoCompleteTextView): Boolean {
         val text = autoCompleteTextView.text.toString().trim()
-        return if (autoCompleteTextView == binding.provinciaAutoComplete) {
-            isProvinciaValida(text)
-        } else if (autoCompleteTextView == binding.ciudadAutoComplete) {
-            isCiudadValida(text)
-        } else if (autoCompleteTextView == binding.nacionalidadAutoComplete) {
-            text.isEmpty() || isNacionalidadValida(text) // Nacionalidad es opcional
-        } else {
-            false
+        return when (autoCompleteTextView) {
+            binding.provinciaAutoComplete -> isProvinciaValida(text)
+            binding.ciudadAutoComplete -> isCiudadValida(text)
+            binding.nacionalidadAutoComplete -> text.isEmpty() || isNacionalidadValida(text) // Nacionalidad es opcional
+            else -> false
         }
     }
 
     private fun validateNombre(editText: EditText) {
-        // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes, pero no permite espacios
         val pattern = Regex("^[A-ZÁÉÍÓÚÑ][a-zA-ZáéíóúñÑ]*$")
         if (!pattern.matches(editText.text.toString().trim())) {
             editText.error = "Nombre inválido."
@@ -636,7 +620,6 @@ class CreatePostFragment : Fragment() {
     }
 
     private fun validateApellido(editText: EditText) {
-        // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes, pero no permite espacios
         val pattern = Regex("^[A-ZÁÉÍÓÚÑ][a-zA-ZáéíóúñÑ]*$")
         if (!pattern.matches(editText.text.toString().trim())) {
             editText.error = "Apellido inválido."
@@ -687,7 +670,7 @@ class CreatePostFragment : Fragment() {
     }
 
     private fun updateLabel() {
-        val myFormat = "dd/MM/yyyy" // In which you need put here
+        val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.US)
         binding.fechaDesaparicionEditText.setText(sdf.format(calendar.time))
     }
@@ -697,6 +680,16 @@ class CreatePostFragment : Fragment() {
         val homeActivity = activity as? HomeActivity
         homeActivity?.enableCreatePostButton() // Habilitar el botón de creación de post
         _binding = null
+    }
+
+    private fun showExitConfirmationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setMessage("¿Estás seguro de que deseas salir? Se perderán los cambios no guardados.")
+            .setPositiveButton("Sí") { _, _ ->
+                findNavController().popBackStack()
+            }
+            .setNegativeButton("No", null)
+            .show()
     }
 
     companion object {

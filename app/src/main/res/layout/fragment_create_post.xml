@@ -507,7 +507,7 @@
             android:visibility="gone"
             android:layout_centerInParent="true"
             android:background="@drawable/transparent_background"
-            app:visible="@{viewModel.loading}" />
+            />
 
     </RelativeLayout>
 </layout>
