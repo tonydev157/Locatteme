@@ -3,16 +3,16 @@ package com.tonymen.locatteme.view.HomeFragments
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.InputFilter
 import android.text.TextWatcher
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,7 +39,8 @@ import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import com.tonymen.locatteme.utils.dpToPx
-
+import com.yalantis.ucrop.UCrop
+import java.io.File
 
 class CreatePostFragment : Fragment() {
 
@@ -66,6 +67,23 @@ class CreatePostFragment : Fragment() {
         loadNationalities()
         setupListeners()
 
+        // Set default placeholder image
+        binding.photoPreviewImageView.setImageResource(R.drawable.ic_profile_placeholder)
+        binding.photoPreviewImageView.visibility = View.VISIBLE
+
+        // Observa cambios en la URI de la imagen
+        createPostViewModel.selectedPhotoUri.observe(viewLifecycleOwner, androidx.lifecycle.Observer { uri ->
+            if (uri != null) {
+                Glide.with(this)
+                    .load(uri)
+                    .override(900, 900)
+                    .into(binding.photoPreviewImageView)
+                binding.photoPreviewImageView.visibility = View.VISIBLE
+            } else {
+                binding.photoPreviewImageView.setImageResource(R.drawable.ic_profile_placeholder)
+            }
+        })
+
         return binding.root
     }
 
@@ -84,8 +102,8 @@ class CreatePostFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        // Configurar el Spinner de edad
-        setupEdadSpinner()
+        // Configurar el EditText de edad
+        setupEdadEditText()
         // Configurar los AutoCompleteTextView para provincia, ciudad y nacionalidad
         setupProvinciaAutoComplete()
         setupCiudadAutoComplete()
@@ -172,13 +190,20 @@ class CreatePostFragment : Fragment() {
         })
     }
 
-
-    private fun setupEdadSpinner() {
-        val edades = (1..100).toList().map { it.toString() }
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, edades)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.edadSpinner.adapter = adapter
-        binding.edadSpinner.setSelection(0)
+    private fun setupEdadEditText() {
+        binding.edadEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+            try {
+                val input = dest.toString() + source.toString()
+                val age = input.toInt()
+                if (age in 1..100) {
+                    null // Allow input
+                } else {
+                    "" // Block input
+                }
+            } catch (e: NumberFormatException) {
+                "" // Block input
+            }
+        })
     }
 
     private fun setupProvinciaAutoComplete() {
@@ -247,8 +272,6 @@ class CreatePostFragment : Fragment() {
         }
     }
 
-
-
     private fun setupContactos() {
         binding.addContactoButton.setOnClickListener {
             addContactoEditText()
@@ -312,16 +335,75 @@ class CreatePostFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == Activity.RESULT_OK && data != null) {
-            selectedPhotoUri = data.data
-            selectedPhotoUri?.let { uri ->
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_CODE_PICK_IMAGE -> {
+                    data?.data?.let { uri ->
+                        startCrop(uri)
+                    }
+                }
+                UCrop.REQUEST_CROP -> {
+                    handleCropResult(data)
+                }
+                UCrop.RESULT_ERROR -> {
+                    handleCropError(data)
+                }
+            }
+        }
+    }
+
+    private fun startCrop(uri: Uri) {
+        val destinationUri = Uri.fromFile(File(context?.cacheDir, "croppedImage.jpg"))
+        UCrop.of(uri, destinationUri)
+            .withAspectRatio(1f, 1f)
+            .withMaxResultSize(900, 900) // Resolución aumentada
+            .start(requireContext(), this)
+    }
+
+    private fun handleCropResult(data: Intent?) {
+        data?.let {
+            val resultUri = UCrop.getOutput(data)
+            resultUri?.let { uri ->
+                selectedPhotoUri = uri
+                createPostViewModel.setSelectedPhotoUri(uri) // Actualiza el ViewModel
+
+                // Limpiar la imagen anterior y caché
+                binding.photoPreviewImageView.setImageResource(0)
+                Glide.with(this).clear(binding.photoPreviewImageView)
+                Glide.get(requireContext()).clearMemory()
+                Thread {
+                    Glide.get(requireContext()).clearDiskCache()
+                }.start()
+
+                // Carga la nueva imagen con Glide
                 Glide.with(this)
                     .load(uri)
-                    .override(600, 900) // Ajusta el tamaño según sea necesario
+                    .override(900, 900) // Resolución aumentada
                     .into(binding.photoPreviewImageView)
                 binding.photoPreviewImageView.visibility = View.VISIBLE
+
+                // Forzar la actualización de la vista
+                binding.photoPreviewImageView.invalidate()
+                binding.photoPreviewImageView.requestLayout()
+
                 Toast.makeText(context, "Foto seleccionada correctamente", Toast.LENGTH_SHORT).show()
+            } ?: run {
+                Toast.makeText(context, "Error al obtener la URI de la imagen", Toast.LENGTH_SHORT).show()
             }
+        } ?: run {
+            Toast.makeText(context, "Error al recortar la foto", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+
+
+    private fun handleCropError(data: Intent?) {
+        val cropError = data?.let { UCrop.getError(it) }
+        cropError?.let {
+            Toast.makeText(context, "Error al recortar la foto: ${it.message}", Toast.LENGTH_SHORT).show()
+        } ?: run {
+            Toast.makeText(context, "Error desconocido al recortar la foto", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -338,24 +420,11 @@ class CreatePostFragment : Fragment() {
         Glide.with(this)
             .asBitmap()
             .load(imageUri)
-            .override(184, 284) // tamaño pequeño
+            .override(900, 900) // tamaño grande aumentado
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    uploadBitmapToStorage(storageRefSmall, resource, { smallImageUrl ->
-                        Glide.with(this@CreatePostFragment)
-                            .asBitmap()
-                            .load(imageUri)
-                            .into(object : CustomTarget<Bitmap>() {
-                                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                                    uploadBitmapToStorage(storageRefLarge, resource, { largeImageUrl ->
-                                        onSuccess(smallImageUrl, largeImageUrl)
-                                    }, { exception ->
-                                        onFailure(exception)
-                                    })
-                                }
-
-                                override fun onLoadCleared(placeholder: Drawable?) {}
-                            })
+                    uploadBitmapToStorage(storageRefLarge, resource, { largeImageUrl ->
+                        onSuccess(largeImageUrl, largeImageUrl)
                     }, { exception ->
                         onFailure(exception)
                     })
@@ -397,7 +466,7 @@ class CreatePostFragment : Fragment() {
 
         val nombres = binding.nombresEditText.text.toString().trim()
         val apellidos = binding.apellidosEditText.text.toString().trim()
-        val edad = binding.edadSpinner.selectedItem.toString().toInt()
+        val edad = binding.edadEditText.text.toString().toIntOrNull() ?: 0
         val provincia = binding.provinciaAutoComplete.text.toString().trim()
         val ciudad = binding.ciudadAutoComplete.text.toString().trim()
         val nacionalidad = binding.nacionalidadAutoComplete.text.toString().trim()
@@ -408,11 +477,12 @@ class CreatePostFragment : Fragment() {
 
         var isValid = true
 
-        if (nombres.isEmpty() || apellidos.isEmpty() || selectedPhotoUri == null || fechaDesaparicion.isEmpty()) {
+        if (nombres.isEmpty() || apellidos.isEmpty() || selectedPhotoUri == null || fechaDesaparicion.isEmpty() || edad == 0) {
             Toast.makeText(context, "Por favor completa todos los campos obligatorios", Toast.LENGTH_SHORT).show()
             validateField(binding.nombresEditText, binding.nombresErrorText)
             validateField(binding.apellidosEditText, binding.apellidosErrorText)
             validateField(binding.fechaDesaparicionEditText, binding.fechaDesaparicionErrorText)
+            validateField(binding.edadEditText, binding.edadErrorText)
             isValid = false
         }
 
@@ -423,7 +493,7 @@ class CreatePostFragment : Fragment() {
             isValid = false
         } else {
             binding.provinciaErrorText.visibility = View.GONE
-            binding.provinciaAutoComplete.setBackgroundResource(R.drawable.edit_text_border_green)
+            binding.provinciaAutoComplete.background = null
         }
 
         if (!isCiudadValida(ciudad)) {
@@ -433,7 +503,7 @@ class CreatePostFragment : Fragment() {
             isValid = false
         } else {
             binding.ciudadErrorText.visibility = View.GONE
-            binding.ciudadAutoComplete.setBackgroundResource(R.drawable.edit_text_border_green)
+            binding.ciudadAutoComplete.background = null
         }
 
         if (nacionalidad.isNotEmpty() && !isNacionalidadValida(nacionalidad)) {
@@ -443,7 +513,7 @@ class CreatePostFragment : Fragment() {
             isValid = false
         } else {
             binding.nacionalidadErrorText.visibility = View.GONE
-            binding.nacionalidadAutoComplete.setBackgroundResource(R.drawable.edit_text_border_green)
+            binding.nacionalidadAutoComplete.background = null
         }
 
         if (!isValid) {
@@ -506,7 +576,6 @@ class CreatePostFragment : Fragment() {
         }
     }
 
-
     private fun isProvinciaValida(provincia: String): Boolean {
         return ecuadorLocations.provinces.any { it.name == provincia }
     }
@@ -527,7 +596,7 @@ class CreatePostFragment : Fragment() {
             editText.setBackgroundResource(R.drawable.edit_text_border_red)
         } else {
             errorTextView.visibility = View.GONE
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+            editText.background = null
         }
     }
 
@@ -538,7 +607,7 @@ class CreatePostFragment : Fragment() {
             autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_red)
         } else {
             errorTextView.visibility = View.GONE
-            autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_green)
+            autoCompleteTextView.background = null
         }
     }
 
@@ -555,7 +624,6 @@ class CreatePostFragment : Fragment() {
         }
     }
 
-
     private fun validateNombre(editText: EditText) {
         // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes, pero no permite espacios
         val pattern = Regex("^[A-ZÁÉÍÓÚÑ][a-zA-ZáéíóúñÑ]*$")
@@ -563,7 +631,7 @@ class CreatePostFragment : Fragment() {
             editText.error = "Nombre inválido."
             editText.setBackgroundResource(R.drawable.edit_text_border_red)
         } else {
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+            editText.background = null
         }
     }
 
@@ -574,12 +642,9 @@ class CreatePostFragment : Fragment() {
             editText.error = "Apellido inválido."
             editText.setBackgroundResource(R.drawable.edit_text_border_red)
         } else {
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+            editText.background = null
         }
     }
-//No espacios en blanco
-
-
 
     private fun validateContacto(editText: EditText) {
         val pattern = Regex("^09[0-9]{8}$")
@@ -587,7 +652,7 @@ class CreatePostFragment : Fragment() {
             editText.error = "Número de contacto inválido."
             editText.setBackgroundResource(R.drawable.edit_text_border_red)
         } else {
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+            editText.background = null
         }
     }
 
@@ -638,4 +703,3 @@ class CreatePostFragment : Fragment() {
         private const val REQUEST_CODE_PICK_IMAGE = 1001
     }
 }
-

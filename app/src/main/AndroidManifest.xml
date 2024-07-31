@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
 
     <!-- Configuración de OpenGL ES 2.0 -->
     <uses-feature
@@ -38,6 +40,7 @@
         </provider>
 
         <!-- Registro de actividades -->
+        <activity android:name="com.yalantis.ucrop.UCropActivity" />
         <activity
             android:name=".view.SendVerificationEmailActivity"
             android:exported="false"

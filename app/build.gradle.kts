@@ -3,9 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
-
 }
-
 
 android {
     namespace = "com.tonymen.locatteme"
@@ -105,15 +103,12 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
-
-
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
 
     implementation ("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation ("androidx.navigation:navigation-ui-ktx:2.7.7")
 
     implementation ("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
-
 
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
@@ -125,9 +120,7 @@ dependencies {
     implementation ("com.google.android.gms:play-services-location:21.3.0")
     implementation ("com.google.firebase:firebase-appcheck-playintegrity:16.0.1")
     implementation ("com.google.android.material:material:1.12.0")
-
-
-
+    implementation("com.github.yalantis:ucrop:2.2.8")
 
 
 }

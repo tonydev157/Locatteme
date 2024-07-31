@@ -1,6 +1,7 @@
 package com.tonymen.locatteme.viewmodel
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,6 +18,9 @@ class CreatePostViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> get() = _loading
+
+    private val _selectedPhotoUri = MutableLiveData<Uri?>()
+    val selectedPhotoUri: LiveData<Uri?> get() = _selectedPhotoUri
 
     lateinit var provinces: List<EcuadorLocations>
     lateinit var nationalities: List<String>
@@ -45,6 +49,9 @@ class CreatePostViewModel : ViewModel() {
         _loading.value = isLoading
     }
 
-    fun updatePost(post: Post) = db.collection("posts").document(post.id).set(post)
+    fun setSelectedPhotoUri(uri: Uri?) {
+        _selectedPhotoUri.value = uri
+    }
 
+    fun updatePost(post: Post) = db.collection("posts").document(post.id).set(post)
 }
