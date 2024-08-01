@@ -3,20 +3,25 @@ package com.tonymen.locatteme.view.HomeFragments
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.InputFilter
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -28,11 +33,18 @@ import com.tonymen.locatteme.model.EcuadorLocations
 import com.tonymen.locatteme.model.Nationalities
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.utils.TimestampUtil
+import com.tonymen.locatteme.utils.dpToPx
 import com.tonymen.locatteme.viewmodel.CreatePostViewModel
+import com.yalantis.ucrop.UCrop
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import com.tonymen.locatteme.utils.dpToPx
-import com.bumptech.glide.request.target.Target
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class EditPostFragment : Fragment() {
 
@@ -47,7 +59,7 @@ class EditPostFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var storage: FirebaseStorage
     private lateinit var postId: String
-    private lateinit var documentId: String // Almacenar el ID del documento
+    private lateinit var documentId: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,8 +85,6 @@ class EditPostFragment : Fragment() {
         storage = FirebaseStorage.getInstance()
 
         postId = arguments?.getString("postId") ?: ""
-        Log.d("EditPostFragment", "Post ID: $postId")
-
         if (postId.isNotEmpty()) {
             loadPostData(postId)
         } else {
@@ -92,51 +102,50 @@ class EditPostFragment : Fragment() {
     }
 
     private fun showLoading(isLoading: Boolean) {
-        if (_binding == null) return // Asegúrate de que el binding no es nulo
+        if (_binding == null) return
         if (isLoading) {
             binding.progressBar.visibility = View.VISIBLE
             binding.guardarButton.isEnabled = false
             binding.cancelButton.isEnabled = false
+            activity?.window?.setFlags(
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            )
         } else {
             binding.progressBar.visibility = View.GONE
             binding.guardarButton.isEnabled = true
             binding.cancelButton.isEnabled = true
+            activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         }
     }
 
     private fun loadPostData(postId: String) {
-        Log.d("EditPostFragment", "Loading post data for ID: $postId")
         db.collection("posts").whereEqualTo("id", postId).get().addOnSuccessListener { documents ->
             if (documents.isEmpty) {
-                Log.d("EditPostFragment", "No document exists with ID: $postId")
                 Toast.makeText(requireContext(), "No existe el post", Toast.LENGTH_SHORT).show()
                 return@addOnSuccessListener
             }
             for (document in documents) {
                 val post = document.toObject(Post::class.java)
-                documentId = document.id // Almacenar el ID del documento
-                Log.d("EditPostFragment", "Document snapshot: $document")
+                documentId = document.id
                 if (post != null) {
                     binding.apply {
                         Glide.with(this@EditPostFragment)
                             .load(post.fotoGrande)
-                            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) // Ajusta el tamaño original de la imagen
-                            .fitCenter() // Asegúrate de que Glide use fitCenter
+                            .override(900, 900)
                             .into(photoPreviewImageView)
-                        photoPreviewImageView.visibility = View.VISIBLE // Asegurarse de que la imagen es visible
+                        photoPreviewImageView.visibility = View.VISIBLE
 
                         nombresEditText.setText(post.nombres)
                         apellidosEditText.setText(post.apellidos)
-                        edadSpinner.setSelection(post.edad - 1)
+                        edadEditText.setText(post.edad.toString())
                         provinciaAutoComplete.setText(post.provincia, false)
                         ciudadAutoComplete.setText(post.ciudad, false)
                         nacionalidadAutoComplete.setText(post.nacionalidad, false)
                         lugarDesaparicionEditText.setText(post.lugarDesaparicion)
                         fechaDesaparicionEditText.setText(TimestampUtil.formatTimestampToString(post.fechaDesaparicion))
                         caracteristicasEditText.setText(post.caracteristicas)
-                        estadoSpinner.setSelection(getEstadoIndex(post.estado)) // Set the spinner to the correct state
 
-                        // Load contact numbers
                         if (post.numerosContacto.isNotEmpty()) {
                             binding.contactoEditText1.setText(post.numerosContacto[0])
                             post.numerosContacto.drop(1).forEach { numero ->
@@ -153,18 +162,12 @@ class EditPostFragment : Fragment() {
                 }
             }
         }.addOnFailureListener { e ->
-            Log.e("EditPostFragment", "Error al cargar el post: ${e.message}", e)
             Toast.makeText(
                 requireContext(),
                 "Error al cargar el post: ${e.message}",
                 Toast.LENGTH_SHORT
             ).show()
         }
-    }
-
-    private fun getEstadoIndex(estado: String): Int {
-        val estados = listOf("Desaparecido", "Localizado", "Muerto")
-        return estados.indexOf(estado)
     }
 
     private fun validateFields(): Boolean {
@@ -187,7 +190,7 @@ class EditPostFragment : Fragment() {
             false
         } else {
             errorTextView.visibility = View.GONE
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+            editText.background = null
             true
         }
     }
@@ -201,28 +204,25 @@ class EditPostFragment : Fragment() {
             false
         } else {
             errorTextView.visibility = View.GONE
-            autoCompleteTextView.setBackgroundResource(R.drawable.edit_text_border_green)
+            autoCompleteTextView.background = null
             true
         }
     }
 
     private fun isAutoCompleteTextViewValid(autoCompleteTextView: AutoCompleteTextView): Boolean {
         val text = autoCompleteTextView.text.toString().trim()
-        return if (autoCompleteTextView == binding.provinciaAutoComplete) {
-            isProvinciaValida(text)
-        } else if (autoCompleteTextView == binding.ciudadAutoComplete) {
-            isCiudadValida(text)
-        } else if (autoCompleteTextView == binding.nacionalidadAutoComplete) {
-            text.isEmpty() || isNacionalidadValida(text) // Nacionalidad es opcional
-        } else {
-            false
+        return when (autoCompleteTextView) {
+            binding.provinciaAutoComplete -> isProvinciaValida(text)
+            binding.ciudadAutoComplete -> isCiudadValida(text)
+            binding.nacionalidadAutoComplete -> text.isEmpty() || isNacionalidadValida(text)
+            else -> false
         }
     }
 
     private fun savePostData() {
         showLoading(true)
         if (!validateFields()) {
-            showLoading(false) // Ocultar el ProgressBar si hay errores
+            showLoading(false)
             return
         }
 
@@ -232,8 +232,6 @@ class EditPostFragment : Fragment() {
             updatePostData(null, null)
         }
     }
-
-
 
     private fun uploadPhotoAndSaveData() {
         val storageRef = storage.reference
@@ -248,10 +246,10 @@ class EditPostFragment : Fragment() {
         }.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val downloadUri = task.result
-                updatePostData(downloadUri.toString(), downloadUri.toString()) // Replace with actual URLs for different sizes
+                updatePostData(downloadUri.toString(), downloadUri.toString())
             } else {
                 Toast.makeText(requireContext(), "Error al subir la foto", Toast.LENGTH_SHORT).show()
-                showLoading(false) // Ocultar el ProgressBar y habilitar los botones en caso de error
+                showLoading(false)
             }
         }
     }
@@ -260,15 +258,14 @@ class EditPostFragment : Fragment() {
         val postUpdates = mutableMapOf(
             "nombres" to binding.nombresEditText.text.toString(),
             "apellidos" to binding.apellidosEditText.text.toString(),
-            "edad" to binding.edadSpinner.selectedItem.toString().toIntOrNull(),
+            "edad" to binding.edadEditText.text.toString().toIntOrNull(),
             "provincia" to binding.provinciaAutoComplete.text.toString(),
             "ciudad" to binding.ciudadAutoComplete.text.toString(),
             "nacionalidad" to binding.nacionalidadAutoComplete.text.toString(),
             "lugarDesaparicion" to binding.lugarDesaparicionEditText.text.toString(),
             "fechaDesaparicion" to TimestampUtil.parseStringToTimestamp(binding.fechaDesaparicionEditText.text.toString()),
             "caracteristicas" to binding.caracteristicasEditText.text.toString(),
-            "numerosContacto" to getContactos(),
-            "estado" to binding.estadoSpinner.selectedItem.toString()
+            "numerosContacto" to getContactos()
         )
 
         if (fotoPequena != null && fotoGrande != null) {
@@ -280,7 +277,6 @@ class EditPostFragment : Fragment() {
 
         documentReference.update(postUpdates).addOnSuccessListener {
             Toast.makeText(requireContext(), "Post actualizado", Toast.LENGTH_SHORT).show()
-            requireActivity().onBackPressed()
         }.addOnFailureListener { e ->
             Toast.makeText(
                 requireContext(),
@@ -288,9 +284,13 @@ class EditPostFragment : Fragment() {
                 Toast.LENGTH_SHORT
             ).show()
         }.addOnCompleteListener {
-            showLoading(false) // Ocultar el ProgressBar y habilitar los botones después de la operación
+            showLoading(false)
+            if (isAdded) {
+                requireActivity().onBackPressed()  // Cerrar el fragmento después de completar la actualización
+            }
         }
     }
+
 
     private fun loadEcuadorLocations() {
         val inputStream = resources.openRawResource(R.raw.ecuador_locations)
@@ -307,11 +307,10 @@ class EditPostFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        setupEdadSpinner()
+        setupEdadEditText()
         setupProvinciaAutoComplete()
         setupCiudadAutoComplete()
         setupNacionalidadAutoComplete()
-        setupEstadoSpinner()
         setupContactos()
 
         binding.uploadPhotoButton.setOnClickListener {
@@ -335,39 +334,17 @@ class EditPostFragment : Fragment() {
             if (!hasFocus) validateField(binding.ciudadAutoComplete, binding.ciudadErrorText)
         }
         binding.nacionalidadAutoComplete.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(
-                binding.nacionalidadAutoComplete,
-                binding.nacionalidadErrorText,
-                optional = true
-            )
+            if (!hasFocus) validateField(binding.nacionalidadAutoComplete, binding.nacionalidadErrorText, optional = true)
         }
         binding.lugarDesaparicionEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(
-                binding.lugarDesaparicionEditText,
-                binding.lugarDesaparicionErrorText,
-                optional = true
-            )
+            if (!hasFocus) validateField(binding.lugarDesaparicionEditText, binding.lugarDesaparicionErrorText, optional = true)
         }
         binding.fechaDesaparicionEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(
-                binding.fechaDesaparicionEditText,
-                binding.fechaDesaparicionErrorText
-            )
+            if (!hasFocus) validateField(binding.fechaDesaparicionEditText, binding.fechaDesaparicionErrorText)
         }
         binding.caracteristicasEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) validateField(
-                binding.caracteristicasEditText,
-                binding.caracteristicasErrorText,
-                optional = true
-            )
+            if (!hasFocus) validateField(binding.caracteristicasEditText, binding.caracteristicasErrorText, optional = true)
         }
-
-        binding.nombresEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
-            if (source.contains(" ")) "" else null
-        })
-        binding.apellidosEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
-            if (source.contains(" ")) "" else null
-        })
 
         binding.nombresEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -398,18 +375,25 @@ class EditPostFragment : Fragment() {
         })
     }
 
-    private fun setupEdadSpinner() {
-        val edades = (1..100).toList().map { it.toString() }
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, edades)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.edadSpinner.adapter = adapter
-        binding.edadSpinner.setSelection(0)
+    private fun setupEdadEditText() {
+        binding.edadEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+            try {
+                val input = dest.toString() + source.toString()
+                val age = input.toInt()
+                if (age in 1..100) {
+                    null // Allow input
+                } else {
+                    "" // Block input
+                }
+            } catch (e: NumberFormatException) {
+                "" // Block input
+            }
+        })
     }
 
     private fun setupProvinciaAutoComplete() {
         val provincias = ecuadorLocations.provinces.map { it.name }
-        val adapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, provincias)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, provincias)
         binding.provinciaAutoComplete.setAdapter(adapter)
         binding.provinciaAutoComplete.setOnItemClickListener { _, _, position, _ ->
             val selectedProvincia = adapter.getItem(position).toString()
@@ -435,9 +419,7 @@ class EditPostFragment : Fragment() {
             }
         }
         binding.ciudadAutoComplete.setOnItemClickListener { _, _, position, _ ->
-            val selectedCiudad =
-                (binding.ciudadAutoComplete.adapter as ArrayAdapter<String>).getItem(position)
-                    .toString()
+            val selectedCiudad = (binding.ciudadAutoComplete.adapter as ArrayAdapter<String>).getItem(position).toString()
             binding.ciudadAutoComplete.setText(selectedCiudad, false)
             binding.ciudadAutoComplete.isEnabled = false
             binding.clearCiudadButton.visibility = View.VISIBLE
@@ -450,11 +432,7 @@ class EditPostFragment : Fragment() {
     }
 
     private fun setupNacionalidadAutoComplete() {
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            nationalities.nationalidades
-        )
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nationalities.nationalidades)
         binding.nacionalidadAutoComplete.setAdapter(adapter)
         binding.nacionalidadAutoComplete.setOnItemClickListener { _, _, position, _ ->
             val selectedNacionalidad = adapter.getItem(position).toString()
@@ -469,22 +447,11 @@ class EditPostFragment : Fragment() {
         }
     }
 
-    private fun setupEstadoSpinner() {
-        val estados = listOf("Desaparecido", "Localizado", "Muerto")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, estados)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.estadoSpinner.adapter = adapter
-    }
-
     private fun updateCiudadesAutoComplete(provincia: String) {
         val provinciaObj = ecuadorLocations.provinces.find { it.name == provincia }
         if (provinciaObj != null) {
             val ciudades = provinciaObj.cities
-            val adapter = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                ciudades
-            )
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, ciudades)
             binding.ciudadAutoComplete.setAdapter(adapter)
             binding.ciudadAutoComplete.isEnabled = true
         }
@@ -517,20 +484,13 @@ class EditPostFragment : Fragment() {
             hint = "Número de Contacto"
             inputType = android.text.InputType.TYPE_CLASS_PHONE
             filters = arrayOf(InputFilter.LengthFilter(10))
-            setText(numero) // Set the initial value if provided
+            setText(numero)
             addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
                     validateContacto(this@apply)
                 }
 
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
         }
@@ -561,29 +521,75 @@ class EditPostFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == Activity.RESULT_OK && data != null) {
-            selectedPhotoUri = data.data
-            selectedPhotoUri?.let { uri ->
-                Glide.with(this)
-                    .load(uri)
-                    .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) // Ajusta el tamaño original de la imagen
-                    .fitCenter() // Asegúrate de que Glide use fitCenter
-                    .into(binding.photoPreviewImageView)
-                binding.photoPreviewImageView.visibility = View.VISIBLE
-                Toast.makeText(context, "Foto seleccionada correctamente", Toast.LENGTH_SHORT)
-                    .show()
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_CODE_PICK_IMAGE -> {
+                    data?.data?.let { uri ->
+                        startCrop(uri)
+                    }
+                }
+                UCrop.REQUEST_CROP -> {
+                    handleCropResult(data)
+                }
+                UCrop.RESULT_ERROR -> {
+                    handleCropError(data)
+                }
             }
         }
     }
 
-    private fun showDatePickerDialog() {
-        val dateSetListener =
-            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                calendar.set(Calendar.YEAR, year)
-                calendar.set(Calendar.MONTH, monthOfYear)
-                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                updateLabel()
+    private fun startCrop(uri: Uri) {
+        val destinationUri = Uri.fromFile(File(context?.cacheDir, "croppedImage.jpg"))
+        UCrop.of(uri, destinationUri)
+            .withAspectRatio(1f, 1f)
+            .withMaxResultSize(900, 900)
+            .start(requireContext(), this)
+    }
+
+    private fun handleCropResult(data: Intent?) {
+        data?.let {
+            val resultUri = UCrop.getOutput(data)
+            resultUri?.let { uri ->
+                selectedPhotoUri = uri
+
+                // Limpiar caché antes de cargar la nueva imagen
+                Glide.with(this).clear(binding.photoPreviewImageView)
+                Glide.get(requireContext()).clearMemory()
+                Thread {
+                    Glide.get(requireContext()).clearDiskCache()
+                }.start()
+
+                Glide.with(this)
+                    .load(uri)
+                    .override(900, 900)
+                    .into(binding.photoPreviewImageView)
+                binding.photoPreviewImageView.visibility = View.VISIBLE
+
+                Toast.makeText(context, "Foto seleccionada correctamente", Toast.LENGTH_SHORT).show()
+            } ?: run {
+                Toast.makeText(context, "Error al obtener la URI de la imagen", Toast.LENGTH_SHORT).show()
             }
+        } ?: run {
+            Toast.makeText(context, "Error al recortar la foto", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun handleCropError(data: Intent?) {
+        val cropError = data?.let { UCrop.getError(it) }
+        cropError?.let {
+            Toast.makeText(context, "Error al recortar la foto: ${it.message}", Toast.LENGTH_SHORT).show()
+        } ?: run {
+            Toast.makeText(context, "Error desconocido al recortar la foto", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showDatePickerDialog() {
+        val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            calendar.set(Calendar.YEAR, year)
+            calendar.set(Calendar.MONTH, monthOfYear)
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            updateLabel()
+        }
 
         DatePickerDialog(
             requireContext(), dateSetListener,
@@ -593,7 +599,7 @@ class EditPostFragment : Fragment() {
     }
 
     private fun updateLabel() {
-        val myFormat = "dd/MM/yyyy" // In which you need put here
+        val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.US)
         binding.fechaDesaparicionEditText.setText(sdf.format(calendar.time))
     }
@@ -613,24 +619,22 @@ class EditPostFragment : Fragment() {
     }
 
     private fun validateNombre(editText: EditText) {
-        // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes
         val pattern = Regex("^[A-ZÁÉÍÓÚÑ][a-zA-ZáéíóúñÑ]*$")
         if (!pattern.matches(editText.text.toString().trim())) {
             editText.error = "Nombre inválido."
             editText.setBackgroundResource(R.drawable.edit_text_border_red)
         } else {
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+            editText.background = null
         }
     }
 
     private fun validateApellido(editText: EditText) {
-        // Permite letras mayúsculas, minúsculas, la letra "ñ" y letras con tildes
         val pattern = Regex("^[A-ZÁÉÍÓÚÑ][a-zA-ZáéíóúñÑ]*$")
         if (!pattern.matches(editText.text.toString().trim())) {
             editText.error = "Apellido inválido."
             editText.setBackgroundResource(R.drawable.edit_text_border_red)
         } else {
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+            editText.background = null
         }
     }
 
@@ -640,7 +644,7 @@ class EditPostFragment : Fragment() {
             editText.error = "Número de contacto inválido."
             editText.setBackgroundResource(R.drawable.edit_text_border_red)
         } else {
-            editText.setBackgroundResource(R.drawable.edit_text_border_green)
+            editText.background = null
         }
     }
 
@@ -648,10 +652,7 @@ class EditPostFragment : Fragment() {
         val contactos = mutableListOf<String>()
         for (i in 0 until binding.contactosContainer.childCount) {
             val contactoLayout = binding.contactosContainer.getChildAt(i)
-            if (contactoLayout is LinearLayout && contactoLayout.childCount > 0 && contactoLayout.getChildAt(
-                    0
-                ) is EditText
-            ) {
+            if (contactoLayout is LinearLayout && contactoLayout.childCount > 0 && contactoLayout.getChildAt(0) is EditText) {
                 val contactoEditText = contactoLayout.getChildAt(0) as EditText
                 val contacto = contactoEditText.text.toString().trim()
                 if (contacto.isNotEmpty()) {

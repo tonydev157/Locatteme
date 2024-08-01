@@ -18,30 +18,58 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp"
-            android:layout_above="@+id/progressBar">
+            android:layout_above="@+id/progressBar"
+            android:fillViewport="true"
+            android:background="@drawable/background_gradient">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:gravity="center"
+                android:padding="24dp"
+                android:background="@drawable/background_gradient">
+
+                <!-- ImageView para la imagen -->
+                <TextView
+                    android:id="@+id/register"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register"
+                    android:textColor="@color/primaryColor"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:textSize="45dp"
+                    android:layout_marginBottom="30dp"
+                    style="@style/RegisterTextViewStyle"
+                    android:background="@drawable/transparent_background"/>
 
                 <!-- Nombres -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Nombres"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_gravity="left"
+                    android:textColor="@color/primaryColor"
+                    android:layout_marginBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"/>
 
-                <EditText
-                    android:id="@+id/nombresEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/EditTextNoBorderStyle"
                     android:layout_marginBottom="16dp"
-                    android:hint="Nombres"
-                    android:inputType="text"
-                    android:minHeight="48dp"
-                    style="@style/EditTextStyle" />
+                    android:padding="10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/nombresEditText"
+                        style="@style/EditTextNoBorderStyle"
+                        android:hint="Nombres *"
+                        android:inputType="text"
+                        android:paddingEnd="48dp"
+                        android:theme="@style/EditTextCursorStyle"
+                        tools:ignore="TouchTargetSizeCheck" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:id="@+id/nombresErrorText"
@@ -56,17 +84,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Apellidos"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="left"
+                    android:textColor="@color/primaryColor"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"/>
 
-                <EditText
-                    android:id="@+id/apellidosEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/EditTextNoBorderStyle"
                     android:layout_marginBottom="16dp"
-                    android:hint="Apellidos"
-                    android:inputType="text"
-                    android:minHeight="48dp"
-                    style="@style/EditTextStyle" />
+                    android:padding="10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/apellidosEditText"
+                        style="@style/EditTextNoBorderStyle"
+                        android:hint="Apellidos *"
+                        android:inputType="text"
+                        android:paddingEnd="48dp"
+                        android:theme="@style/EditTextCursorStyle"
+                        tools:ignore="TouchTargetSizeCheck" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:id="@+id/apellidosErrorText"
@@ -76,12 +114,17 @@
                     android:visibility="gone"
                     android:text="Campo obligatorio" />
 
-                <!-- Foto -->
+                <!-- Foto de la persona desaparecida -->
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_gravity="left"
+                    android:layout_marginBottom="8dp"
                     android:text="Foto de la persona desaparecida"
-                    android:layout_marginBottom="8dp" />
+                    android:textColor="@color/primaryColor"
+                    android:textSize="20sp" />
 
                 <Button
                     android:id="@+id/uploadPhotoButton"
@@ -101,10 +144,10 @@
 
                     <ImageView
                         android:id="@+id/photoPreviewImageView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:scaleType="fitCenter"
-                        android:visibility="gone"
+                        android:layout_width="200dp"
+                        android:layout_height="200dp"
+                        android:scaleType="centerCrop"
+                        android:layout_gravity="center"
                         android:adjustViewBounds="true"
                         tools:srcCompat="@tools:sample/avatars" />
                 </androidx.cardview.widget.CardView>
@@ -113,22 +156,46 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginBottom="8dp"
                     android:text="Edad"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_gravity="left"
+                    android:textColor="@color/primaryColor"
+                    android:textSize="20sp" />
 
-                <Spinner
-                    android:id="@+id/edadSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/EditTextNoBorderStyle"
                     android:layout_marginBottom="16dp"
-                    android:minHeight="48dp" />
+                    android:padding="10dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edadEditText"
+                        style="@style/EditTextNoBorderStyle"
+                        android:hint="Edad *"
+                        android:inputType="number"
+                        android:paddingEnd="48dp"
+                        android:theme="@style/EditTextCursorStyle" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/edadErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_red_light"
+                    android:visibility="gone"
+                    android:text="Campo obligatorio" />
 
                 <!-- Provincia -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Provincia"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="left"
+                    android:textColor="@color/primaryColor"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -140,7 +207,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:hint="Seleccionar provincia"
+                        android:hint="Seleccionar provincia *"
                         android:minHeight="48dp"
                         style="@style/EditTextStyle" />
 
@@ -151,7 +218,7 @@
                         android:text="X"
                         android:layout_marginStart="8dp"
                         android:visibility="gone"
-                        style="@style/ButtonStyle" />
+                        style="@style/ButtonStyle"/>
                 </LinearLayout>
 
                 <TextView
@@ -167,7 +234,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Ciudad"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="left"
+                    android:textColor="@color/primaryColor"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -179,10 +251,10 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:hint="Seleccionar ciudad"
+                        android:hint="Seleccionar ciudad *"
                         android:enabled="false"
                         android:minHeight="48dp"
-                        style="@style/EditTextStyle" />
+                        style="@style/EditTextStyle"/>
 
                     <Button
                         android:id="@+id/clearCiudadButton"
@@ -191,7 +263,7 @@
                         android:text="X"
                         android:layout_marginStart="8dp"
                         android:visibility="gone"
-                        style="@style/ButtonStyle" />
+                        style="@style/ButtonStyle"/>
                 </LinearLayout>
 
                 <TextView
@@ -207,7 +279,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Nacionalidad"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="left"
+                    android:textColor="@color/primaryColor"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -221,7 +298,7 @@
                         android:layout_weight="1"
                         android:hint="Seleccionar nacionalidad"
                         android:minHeight="48dp"
-                        style="@style/EditTextStyle" />
+                        style="@style/EditTextStyle"/>
 
                     <Button
                         android:id="@+id/clearNacionalidadButton"
@@ -230,7 +307,7 @@
                         android:text="X"
                         android:layout_marginStart="8dp"
                         android:visibility="gone"
-                        style="@style/ButtonStyle" />
+                        style="@style/ButtonStyle"/>
                 </LinearLayout>
 
                 <TextView
@@ -246,21 +323,30 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Lugar de Desaparición"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="left"
+                    android:textColor="@color/primaryColor"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"/>
 
-                <EditText
-                    android:id="@+id/lugarDesaparicionEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/EditTextNoBorderStyle"
                     android:layout_marginBottom="16dp"
-                    android:hint="Lugar de Desaparición"
-                    android:inputType="textMultiLine"
-                    android:maxLength="100"
-                    android:minHeight="48dp"
-                    android:minLines="3"
-                    android:gravity="top"
-                    android:scrollbars="vertical"
-                    style="@style/EditTextStyle" />
+                    android:padding="10dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/lugarDesaparicionEditText"
+                        style="@style/EditTextNoBorderStyle"
+                        android:hint="Lugar de Desaparición"
+                        android:inputType="textMultiLine"
+                        android:maxLength="100"
+                        android:minHeight="48dp"
+                        android:minLines="3"
+                        android:gravity="top"
+                        android:scrollbars="vertical"
+                        android:paddingEnd="48dp"
+                        android:theme="@style/EditTextCursorStyle"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:id="@+id/lugarDesaparicionErrorText"
@@ -275,18 +361,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Fecha de Desaparición"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="left"
+                    android:textColor="@color/primaryColor"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"/>
 
-                <EditText
-                    android:id="@+id/fechaDesaparicionEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/EditTextNoBorderStyle"
                     android:layout_marginBottom="16dp"
-                    android:hint="Seleccionar fecha"
-                    android:focusable="false"
-                    android:inputType="none"
-                    android:minHeight="48dp"
-                    style="@style/EditTextStyle" />
+                    android:padding="10dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/fechaDesaparicionEditText"
+                        style="@style/EditTextNoBorderStyle"
+                        android:hint="Seleccionar fecha *"
+                        android:focusable="false"
+                        android:inputType="none"
+                        android:minHeight="48dp"
+                        android:paddingEnd="48dp"
+                        android:theme="@style/EditTextCursorStyle"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:id="@+id/fechaDesaparicionErrorText"
@@ -301,21 +396,30 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Características"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="left"
+                    android:textColor="@color/primaryColor"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"/>
 
-                <EditText
-                    android:id="@+id/caracteristicasEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/EditTextNoBorderStyle"
                     android:layout_marginBottom="16dp"
-                    android:hint="Características"
-                    android:inputType="textMultiLine"
-                    android:maxLength="200"
-                    android:minHeight="48dp"
-                    android:minLines="3"
-                    android:gravity="top"
-                    android:scrollbars="vertical"
-                    style="@style/EditTextStyle" />
+                    android:padding="10dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/caracteristicasEditText"
+                        style="@style/EditTextNoBorderStyle"
+                        android:hint="Características"
+                        android:inputType="textMultiLine"
+                        android:maxLength="200"
+                        android:minHeight="48dp"
+                        android:minLines="3"
+                        android:gravity="top"
+                        android:scrollbars="vertical"
+                        android:paddingEnd="48dp"
+                        android:theme="@style/EditTextCursorStyle"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:id="@+id/caracteristicasErrorText"
@@ -330,7 +434,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Números de Contacto"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="left"
+                    android:textColor="@color/primaryColor"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"/>
 
                 <LinearLayout
                     android:id="@+id/contactosContainer"
@@ -344,15 +453,20 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <EditText
-                            android:id="@+id/contactoEditText1"
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/EditTextNoBorderStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:hint="Número de Contacto"
-                            android:inputType="phone"
-                            android:minHeight="48dp"
-                            style="@style/EditTextStyle" />
+                            android:layout_weight="1">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/contactoEditText1"
+                                style="@style/EditTextNoBorderStyle"
+                                android:hint="Número de Contacto"
+                                android:inputType="phone"
+                                android:minHeight="48dp"
+                                android:paddingEnd="48dp"
+                                android:theme="@style/EditTextCursorStyle"/>
+                        </com.google.android.material.textfield.TextInputLayout>
 
                         <Button
                             android:id="@+id/addContactoButton"
@@ -362,7 +476,7 @@
                             android:textSize="18sp"
                             android:background="@drawable/rounded_button_background"
                             android:layout_marginStart="8dp"
-                            style="@style/ButtonStyle" />
+                            style="@style/ButtonStyle"/>
                     </LinearLayout>
 
                     <TextView
@@ -374,27 +488,13 @@
                         android:text="Campo opcional" />
                 </LinearLayout>
 
-                <!-- Estado -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Estado"
-                    android:layout_marginBottom="8dp" />
-
-                <Spinner
-                    android:id="@+id/estadoSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:minHeight="48dp" />
-
                 <Button
                     android:id="@+id/guardarButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Guardar"
                     android:layout_marginTop="24dp"
-                    style="@style(ButtonStyle" />
+                    style="@style/ButtonStyle"/>
 
                 <Button
                     android:id="@+id/cancelButton"
@@ -402,7 +502,7 @@
                     android:layout_height="wrap_content"
                     android:text="Cancelar"
                     android:layout_marginTop="8dp"
-                    style="@style(ButtonStyle" />
+                    style="@style/ButtonStyle"/>
             </LinearLayout>
         </ScrollView>
 
@@ -411,6 +511,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"/>
     </RelativeLayout>
 </layout>
