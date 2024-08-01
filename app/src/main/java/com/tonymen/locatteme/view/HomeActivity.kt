@@ -231,6 +231,7 @@ class HomeActivity : AppCompatActivity() {
                 resetCreatePostButton()
                 binding.bottomNavigationView.selectedItemId = R.id.navigation_home
                 isPostSaved = false // Restaurar el estado
+                removeFragmentFromBackStack("CreatePostFragment")
             }
         } else if (supportFragmentManager.backStackEntryCount > 1) {
             super.onBackPressed()

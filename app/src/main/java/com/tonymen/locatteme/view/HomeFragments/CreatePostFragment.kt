@@ -20,7 +20,6 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -35,7 +34,6 @@ import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.utils.SearchUtils
 import com.tonymen.locatteme.viewmodel.CreatePostViewModel
 import com.google.firebase.Timestamp
-import com.google.firebase.storage.StorageReference
 import com.tonymen.locatteme.utils.dpToPx
 import com.tonymen.locatteme.view.HomeActivity
 import com.yalantis.ucrop.UCrop
@@ -69,7 +67,7 @@ class CreatePostFragment : Fragment() {
         binding.viewModel = createPostViewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        (activity as? HomeActivity)?.isPostSaved = false // Reset isPostSaved when entering the fragment
+        (activity as? HomeActivity)?.isPostSaved = false // Set isPostSaved to false to show warning
 
         loadEcuadorLocations()
         loadNationalities()
@@ -680,16 +678,6 @@ class CreatePostFragment : Fragment() {
         val homeActivity = activity as? HomeActivity
         homeActivity?.enableCreatePostButton() // Habilitar el botón de creación de post
         _binding = null
-    }
-
-    private fun showExitConfirmationDialog() {
-        AlertDialog.Builder(requireContext())
-            .setMessage("¿Estás seguro de que deseas salir? Se perderán los cambios no guardados.")
-            .setPositiveButton("Sí") { _, _ ->
-                findNavController().popBackStack()
-            }
-            .setNegativeButton("No", null)
-            .show()
     }
 
     companion object {

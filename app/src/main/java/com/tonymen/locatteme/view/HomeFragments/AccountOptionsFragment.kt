@@ -20,7 +20,7 @@ class AccountOptionsFragment : Fragment() {
         _binding = FragmentAccountOptionsBinding.inflate(inflater, container, false)
 
         binding.editProfileTextView.setOnClickListener {
-            (activity as HomeActivity).loadFragment(EditProfileFragment(), "EditProfileFragment")
+            (activity as HomeActivity). loadFragment(EditProfileFragment(), "EditProfileFragment")
         }
 
         binding.changePasswordTextView.setOnClickListener {
