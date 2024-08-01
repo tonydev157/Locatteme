@@ -9,10 +9,13 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.FragmentChangePasswordBinding
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class ChangePasswordFragment : Fragment() {
 
@@ -34,7 +37,9 @@ class ChangePasswordFragment : Fragment() {
             val confirmPassword = binding.confirmPasswordEditText.text.toString()
 
             if (validateInput(currentPassword, newPassword, confirmPassword)) {
-                changePassword(currentPassword, newPassword)
+                lifecycleScope.launch {
+                    changePassword(currentPassword, newPassword)
+                }
             }
         }
 
@@ -43,27 +48,13 @@ class ChangePasswordFragment : Fragment() {
         }
 
         binding.showHideCurrentPasswordButton.setOnClickListener {
-            if (isCurrentPasswordVisible) {
-                binding.currentPasswordEditText.inputType = 129
-                binding.showHideCurrentPasswordButton.setImageResource(R.drawable.ic_eye_off)
-            } else {
-                binding.currentPasswordEditText.inputType = 144
-                binding.showHideCurrentPasswordButton.setImageResource(R.drawable.ic_eye)
-            }
+            togglePasswordVisibility(binding.currentPasswordEditText, binding.showHideCurrentPasswordButton)
             isCurrentPasswordVisible = !isCurrentPasswordVisible
-            binding.currentPasswordEditText.setSelection(binding.currentPasswordEditText.text.length)
         }
 
         binding.showHideNewPasswordButton.setOnClickListener {
-            if (isNewPasswordVisible) {
-                binding.newPasswordEditText.inputType = 129
-                binding.showHideNewPasswordButton.setImageResource(R.drawable.ic_eye_off)
-            } else {
-                binding.newPasswordEditText.inputType = 144
-                binding.showHideNewPasswordButton.setImageResource(R.drawable.ic_eye)
-            }
+            togglePasswordVisibility(binding.newPasswordEditText, binding.showHideNewPasswordButton)
             isNewPasswordVisible = !isNewPasswordVisible
-            binding.newPasswordEditText.setSelection(binding.newPasswordEditText.text.length)
         }
 
         setupRealTimeValidation()
@@ -101,7 +92,6 @@ class ChangePasswordFragment : Fragment() {
     }
 
     private fun isValidPassword(password: String): Boolean {
-        // Permite cualquier carácter excepto espacios y debe cumplir con los criterios especificados
         if (password.contains(" ")) {
             return false
         }
@@ -118,36 +108,42 @@ class ChangePasswordFragment : Fragment() {
                 specialCharPattern.containsMatchIn(password)
     }
 
-    private fun changePassword(currentPassword: String, newPassword: String) {
+    private suspend fun changePassword(currentPassword: String, newPassword: String) {
         showLoading(true)
-        val user = auth.currentUser
-        if (user != null) {
-            val credential = EmailAuthProvider.getCredential(user.email!!, currentPassword)
-            user.reauthenticate(credential).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    user.updatePassword(newPassword).addOnCompleteListener { updateTask ->
-                        showLoading(false)
-                        if (updateTask.isSuccessful) {
-                            Toast.makeText(requireContext(), "Contraseña actualizada", Toast.LENGTH_SHORT).show()
-                            requireActivity().onBackPressed()
-                        } else {
-                            Toast.makeText(requireContext(), "Error al actualizar la contraseña: ${updateTask.exception?.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                } else {
-                    showLoading(false)
-                    binding.currentPasswordEditText.setBackgroundResource(R.drawable.edit_text_invalid)
-                    binding.currentPasswordEditText.error = "Contraseña actual incorrecta"
-                    Toast.makeText(requireContext(), "Error de autenticación: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                }
+        try {
+            val user = auth.currentUser
+            if (user != null) {
+                val credential = EmailAuthProvider.getCredential(user.email!!, currentPassword)
+                user.reauthenticate(credential).await()
+                user.updatePassword(newPassword).await()
+                Toast.makeText(requireContext(), "Contraseña actualizada", Toast.LENGTH_SHORT).show()
+                requireActivity().onBackPressed()
             }
+        } catch (e: Exception) {
+            _binding?.apply {
+                currentPasswordEditText.setBackgroundResource(R.drawable.edit_text_invalid)
+                currentPasswordEditText.error = "Contraseña actual incorrecta"
+                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        } finally {
+            showLoading(false)
         }
     }
 
     private fun showLoading(isLoading: Boolean) {
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        binding.changePasswordButton.isEnabled = !isLoading
-        binding.cancelButton.isEnabled = !isLoading
+        _binding?.apply {
+            progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            changePasswordButton.isEnabled = !isLoading
+            cancelButton.isEnabled = !isLoading
+            currentPasswordEditText.isEnabled = !isLoading
+            newPasswordEditText.isEnabled = !isLoading
+            confirmPasswordEditText.isEnabled = !isLoading
+            showHideCurrentPasswordButton.isEnabled = !isLoading
+            showHideNewPasswordButton.isEnabled = !isLoading
+
+            // Deshabilitar toda la vista
+            root.isEnabled = !isLoading
+        }
     }
 
     private fun setupRealTimeValidation() {
@@ -192,6 +188,17 @@ class ChangePasswordFragment : Fragment() {
                 validation(s.toString())
             }
         }
+    }
+
+    private fun togglePasswordVisibility(editText: EditText, toggleButton: View) {
+        if (editText.inputType == 144) {
+            editText.inputType = 129
+            toggleButton.setBackgroundResource(R.drawable.ic_eye_off)
+        } else {
+            editText.inputType = 144
+            toggleButton.setBackgroundResource(R.drawable.ic_eye)
+        }
+        editText.setSelection(editText.text.length)
     }
 
     override fun onDestroyView() {

@@ -1,42 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@drawable/background_gradient">
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@color/backgroundColor">
+        android:padding="16dp">
 
+        <!-- Título de Opciones de Cuenta -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Opciones de cuenta"
             android:textSize="24sp"
             android:textColor="@color/textColorPrimary"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginBottom="24dp"
+            android:fontFamily="sans-serif-medium" />
 
-        <TextView
-            android:id="@+id/editProfileTextView"
-            android:layout_width="wrap_content"
+        <!-- Opción de Editar Perfil -->
+        <LinearLayout
+            android:id="@+id/editProfileLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Editar perfil"
-            android:textSize="18sp"
-            android:textColor="@color/primaryColor"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_edit_profile"
+                android:layout_marginEnd="16dp"
+                app:tint="@color/primaryColor" />
+
+            <TextView
+                android:id="@+id/editProfileTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Editar perfil"
+                android:textSize="18sp"
+                android:textColor="@color/primaryColor"
+                android:fontFamily="sans-serif"/>
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/primaryColor"
             android:layout_marginBottom="16dp"/>
 
-        <TextView
-            android:id="@+id/changePasswordTextView"
-            android:layout_width="wrap_content"
+        <!-- Opción de Cambiar Contraseña -->
+        <LinearLayout
+            android:id="@+id/changePasswordLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Cambiar contraseña"
-            android:textSize="18sp"
-            android:textColor="@color/primaryColor"
-            android:layout_marginBottom="16dp"/>
-        <TextView
-            android:id="@+id/deleteuser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Eliminar cuenta"
-            android:textSize="18sp"
-            android:textColor="@color/primaryColor"/>
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true">
 
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_change_password"
+                android:layout_marginEnd="16dp"
+                app:tint="@color/primaryColor" />
+
+            <TextView
+                android:id="@+id/changePasswordTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cambiar contraseña"
+                android:textSize="18sp"
+                android:textColor="@color/primaryColor"
+                android:fontFamily="sans-serif"/>
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/primaryColor"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Opción de Eliminar Cuenta -->
+        <LinearLayout
+            android:id="@+id/deleteUserLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_delete_user"
+                android:layout_marginEnd="16dp"
+                app:tint="@color/primaryColor" />
+
+            <TextView
+                android:id="@+id/deleteUserTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Eliminar cuenta"
+                android:textSize="18sp"
+                android:textColor="@color/primaryColor"
+                android:fontFamily="sans-serif"/>
+        </LinearLayout>
     </LinearLayout>
+</ScrollView>
