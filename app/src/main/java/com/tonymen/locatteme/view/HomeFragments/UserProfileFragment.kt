@@ -141,12 +141,13 @@ class UserProfileFragment : Fragment() {
 
     private fun openChatFragment() {
         val chatId = generateChatId(currentUserId, userId)
-        val chatFragment = ChatFragment.newInstance(chatId, currentUserId)
+        val chatFragment = ChatFragment.newInstance(chatId, currentUserId, userId)
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, chatFragment)
             .addToBackStack(null)
             .commit()
     }
+
 
     private fun checkIfFollowing() {
         val db = FirebaseFirestore.getInstance()

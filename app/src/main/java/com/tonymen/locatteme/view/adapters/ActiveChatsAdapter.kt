@@ -1,29 +1,49 @@
-package com.tonymen.locatteme.view.adapters
+package com.tonymen.locatteme.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.ItemChatBinding
 import com.tonymen.locatteme.model.Chat
-import com.google.firebase.auth.FirebaseAuth
+import com.tonymen.locatteme.utils.ChatTimestampUtil
+
+
+data class ChatDisplay(
+    val chat: Chat,
+    val userName: String,
+    val userProfileImageUrl: String
+)
 
 class ActiveChatsAdapter(
-    private val context: Context,
-    private val onChatClick: (String, String) -> Unit
+    private var chats: List<ChatDisplay>,
+    private val onClick: (Chat) -> Unit
 ) : RecyclerView.Adapter<ActiveChatsAdapter.ChatViewHolder>() {
 
-    private val chats = mutableListOf<Chat>()
-    private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+    inner class ChatViewHolder(private val binding: ItemChatBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(chatDisplay: ChatDisplay) {
+            // Carga de la imagen de perfil
+            Glide.with(binding.root.context)
+                .load(chatDisplay.userProfileImageUrl.ifEmpty { R.drawable.ic_profile_placeholder })
+                .circleCrop()
+                .into(binding.profileImageView)
 
-    fun submitList(chatList: List<Chat>) {
-        chats.clear()
-        chats.addAll(chatList)
-        notifyDataSetChanged()
+            binding.usernameTextView.text = chatDisplay.userName // Mostramos el nombre del usuario
+            binding.lastMessageTextView.text = chatDisplay.chat.lastMessageText
+
+            // Formatear y mostrar la fecha/hora correcta
+            val formattedTimestamp = ChatTimestampUtil.formatChatTimestamp(chatDisplay.chat.lastMessageTimestamp)
+            binding.timestampTextView.text = formattedTimestamp
+
+            binding.root.setOnClickListener {
+                onClick(chatDisplay.chat)
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val binding = ItemChatBinding.inflate(LayoutInflater.from(context), parent, false)
+        val binding = ItemChatBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ChatViewHolder(binding)
     }
 
@@ -31,18 +51,10 @@ class ActiveChatsAdapter(
         holder.bind(chats[position])
     }
 
-    override fun getItemCount(): Int = chats.size
+    override fun getItemCount() = chats.size
 
-    inner class ChatViewHolder(private val binding: ItemChatBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(chat: Chat) {
-            binding.chat = chat
-            binding.currentUserId = currentUserId
-            binding.executePendingBindings()
-
-            binding.root.setOnClickListener {
-                val otherUserId = chat.participants.first { it != currentUserId }
-                onChatClick(chat.id, otherUserId)
-            }
-        }
+    fun updateData(newChats: List<ChatDisplay>) {
+        chats = newChats
+        notifyDataSetChanged()
     }
 }

@@ -4,10 +4,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:startDestination="@id/profileFragment">
 
+    <!-- Profile Fragment -->
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.tonymen.locatteme.view.HomeFragments.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile">
+
+        <!-- Acción para navegar al ActiveChatsFragment -->
+        <action
+            android:id="@+id/action_profileFragment_to_activeChatsFragment"
+            app:destination="@id/activeChatsFragment" />
     </fragment>
+
+    <!-- Active Chats Fragment -->
+    <fragment
+        android:id="@+id/activeChatsFragment"
+        android:name="com.tonymen.locatteme.view.HomeFragments.ActiveChatsFragment"
+        android:label="Active Chats"
+        tools:layout="@layout/fragment_active_chats">
+
+        <!-- Acción para navegar al ChatFragment -->
+        <action
+            android:id="@+id/action_activeChatsFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+
+    <!-- Chat Fragment -->
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.tonymen.locatteme.view.HomeFragments.ChatFragment"
+        android:label="Chat"
+        tools:layout="@layout/fragment_chat" />
 </navigation>
