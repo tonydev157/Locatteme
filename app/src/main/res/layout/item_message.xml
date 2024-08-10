@@ -21,7 +21,6 @@
             android:gravity="end"
             android:layout_gravity="end"
             android:padding="8dp"
-            android:visibility="gone"
             android:background="@drawable/sent_message_background">
 
             <TextView
@@ -31,13 +30,28 @@
                 android:background="@color/sentMessegue"
                 android:textColor="@color/backgroundColorI" />
 
-            <TextView
-                android:id="@+id/textViewTimestampSent"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:background="@color/sentMessegue"
-                android:textColor="@android:color/black" />
+                android:orientation="horizontal"
+                android:gravity="end">
+
+                <TextView
+                    android:id="@+id/textViewTimestampSent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:background="@color/sentMessegue"
+                    android:textColor="@android:color/black" />
+
+                <ImageView
+                    android:id="@+id/statusImageView"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/ic_single_tick"
+                    android:visibility="gone" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Mensaje recibido -->

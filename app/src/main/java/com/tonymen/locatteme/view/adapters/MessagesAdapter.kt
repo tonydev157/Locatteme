@@ -22,19 +22,29 @@ class MessagesAdapter(private var messages: List<Message>) :
         fun bind(message: Message, currentUserId: String?) {
             val isSentByCurrentUser = message.senderId == currentUserId
 
-            // Alterna entre diseños de mensaje enviado y recibido
             if (isSentByCurrentUser) {
+                // Mostrar layout de mensaje enviado
                 binding.sentMessageLayout.visibility = View.VISIBLE
                 binding.receivedMessageLayout.visibility = View.GONE
                 binding.textViewMessageSent.text = message.messageText
                 binding.textViewTimestampSent.text = formatTimestamp(message.timestamp)
-                binding.textViewMessageSent.setTextColor(getMessageTextColor(binding.root.context))
+
+                // Configurar el ícono de estado del mensaje
+                binding.statusImageView.visibility = View.VISIBLE
+                when {
+                    message.readTimestamp != null -> binding.statusImageView.setImageResource(R.drawable.ic_double_tick_blue)
+                    message.readBy.isNotEmpty() -> binding.statusImageView.setImageResource(R.drawable.ic_double_tick)
+                    else -> binding.statusImageView.setImageResource(R.drawable.ic_single_tick)
+                }
             } else {
+                // Mostrar layout de mensaje recibido
                 binding.sentMessageLayout.visibility = View.GONE
                 binding.receivedMessageLayout.visibility = View.VISIBLE
                 binding.textViewMessageReceived.text = message.messageText
                 binding.textViewTimestampReceived.text = formatTimestamp(message.timestamp)
-                binding.textViewMessageReceived.setTextColor(getMessageTextColor(binding.root.context))
+
+                // Ocultar el ícono de estado en los mensajes recibidos
+                binding.statusImageView.visibility = View.GONE
             }
         }
     }
@@ -59,9 +69,5 @@ class MessagesAdapter(private var messages: List<Message>) :
     private fun formatTimestamp(timestamp: Timestamp): String {
         val dateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
         return dateFormat.format(timestamp.toDate())
-    }
-
-    private fun getMessageTextColor(context: Context): Int {
-        return ContextCompat.getColor(context, R.color.backgroundColorI)
     }
 }

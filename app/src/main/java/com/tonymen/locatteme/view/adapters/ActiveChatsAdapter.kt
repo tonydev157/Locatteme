@@ -1,19 +1,18 @@
 package com.tonymen.locatteme.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.ItemChatBinding
 import com.tonymen.locatteme.model.Chat
-import com.tonymen.locatteme.utils.ChatTimestampUtil
-
 
 data class ChatDisplay(
     val chat: Chat,
     val userName: String,
-    val userProfileImageUrl: String
+    val userProfileImageUrl: String,
+    val unreadCount: Int = 0  // Contador de mensajes no leídos
 )
 
 class ActiveChatsAdapter(
@@ -23,18 +22,20 @@ class ActiveChatsAdapter(
 
     inner class ChatViewHolder(private val binding: ItemChatBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(chatDisplay: ChatDisplay) {
-            // Carga de la imagen de perfil
-            Glide.with(binding.root.context)
-                .load(chatDisplay.userProfileImageUrl.ifEmpty { R.drawable.ic_profile_placeholder })
+            // Otros bindings...
+            binding.usernameTextView.text = chatDisplay.userName
+            binding.lastMessageTextView.text = chatDisplay.chat.lastMessageText
+            Glide.with(binding.profileImageView.context)
+                .load(chatDisplay.userProfileImageUrl)
                 .circleCrop()
                 .into(binding.profileImageView)
 
-            binding.usernameTextView.text = chatDisplay.userName // Mostramos el nombre del usuario
-            binding.lastMessageTextView.text = chatDisplay.chat.lastMessageText
-
-            // Formatear y mostrar la fecha/hora correcta
-            val formattedTimestamp = ChatTimestampUtil.formatChatTimestamp(chatDisplay.chat.lastMessageTimestamp)
-            binding.timestampTextView.text = formattedTimestamp
+            if (chatDisplay.unreadCount > 0) {
+                binding.unreadCountTextView.text = chatDisplay.unreadCount.toString()
+                binding.unreadCountTextView.visibility = View.VISIBLE
+            } else {
+                binding.unreadCountTextView.visibility = View.GONE
+            }
 
             binding.root.setOnClickListener {
                 onClick(chatDisplay.chat)
@@ -51,7 +52,7 @@ class ActiveChatsAdapter(
         holder.bind(chats[position])
     }
 
-    override fun getItemCount() = chats.size
+    override fun getItemCount(): Int = chats.size
 
     fun updateData(newChats: List<ChatDisplay>) {
         chats = newChats

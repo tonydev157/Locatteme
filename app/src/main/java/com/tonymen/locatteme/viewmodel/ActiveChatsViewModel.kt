@@ -1,5 +1,6 @@
 package com.tonymen.locatteme.viewmodel
 
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.adapter.ChatDisplay
 import com.tonymen.locatteme.model.Chat
+import com.tonymen.locatteme.model.Message
 import com.tonymen.locatteme.model.User
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -49,11 +51,24 @@ class ActiveChatsViewModel : ViewModel() {
                             try {
                                 val userDoc = db.collection("users").document(otherUserId).get().await()
                                 val user = userDoc.toObject(User::class.java)
+
                                 if (user != null) {
+                                    // Obtener los mensajes del chat
+                                    val messages = db.collection("chats")
+                                        .document(chat.id)
+                                        .collection("messages")
+                                        .get()
+                                        .await()
+                                        .toObjects(Message::class.java)
+
+                                    // Calcular la cantidad de mensajes no leídos
+                                    val unreadCount = messages.count { !it.readBy.contains(currentUserId) }
+
                                     val chatDisplay = ChatDisplay(
                                         chat = chat,
                                         userName = "${user.nombre} ${user.apellido}",
-                                        userProfileImageUrl = user.profileImageUrl
+                                        userProfileImageUrl = user.profileImageUrl,
+                                        unreadCount = unreadCount  // Añadir el contador de mensajes no leídos
                                     )
                                     chatList.add(chatDisplay)
                                 }
