@@ -2,11 +2,18 @@ package com.tonymen.locatteme.model
 
 import com.google.firebase.Timestamp
 
+enum class MessageType {
+    TEXT, IMAGE, VIDEO, AUDIO
+}
+
 data class Message(
     val id: String = "",
     val senderId: String = "",
     val messageText: String = "",
-    val timestamp: Timestamp = Timestamp.now(), // Hora de envío del mensaje
-    val readTimestamp: Timestamp? = null, // Hora en que se leyó el mensaje, null si no se ha leído
-    val readBy: List<String> = emptyList() // Lista de IDs de usuarios que han leído el mensaje
+    val imageUrl: String? = null,
+    val videoUrl: String? = null,
+    val audioUrl: String? = null,
+    val timestamp: Timestamp = Timestamp.now(),
+    val messageType: MessageType = MessageType.TEXT,
+    val readBy: List<String> = emptyList()
 )

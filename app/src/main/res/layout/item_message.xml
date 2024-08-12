@@ -4,6 +4,9 @@
         <variable
             name="message"
             type="com.tonymen.locatteme.model.Message" />
+        <variable
+            name="handler"
+            type="com.tonymen.locatteme.view.adapters.MessageClickHandler" />
     </data>
 
     <LinearLayout
@@ -12,7 +15,7 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <!-- Mensaje enviado -->
+        <!-- Sent Message Layout -->
         <LinearLayout
             android:id="@+id/sentMessageLayout"
             android:layout_width="wrap_content"
@@ -28,7 +31,46 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/sentMessegue"
-                android:textColor="@color/backgroundColorI" />
+                android:textColor="@color/backgroundColorI"
+                android:text="@{message.messageText}" />
+
+            <ImageView
+                android:id="@+id/imageViewSent"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:visibility="gone"
+                android:onClick="@{() -> handler.onImageClick(message)}" />
+
+            <VideoView
+                android:id="@+id/videoViewSent"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:visibility="gone"
+                android:onClick="@{() -> handler.onVideoClick(message)}" />
+
+            <RelativeLayout
+                android:id="@+id/audioLayoutSent"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="horizontal"
+                android:layout_gravity="end">
+
+                <ImageButton
+                    android:id="@+id/playPauseButtonSent"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_play_arrow"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:onClick="@{() -> handler.onAudioClick(message)}" />
+
+                <SeekBar
+                    android:id="@+id/audioSeekBarSent"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/playPauseButtonSent"
+                    android:layout_marginStart="8dp" />
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -42,7 +84,8 @@
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
                     android:background="@color/sentMessegue"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"
+                    android:text="@{handler.formatTimestamp(message.timestamp)}" />
 
                 <ImageView
                     android:id="@+id/statusImageView"
@@ -54,7 +97,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Mensaje recibido -->
+        <!-- Received Message Layout -->
         <LinearLayout
             android:id="@+id/receivedMessageLayout"
             android:layout_width="wrap_content"
@@ -70,7 +113,46 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/receivedMessage"
-                android:textColor="@color/backgroundColorI" />
+                android:textColor="@color/backgroundColorI"
+                android:text="@{message.messageText}" />
+
+            <ImageView
+                android:id="@+id/imageViewReceived"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:visibility="gone"
+                android:onClick="@{() -> handler.onImageClick(message)}" />
+
+            <VideoView
+                android:id="@+id/videoViewReceived"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:visibility="gone"
+                android:onClick="@{() -> handler.onVideoClick(message)}" />
+
+            <RelativeLayout
+                android:id="@+id/audioLayoutReceived"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="horizontal"
+                android:layout_gravity="start">
+
+                <ImageButton
+                    android:id="@+id/playPauseButtonReceived"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_play_arrow"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:onClick="@{() -> handler.onAudioClick(message)}" />
+
+                <SeekBar
+                    android:id="@+id/audioSeekBarReceived"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/playPauseButtonReceived"
+                    android:layout_marginStart="8dp" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/textViewTimestampReceived"
@@ -78,7 +160,9 @@
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
                 android:background="@color/receivedMessage"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                android:text="@{handler.formatTimestamp(message.timestamp)}" />
+
         </LinearLayout>
     </LinearLayout>
 </layout>

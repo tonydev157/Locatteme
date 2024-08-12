@@ -35,4 +35,9 @@
     <string name="message_icon" />
     <string name="verification_accoun">Verificar cuenta</string>
 
+    <string name="cancel_action_description">Cancelar acción</string>
+    <string name="send_action_description">Enviar mensaje</string>
+    <string name="play_pause_audio" />
+    <string name="play_pause_description" />
+
 </resources>
