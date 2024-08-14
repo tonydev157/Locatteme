@@ -1,54 +1,54 @@
 package com.tonymen.locatteme.view.adapters
 
+import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.SeekBar
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.databinding.ItemMessageBinding
 import com.tonymen.locatteme.model.Message
 import com.tonymen.locatteme.model.MessageType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.util.concurrent.TimeUnit
 
 class MessagesAdapter(
-    private var messages: List<Message>,
+    var messages: List<Message>,
     private val clickHandler: MessageClickHandler
 ) : RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
 
     private var mediaPlayer: MediaPlayer? = null
-    private var currentPlayingPosition: Int = -1
-    private var currentPlayingViewHolder: MessageViewHolder? = null
+    private var currentPlayingMessageId: String? = null
+    private var currentViewHolder: MessageViewHolder? = null
+    private var handler: Handler = Handler(Looper.getMainLooper())
+
+    // Método para obtener la lista de mensajes
+
+
+    // Método para reproducir audio desde el adapter
+    fun playAudio(message: Message, isSentByCurrentUser: Boolean, viewHolder: MessageViewHolder) {
+        viewHolder.playAudio(message, isSentByCurrentUser)
+    }
 
     inner class MessageViewHolder(val binding: ItemMessageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        private val handler = Handler(Looper.getMainLooper())
-        private val updateSeekBar = object : Runnable {
-            override fun run() {
-                mediaPlayer?.let {
-                    if (bindingAdapterPosition == currentPlayingPosition) {
-                        if (isSentByCurrentUser()) {
-                            binding.audioSeekBarSent.progress = it.currentPosition
-                        } else {
-                            binding.audioSeekBarReceived.progress = it.currentPosition
-                        }
-                        handler.postDelayed(this, 1000)
-                    }
-                }
-            }
-        }
-
-        fun bind(message: Message, currentUserId: String?) {
-            val isSentByCurrentUser = isSentByCurrentUser()
-
+        fun bind(message: Message) {
+            val isSentByCurrentUser = isSentByCurrentUser(message.senderId)
             binding.message = message
             binding.handler = clickHandler
 
@@ -77,122 +77,306 @@ class MessagesAdapter(
             }
         }
 
-        private fun isSentByCurrentUser() = binding.message?.senderId == FirebaseAuth.getInstance().currentUser?.uid
+        private fun isSentByCurrentUser(senderId: String): Boolean {
+            return senderId == FirebaseAuth.getInstance().currentUser?.uid
+        }
 
         private fun handleMediaContent(message: Message, isSent: Boolean) {
             when (message.messageType) {
+                MessageType.AUDIO -> {
+                    val audioLayout = if (isSent) binding.audioLayoutSent else binding.audioLayoutReceived
+                    val playPauseButton = if (isSent) binding.playPauseButtonSent else binding.playPauseButtonReceived
+                    val seekBar = if (isSent) binding.audioSeekBarSent else binding.audioSeekBarReceived
+                    val durationText = if (isSent) binding.audioDurationSent else binding.audioDurationReceived
+                    val downloadButton = if (isSent) binding.downloadButtonSent else binding.downloadButtonReceived
+                    val progressBar = if (isSent) binding.downloadProgressBarSent else binding.downloadProgressBarReceived
+
+                    audioLayout.visibility = View.VISIBLE
+
+                    val localPath = getLocalMediaPath(message, MessageType.AUDIO)
+                    if (localPath != null && File(localPath).exists()) {
+                        updateAudioDuration(localPath, durationText, seekBar)
+                        playPauseButton.visibility = View.VISIBLE
+                        playPauseButton.isEnabled = true
+                        downloadButton.visibility = View.GONE
+                    } else {
+                        // Lógica adicional para descarga automática si es un archivo enviado
+                        if (isSent) {
+                            // Iniciar descarga automática para audios enviados
+                            downloadMediaAndRetrieveDuration(
+                                binding.root.context, message.audioUrl ?: "", message,
+                                durationText, seekBar, playPauseButton, progressBar, downloadButton
+                            )
+                        } else {
+                            playPauseButton.visibility = View.GONE
+                            downloadButton.visibility = View.VISIBLE
+                            downloadButton.setOnClickListener {
+                                progressBar.visibility = View.VISIBLE
+                                downloadMediaAndRetrieveDuration(
+                                    binding.root.context, message.audioUrl ?: "", message,
+                                    durationText, seekBar, playPauseButton, progressBar, downloadButton
+                                )
+                            }
+                        }
+                    }
+
+                    playPauseButton.setOnClickListener {
+                        currentViewHolder = this
+                        playAudio(message, isSent)
+                    }
+                }
+
                 MessageType.IMAGE -> {
                     val imageView = if (isSent) binding.imageViewSent else binding.imageViewReceived
                     imageView.visibility = View.VISIBLE
                     Glide.with(binding.root.context).load(message.imageUrl).into(imageView)
                     imageView.setOnClickListener { clickHandler.onImageClick(message) }
                 }
+
                 MessageType.VIDEO -> {
                     val videoView = if (isSent) binding.videoViewSent else binding.videoViewReceived
                     videoView.visibility = View.VISIBLE
                     videoView.setOnClickListener { clickHandler.onVideoClick(message) }
                 }
+
+                MessageType.TEXT -> {
+                    val textView = if (isSent) binding.textViewMessageSent else binding.textViewMessageReceived
+                    textView.visibility = View.VISIBLE
+                    textView.text = message.messageText
+                }
+            }
+        }
+
+        private fun downloadMediaAndRetrieveDuration(
+            context: Context, audioUrl: String, message: Message,
+            durationText: TextView, seekBar: SeekBar, playPauseButton: View,
+            progressBar: View, downloadButton: View
+        ) {
+            val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(audioUrl)
+            val localFile = File(context.getExternalFilesDir(null), "locatteme/${message.senderId}/Audios/${message.id}.3gp")
+
+            // Muestra el ProgressBar y oculta los otros botones
+            progressBar.visibility = View.VISIBLE
+            playPauseButton.visibility = View.GONE
+            downloadButton.visibility = View.GONE
+
+            storageReference.getFile(localFile).addOnSuccessListener {
+                // Actualiza la duración del audio una vez descargado
+                updateAudioDuration(localFile.absolutePath, durationText, seekBar)
+
+                // Guarda el archivo localmente para usos futuros
+                saveDownloadedMediaLocally(context, localFile, message.messageType, message.senderId == FirebaseAuth.getInstance().currentUser?.uid)
+
+                // Oculta el ProgressBar y muestra el botón de reproducción
+                progressBar.visibility = View.GONE
+                playPauseButton.visibility = View.VISIBLE
+                playPauseButton.isEnabled = true
+                downloadButton.visibility = View.GONE
+            }.addOnFailureListener { exception ->
+                Log.e("MessagesAdapter", "Error al descargar el archivo de audio", exception)
+
+                // Si falla la descarga, vuelve a mostrar el botón de descarga
+                progressBar.visibility = View.GONE
+                playPauseButton.visibility = View.GONE
+                downloadButton.visibility = View.VISIBLE
+            }
+        }
+
+
+
+        private fun updateAudioDuration(localPath: String, durationText: TextView, seekBar: SeekBar) {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(localPath)
+            val durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            val duration = durationStr?.toIntOrNull() ?: 0
+            retriever.release()
+
+            val formattedDuration = formatTime(duration)
+            durationText.text = formattedDuration
+            seekBar.max = duration
+        }
+
+        private fun getLocalMediaPath(message: Message, messageType: MessageType): String? {
+            val context = binding.root.context
+            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return null
+
+            // Busca en la carpeta correcta dependiendo de si el archivo fue enviado o recibido
+            val baseDir = when (messageType) {
+                MessageType.IMAGE -> File(context.getExternalFilesDir(null), "locatteme/$userId/Imagenes")
+                MessageType.VIDEO -> File(context.getExternalFilesDir(null), "locatteme/$userId/Videos")
                 MessageType.AUDIO -> {
-                    val audioLayout = if (isSent) binding.audioLayoutSent else binding.audioLayoutReceived
-                    val playPauseButton = if (isSent) binding.playPauseButtonSent else binding.playPauseButtonReceived
-                    val seekBar = if (isSent) binding.audioSeekBarSent else binding.audioSeekBarReceived
-
-                    audioLayout.visibility = View.VISIBLE
-
-                    playPauseButton.setOnClickListener {
-                        Log.d("AudioPlayback", "Botón play/pause clicado para posición $bindingAdapterPosition")
-                        if (currentPlayingPosition == bindingAdapterPosition) {
-                            // Toggle Play/Pause
-                            mediaPlayer?.let {
-                                if (it.isPlaying) {
-                                    Log.d("AudioPlayback", "Pausando reproducción")
-                                    it.pause()
-                                    playPauseButton.setImageResource(R.drawable.ic_play_arrow)
-                                    handler.removeCallbacks(updateSeekBar)
-                                } else {
-                                    Log.d("AudioPlayback", "Reanudando reproducción")
-                                    it.start()
-                                    playPauseButton.setImageResource(R.drawable.ic_pause)
-                                    handler.postDelayed(updateSeekBar, 1000)
-                                }
-                            }
-                        } else {
-                            Log.d("AudioPlayback", "Iniciando nueva reproducción para mensaje ${message.id}")
-                            playNewAudio(message, seekBar, playPauseButton)
-                        }
+                    // Considera tanto los audios enviados como los recibidos
+                    val sentDir = File(context.getExternalFilesDir(null), "locatteme/$userId/Audios/sent")
+                    val receivedDir = File(context.getExternalFilesDir(null), "locatteme/$userId/Audios")
+                    // Verifica si el archivo existe en cualquiera de las carpetas
+                    val sentFile = File(sentDir, "${message.id}.3gp")
+                    val receivedFile = File(receivedDir, "${message.id}.3gp")
+                    when {
+                        sentFile.exists() -> sentFile
+                        receivedFile.exists() -> receivedFile
+                        else -> null
                     }
-
-                    seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                            if (fromUser && mediaPlayer != null) {
-                                mediaPlayer?.seekTo(progress)
-                            }
-                        }
-
-                        override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-                        override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-                    })
                 }
-                else -> {
-                    if (isSent) {
-                        binding.imageViewSent.visibility = View.GONE
-                        binding.videoViewSent.visibility = View.GONE
-                        binding.audioLayoutSent.visibility = View.GONE
+                else -> return null
+            }
+
+            // Si se encontró la ruta del archivo, devuelve la ruta absoluta
+            return baseDir?.absolutePath
+        }
+
+
+
+
+        private fun saveDownloadedMediaLocally(context: Context, file: File, messageType: MessageType, isSent: Boolean) {
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+            val userBaseDir = File(context.getExternalFilesDir(null), "locatteme/$currentUserId")
+            if (!userBaseDir.exists()) {
+                userBaseDir.mkdirs()
+            }
+
+            val baseDir = when (messageType) {
+                MessageType.IMAGE -> File(userBaseDir, "Imagenes")
+                MessageType.VIDEO -> File(userBaseDir, "Videos")
+                MessageType.AUDIO -> File(userBaseDir, "Audios")
+                else -> return
+            }
+
+            if (!baseDir.exists()) {
+                baseDir.mkdirs()
+            }
+
+            val finalDir = if (isSent) {
+                val sentDir = File(baseDir, "sent")
+                if (!sentDir.exists()) {
+                    sentDir.mkdirs()
+                }
+                sentDir
+            } else {
+                baseDir
+            }
+
+            // Usa el message.id como nombre del archivo para garantizar la consistencia
+            val finalFile = File(finalDir, "${file.nameWithoutExtension}.3gp")
+
+            file.copyTo(finalFile, overwrite = true)
+            file.delete()
+
+            Log.d("MessagesAdapter", "Archivo guardado en: ${finalFile.absolutePath}")
+        }
+
+
+        private fun getFileExtension(messageType: MessageType): String {
+            return when (messageType) {
+                MessageType.IMAGE -> ".jpg"
+                MessageType.VIDEO -> ".mp4"
+                MessageType.AUDIO -> ".3gp"
+                else -> ""
+            }
+        }
+
+        fun setPlayButtonIcon(iconRes: Int) {
+            binding.playPauseButtonSent.setImageResource(iconRes)
+            binding.playPauseButtonReceived.setImageResource(iconRes)
+        }
+
+        fun updateSeekBar(position: Int) {
+            binding.audioSeekBarSent.progress = position
+            binding.audioSeekBarReceived.progress = position
+        }
+
+        fun resetAudioLayout() {
+            setPlayButtonIcon(R.drawable.ic_play_arrow)
+            updateSeekBar(0)
+            binding.audioDurationSent.text = ""
+            binding.audioDurationReceived.text = ""
+        }
+
+        fun updateAudioTimeText(currentPosition: Int, duration: Int, textView: TextView) {
+            val currentTime = formatTime(currentPosition)
+            val totalTime = formatTime(duration)
+            textView.text = "$currentTime/$totalTime"
+        }
+
+        private fun formatTime(time: Int): String {
+            return String.format(
+                "%02d:%02d",
+                TimeUnit.MILLISECONDS.toMinutes(time.toLong()) % TimeUnit.HOURS.toMinutes(1),
+                TimeUnit.MILLISECONDS.toSeconds(time.toLong()) % TimeUnit.MINUTES.toSeconds(1)
+            )
+        }
+
+        fun getDurationTextView(isSentByCurrentUser: Boolean): TextView {
+            return if (isSentByCurrentUser) {
+                binding.audioDurationSent
+            } else {
+                binding.audioDurationReceived
+            }
+        }
+
+        fun playAudio(message: Message, isSentByCurrentUser: Boolean) {
+            currentViewHolder?.resetAudioLayout()
+
+            val localPath = getLocalMediaPath(message, MessageType.AUDIO)
+            val audioPath = localPath ?: message.audioUrl
+
+            if (audioPath != null) {
+                if (mediaPlayer != null && currentPlayingMessageId == message.id) {
+                    if (mediaPlayer!!.isPlaying) {
+                        mediaPlayer!!.pause()
+                        setPlayButtonIcon(R.drawable.ic_play_arrow)
                     } else {
-                        binding.imageViewReceived.visibility = View.GONE
-                        binding.videoViewReceived.visibility = View.GONE
-                        binding.audioLayoutReceived.visibility = View.GONE
+                        mediaPlayer!!.start()
+                        setPlayButtonIcon(R.drawable.ic_pause)
+                        updateSeekBar(this)
                     }
+                } else {
+                    mediaPlayer?.release()
+                    mediaPlayer = MediaPlayer().apply {
+                        if (localPath != null) {
+                            setDataSource(localPath)
+                        } else {
+                            setDataSource(binding.root.context, Uri.parse(audioPath))
+                        }
+                        setOnPreparedListener { mp ->
+                            val duration = mp.duration
+                            updateAudioTimeText(0, duration, getDurationTextView(isSentByCurrentUser))
+                            updateSeekBar(0)
+                            mp.start()
+                            updateSeekBar(this@MessageViewHolder)
+                        }
+                        setOnCompletionListener {
+                            resetAudioLayout()
+                            currentPlayingMessageId = null
+                            handler.removeCallbacksAndMessages(null)
+                        }
+                        prepareAsync()
+                    }
+                    currentPlayingMessageId = message.id
+                    setPlayButtonIcon(R.drawable.ic_pause)
                 }
+            } else {
+                Log.e("MessagesAdapter", "No se puede reproducir el audio. Ruta nula.")
             }
         }
 
-        private fun playNewAudio(message: Message, seekBar: SeekBar, playPauseButton: ImageButton) {
-            if (mediaPlayer != null) {
-                mediaPlayer?.stop()
-                mediaPlayer?.release()
-                mediaPlayer = null
-                currentPlayingViewHolder?.resetAudioLayout()
-            }
 
-            val audioUrl = message.audioUrl
-            if (audioUrl.isNullOrEmpty()) {
-                Log.e("AudioError", "URI no válida o vacía: $audioUrl")
-                resetAudioLayout()
-                return
-            }
-
-            val audioUri = Uri.parse(audioUrl)
-
-            try {
-                mediaPlayer = MediaPlayer().apply {
-                    setDataSource(binding.root.context, audioUri)
-                    prepare()
-                    start()
-                    currentPlayingPosition = bindingAdapterPosition
-                    currentPlayingViewHolder = this@MessageViewHolder
-
-                    playPauseButton.setImageResource(R.drawable.ic_pause)
-                    seekBar.max = duration
-
-                    handler.postDelayed(updateSeekBar, 1000)
-
-                    setOnCompletionListener {
-                        resetAudioLayout()
+        private fun updateSeekBar(viewHolder: MessageViewHolder) {
+            handler.post(object : Runnable {
+                override fun run() {
+                    if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
+                        viewHolder.updateSeekBar(mediaPlayer!!.currentPosition)
+                        viewHolder.updateAudioTimeText(
+                            mediaPlayer!!.currentPosition,
+                            mediaPlayer!!.duration,
+                            viewHolder.getDurationTextView(currentPlayingMessageId == mediaPlayer!!.audioSessionId.toString())
+                        )
+                        handler.postDelayed(this, 500)
+                    } else {
+                        handler.removeCallbacks(this)
                     }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Log.e("AudioError", "Error reproduciendo audio: ${e.message}")
-                resetAudioLayout()
-            }
-        }
-
-        private fun resetAudioLayout() {
-            binding.playPauseButtonSent.setImageResource(R.drawable.ic_play_arrow)
-            binding.playPauseButtonReceived.setImageResource(R.drawable.ic_play_arrow)
-            binding.audioSeekBarSent.progress = 0
-            binding.audioSeekBarReceived.progress = 0
+            })
         }
     }
 
@@ -202,8 +386,7 @@ class MessagesAdapter(
     }
 
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-        holder.bind(messages[position], currentUserId)
+        holder.bind(messages[position])
     }
 
     override fun getItemCount(): Int = messages.size

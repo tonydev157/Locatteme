@@ -53,7 +53,6 @@
                 android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:orientation="horizontal"
                 android:layout_gravity="end">
 
                 <ImageButton
@@ -62,6 +61,7 @@
                     android:layout_height="48dp"
                     android:src="@drawable/ic_play_arrow"
                     android:background="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone"
                     android:onClick="@{() -> handler.onAudioClick(message)}" />
 
                 <SeekBar
@@ -70,7 +70,35 @@
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/playPauseButtonSent"
                     android:layout_marginStart="8dp" />
+
+                <TextView
+                    android:id="@+id/audioDurationSent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text=""
+                    android:textColor="@android:color/black" />
+
+                <ImageButton
+                    android:id="@+id/downloadButtonSent"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_download"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone"
+                    android:onClick="@{() -> handler.onDownloadClick(message)}" />
+
+                <ProgressBar
+                    android:id="@+id/downloadProgressBarSent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone" />
             </RelativeLayout>
+
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -135,7 +163,6 @@
                 android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:orientation="horizontal"
                 android:layout_gravity="start">
 
                 <ImageButton
@@ -144,6 +171,7 @@
                     android:layout_height="48dp"
                     android:src="@drawable/ic_play_arrow"
                     android:background="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone"
                     android:onClick="@{() -> handler.onAudioClick(message)}" />
 
                 <SeekBar
@@ -152,6 +180,33 @@
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/playPauseButtonReceived"
                     android:layout_marginStart="8dp" />
+
+                <TextView
+                    android:id="@+id/audioDurationReceived"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text=""
+                    android:textColor="@android:color/black" />
+
+                <ImageButton
+                    android:id="@+id/downloadButtonReceived"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_download"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone"
+                    android:onClick="@{() -> handler.onDownloadClick(message)}" />
+
+                <ProgressBar
+                    android:id="@+id/downloadProgressBarReceived"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone" />
             </RelativeLayout>
 
             <TextView

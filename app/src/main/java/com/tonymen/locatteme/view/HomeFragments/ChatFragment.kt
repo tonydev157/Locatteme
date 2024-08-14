@@ -3,10 +3,15 @@ package com.tonymen.locatteme.view.HomeFragments
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -53,9 +58,13 @@ class ChatFragment : Fragment(), MessageClickHandler {
     private lateinit var adapter: MessagesAdapter
 
     private var mediaRecorder: MediaRecorder? = null
+    private var mediaPlayer: MediaPlayer? = null
     private var chatId: String? = null
     private var currentUserId: String? = null
     private var otherUserId: String? = null
+
+    private var currentPlayingMessageId: String? = null
+    private var currentViewHolder: MessagesAdapter.MessageViewHolder? = null
 
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
@@ -64,6 +73,7 @@ class ChatFragment : Fragment(), MessageClickHandler {
         private const val REQUEST_CODE_PICK_MEDIA = 1001
         private const val REQUEST_CODE_MEDIA_PREVIEW = 1002
         private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
+        private const val REQUEST_CODE_PHOTO_PICKER = 1003
 
         fun newInstance(chatId: String, currentUserId: String, otherUserId: String) = ChatFragment().apply {
             arguments = Bundle().apply {
@@ -114,12 +124,100 @@ class ChatFragment : Fragment(), MessageClickHandler {
         }
     }
 
+    override fun onDownloadClick(message: Message) {
+        if (message.audioUrl != null || message.imageUrl != null || message.videoUrl != null) {
+            downloadMedia(message)
+        } else {
+            Toast.makeText(context, "No hay medios para descargar", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun downloadMedia(message: Message) {
+        coroutineScope.launch {
+            try {
+                val mediaUrl = message.audioUrl ?: message.imageUrl ?: message.videoUrl ?: return@launch
+                val mediaType = message.messageType
+                val fileExtension = when (mediaType) {
+                    MessageType.AUDIO -> ".3gp"
+                    MessageType.IMAGE -> ".jpg"
+                    MessageType.VIDEO -> ".mp4"
+                    else -> ""
+                }
+                val storageRef = storage.getReferenceFromUrl(mediaUrl)
+
+                val mediaDir = when (mediaType) {
+                    MessageType.IMAGE -> File(requireContext().getExternalFilesDir(null), "locatteme/$currentUserId/Imagenes")
+                    MessageType.VIDEO -> File(requireContext().getExternalFilesDir(null), "locatteme/$currentUserId/Videos")
+                    MessageType.AUDIO -> File(requireContext().getExternalFilesDir(null), "locatteme/$currentUserId/Audios")
+                    else -> return@launch
+                }
+
+                if (!mediaDir.exists()) {
+                    mediaDir.mkdirs()
+                }
+
+                val localFile = File(mediaDir, "${message.id}$fileExtension")
+
+                storageRef.getFile(localFile).addOnSuccessListener {
+                    Toast.makeText(context, "Media descargado: ${localFile.name}", Toast.LENGTH_SHORT).show()
+                }.addOnFailureListener {
+                    Toast.makeText(context, "Error al descargar el archivo", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al descargar el archivo: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun setupRecyclerView() {
         adapter = MessagesAdapter(emptyList(), this)
         binding.recyclerViewMessages.layoutManager = LinearLayoutManager(context).apply {
             stackFromEnd = true
         }
         binding.recyclerViewMessages.adapter = adapter
+    }
+
+    private fun playAudio(message: Message, viewHolder: MessagesAdapter.MessageViewHolder) {
+        if (mediaPlayer != null && currentPlayingMessageId == message.id) {
+            if (mediaPlayer!!.isPlaying) {
+                mediaPlayer!!.pause()
+                viewHolder.setPlayButtonIcon(R.drawable.ic_play_arrow)
+            } else {
+                mediaPlayer!!.start()
+                viewHolder.setPlayButtonIcon(R.drawable.ic_pause)
+                updateSeekBar(viewHolder)
+            }
+        } else {
+            mediaPlayer?.release()
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(requireContext(), Uri.parse(message.audioUrl))
+                prepare()
+                start()
+                setOnCompletionListener {
+                    viewHolder.resetAudioLayout()
+                    currentPlayingMessageId = null
+                    currentViewHolder = null
+                }
+            }
+            currentPlayingMessageId = message.id
+            currentViewHolder = viewHolder
+            viewHolder.setPlayButtonIcon(R.drawable.ic_pause)
+            updateSeekBar(viewHolder)
+        }
+    }
+
+    private fun updateSeekBar(viewHolder: MessagesAdapter.MessageViewHolder) {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post(object : Runnable {
+            override fun run() {
+                if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
+                    viewHolder.updateSeekBar(mediaPlayer!!.currentPosition)
+                    handler.postDelayed(this, 1000)
+                } else {
+                    handler.removeCallbacks(this)
+                }
+            }
+        })
     }
 
     private fun setupSendButton() {
@@ -138,16 +236,41 @@ class ChatFragment : Fragment(), MessageClickHandler {
 
     private fun setupAttachmentButton() {
         binding.attachmentButton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "*/*"
-                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*", "audio/*"))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14+
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    type = "*/*"
+                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*", "audio/*"))
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                }
+                startActivityForResult(intent, REQUEST_CODE_PICK_MEDIA)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // Android 6.0 (Marshmallow) en adelante
+                // Comprobar y solicitar permisos
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE_PICK_MEDIA)
+                } else {
+                    // Lanzar el selector de medios
+                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                        type = "*/*"
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*", "audio/*"))
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                    }
+                    startActivityForResult(intent, REQUEST_CODE_PICK_MEDIA)
+                }
+            } else {
+                // Para versiones anteriores a Marshmallow, simplemente lanza el selector de medios
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    type = "*/*"
+                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*", "audio/*"))
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                }
+                startActivityForResult(intent, REQUEST_CODE_PICK_MEDIA)
             }
-            startActivityForResult(intent, REQUEST_CODE_PICK_MEDIA)
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if (requestCode == REQUEST_CODE_PICK_MEDIA && resultCode == AppCompatActivity.RESULT_OK) {
             val uri = data?.data
             uri?.let {
@@ -167,6 +290,22 @@ class ChatFragment : Fragment(), MessageClickHandler {
             if (mediaUri != null && mediaType != null) {
                 showLoading()
                 uploadMediaAndSendMessage(mediaUri, MessageType.valueOf(mediaType))
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_PICK_MEDIA) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permiso concedido, lanzar el selector de medios
+                val intent = Intent(Intent.ACTION_PICK)
+                intent.type = "image/* video/* audio/*"
+                val mimeTypes = arrayOf("image/*", "video/*", "audio/*")
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+                startActivityForResult(intent, REQUEST_CODE_PICK_MEDIA)
+            } else {
+                Toast.makeText(requireContext(), "Permiso denegado para acceder a medios", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -267,6 +406,11 @@ class ChatFragment : Fragment(), MessageClickHandler {
             release()
         }
         mediaRecorder = null
+
+        // Después de detener la grabación, sube el archivo de audio y envía el mensaje
+        val audioFilePath = "${requireContext().getExternalFilesDir(Environment.DIRECTORY_MUSIC)}/audio_${System.currentTimeMillis()}.3gp"
+        val audioUri = Uri.fromFile(File(audioFilePath))
+        uploadMediaAndSendMessage(audioUri, MessageType.AUDIO)
     }
 
     private fun uploadMediaAndSendMessage(uri: Uri, messageType: MessageType) {
@@ -276,6 +420,9 @@ class ChatFragment : Fragment(), MessageClickHandler {
                 val uploadTask = storageRef.putFile(uri)
                 showUploadProgress(uploadTask)
                 val downloadUrl = uploadTask.await().storage.downloadUrl.await()
+
+                // Guarda una copia local del archivo
+                saveMediaLocally(uri, messageType)
 
                 sendMessage(
                     messageText = "",
@@ -290,6 +437,39 @@ class ChatFragment : Fragment(), MessageClickHandler {
             } finally {
                 hideLoading()
             }
+        }
+    }
+
+    private fun saveMediaLocally(uri: Uri, messageType: MessageType) {
+        try {
+            val context = requireContext()
+            val extension = when (messageType) {
+                MessageType.IMAGE -> ".jpg"
+                MessageType.VIDEO -> ".mp4"
+                MessageType.AUDIO -> ".3gp"
+                else -> ""
+            }
+
+            // Directorio base para el usuario actual
+            val mediaDir = when (messageType) {
+                MessageType.IMAGE -> File(context.getExternalFilesDir(null), "locatteme/$currentUserId/Imagenes/sent")
+                MessageType.VIDEO -> File(context.getExternalFilesDir(null), "locatteme/$currentUserId/Videos/sent")
+                MessageType.AUDIO -> File(context.getExternalFilesDir(null), "locatteme/$currentUserId/Audios/sent")
+                else -> return
+            }
+
+            if (!mediaDir.exists()) {
+                mediaDir.mkdirs()
+            }
+
+            val localFile = File(mediaDir, "${System.currentTimeMillis()}$extension")
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                localFile.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+        } catch (e: IOException) {
+            Log.e("ChatFragment", "Error al guardar el archivo localmente", e)
         }
     }
 
@@ -440,13 +620,15 @@ class ChatFragment : Fragment(), MessageClickHandler {
         super.onDestroyView()
         _binding = null
         job.cancel()
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
 
     override fun onImageClick(message: Message) {
         val intent = Intent(requireContext(), MediaPreviewActivity::class.java).apply {
             putExtra("MEDIA_URI", message.imageUrl)
             putExtra("MEDIA_TYPE", "IMAGE")
-            putExtra("IS_SENT", true) // Indica que la imagen ya fue enviada
+            putExtra("IS_SENT", true)
         }
         startActivity(intent)
     }
@@ -455,13 +637,20 @@ class ChatFragment : Fragment(), MessageClickHandler {
         val intent = Intent(requireContext(), MediaPreviewActivity::class.java).apply {
             putExtra("MEDIA_URI", message.videoUrl)
             putExtra("MEDIA_TYPE", "VIDEO")
-            putExtra("IS_SENT", true) // Indica que el video ya fue enviado
+            putExtra("IS_SENT", true)
         }
         startActivity(intent)
     }
 
-
     override fun onAudioClick(message: Message) {
-        // No hacer nada aquí para que el audio se reproduzca directamente en la interfaz del chat.
+        val position = adapter.messages.indexOf(message)  // Usar directamente la propiedad 'messages'
+        if (position != -1) {
+            val viewHolder = binding.recyclerViewMessages.findViewHolderForAdapterPosition(position) as? MessagesAdapter.MessageViewHolder
+            viewHolder?.let {
+                val isSentByCurrentUser = message.senderId == currentUserId
+                adapter.playAudio(message, isSentByCurrentUser, it)
+            }
+        }
     }
+
 }
