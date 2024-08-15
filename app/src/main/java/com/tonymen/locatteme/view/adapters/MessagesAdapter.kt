@@ -196,35 +196,43 @@ class MessagesAdapter(
             seekBar.max = duration
         }
 
+        // Corregido dentro de tu adaptador:
         private fun getLocalMediaPath(message: Message, messageType: MessageType): String? {
-            val context = binding.root.context
+            val context = binding.root.context // Uso correcto del contexto
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return null
 
-            // Busca en la carpeta correcta dependiendo de si el archivo fue enviado o recibido
+            // Determinar la carpeta base dependiendo de si el mensaje fue enviado o recibido
             val baseDir = when (messageType) {
-                MessageType.IMAGE -> File(context.getExternalFilesDir(null), "locatteme/$userId/Imagenes")
-                MessageType.VIDEO -> File(context.getExternalFilesDir(null), "locatteme/$userId/Videos")
-                MessageType.AUDIO -> {
-                    // Considera tanto los audios enviados como los recibidos
-                    val sentDir = File(context.getExternalFilesDir(null), "locatteme/$userId/Audios/sent")
-                    val receivedDir = File(context.getExternalFilesDir(null), "locatteme/$userId/Audios")
-                    // Verifica si el archivo existe en cualquiera de las carpetas
-                    val sentFile = File(sentDir, "${message.id}.3gp")
-                    val receivedFile = File(receivedDir, "${message.id}.3gp")
-                    when {
-                        sentFile.exists() -> sentFile
-                        receivedFile.exists() -> receivedFile
-                        else -> null
+                MessageType.IMAGE -> {
+                    if (message.senderId == userId) {
+                        File(context.getExternalFilesDir(null), "locatteme/$userId/Imagenes/sent")
+                    } else {
+                        File(context.getExternalFilesDir(null), "locatteme/$userId/Imagenes")
+                    }
+                }
+                MessageType.VIDEO -> {
+                    if (message.senderId == userId) {
+                        File(context.getExternalFilesDir(null), "locatteme/$userId/Videos/sent")
+                    } else {
+                        File(context.getExternalFilesDir(null), "locatteme/$userId/Videos")
                     }
                 }
                 else -> return null
             }
 
-            // Si se encontró la ruta del archivo, devuelve la ruta absoluta
-            return baseDir?.absolutePath
+            // Verificar si el archivo existe en la ubicación esperada
+            val localFile = File(baseDir, "${message.id}.${getFileExtension(messageType)}")
+            return if (localFile.exists()) localFile.absolutePath else null
         }
 
-
+        private fun getFileExtension(messageType: MessageType): String {
+            return when (messageType) {
+                MessageType.IMAGE -> "jpg"
+                MessageType.VIDEO -> "mp4"
+                MessageType.AUDIO -> "3gp"
+                else -> ""
+            }
+        }
 
 
         private fun saveDownloadedMediaLocally(context: Context, file: File, messageType: MessageType, isSent: Boolean) {
@@ -257,7 +265,7 @@ class MessagesAdapter(
             }
 
             // Usa el message.id como nombre del archivo para garantizar la consistencia
-            val finalFile = File(finalDir, "${file.nameWithoutExtension}.3gp")
+            val finalFile = File(finalDir, "${file.nameWithoutExtension}.${getFileExtension(messageType)}")
 
             file.copyTo(finalFile, overwrite = true)
             file.delete()
@@ -265,15 +273,6 @@ class MessagesAdapter(
             Log.d("MessagesAdapter", "Archivo guardado en: ${finalFile.absolutePath}")
         }
 
-
-        private fun getFileExtension(messageType: MessageType): String {
-            return when (messageType) {
-                MessageType.IMAGE -> ".jpg"
-                MessageType.VIDEO -> ".mp4"
-                MessageType.AUDIO -> ".3gp"
-                else -> ""
-            }
-        }
 
         fun setPlayButtonIcon(iconRes: Int) {
             binding.playPauseButtonSent.setImageResource(iconRes)

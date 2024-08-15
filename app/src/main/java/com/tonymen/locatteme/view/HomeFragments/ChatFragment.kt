@@ -421,13 +421,20 @@ class ChatFragment : Fragment(), MessageClickHandler {
                 showUploadProgress(uploadTask)
                 val downloadUrl = uploadTask.await().storage.downloadUrl.await()
 
-                // Guarda una copia local del archivo
-                saveMediaLocally(uri, messageType)
+                // Generar un ID de mensaje único
+                val messageId = db.collection("chats").document(chatId.orEmpty()).collection("messages").document().id
 
+                // Guarda una copia local del archivo SOLO para imágenes y videos enviados
+                if (messageType == MessageType.IMAGE || messageType == MessageType.VIDEO) {
+                    saveMediaLocally(uri, messageType, messageId)
+                }
+
+                // Enviar el mensaje con el ID generado
                 sendMessage(
                     messageText = "",
                     messageType = messageType,
-                    mediaUri = downloadUrl
+                    mediaUri = downloadUrl,
+                    messageId = messageId
                 )
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -440,7 +447,7 @@ class ChatFragment : Fragment(), MessageClickHandler {
         }
     }
 
-    private fun saveMediaLocally(uri: Uri, messageType: MessageType) {
+    private fun saveMediaLocally(uri: Uri, messageType: MessageType, messageId: String) {
         try {
             val context = requireContext()
             val extension = when (messageType) {
@@ -462,7 +469,7 @@ class ChatFragment : Fragment(), MessageClickHandler {
                 mediaDir.mkdirs()
             }
 
-            val localFile = File(mediaDir, "${System.currentTimeMillis()}$extension")
+            val localFile = File(mediaDir, "$messageId$extension")
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
                 localFile.outputStream().use { outputStream ->
                     inputStream.copyTo(outputStream)
@@ -472,6 +479,24 @@ class ChatFragment : Fragment(), MessageClickHandler {
             Log.e("ChatFragment", "Error al guardar el archivo localmente", e)
         }
     }
+
+    private fun sendMessage(messageText: String, messageType: MessageType, mediaUri: Uri?, messageId: String = "") {
+        coroutineScope.launch {
+            val message = Message(
+                id = messageId,
+                senderId = currentUserId.orEmpty(),
+                messageText = messageText,
+                messageType = messageType,
+                timestamp = Timestamp.now(),
+                imageUrl = if (messageType == MessageType.IMAGE) mediaUri.toString() else null,
+                videoUrl = if (messageType == MessageType.VIDEO) mediaUri.toString() else null,
+                audioUrl = if (messageType == MessageType.AUDIO) mediaUri.toString() else null
+            )
+            sendMessageToFirestore(message)
+        }
+    }
+
+
 
     private fun showUploadProgress(uploadTask: UploadTask) {
         binding.progressBar.visibility = View.VISIBLE
