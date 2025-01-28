@@ -1,5 +1,6 @@
 package com.tonymen.locatteme.view.HomeFragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.tonymen.locatteme.R
 import com.tonymen.locatteme.adapter.ActiveChatsAdapter
 import com.tonymen.locatteme.databinding.FragmentActiveChatsBinding
+import com.tonymen.locatteme.view.ui.ChatActivity
 import com.tonymen.locatteme.viewmodel.ActiveChatsViewModel
 
 class ActiveChatsFragment : Fragment() {
@@ -50,24 +52,17 @@ class ActiveChatsFragment : Fragment() {
 
     private fun setupRecyclerView() {
         chatAdapter = ActiveChatsAdapter(emptyList()) { chat ->
-            val bundle = Bundle().apply {
-                putString("chatId", chat.id)
-                putString("currentUserId", currentUserId)
-                putString("otherUserId", chat.participants.first { it != currentUserId })
+            val intent = Intent(requireContext(), ChatActivity::class.java).apply {
+                putExtra("chatId", chat.id) // ID del chat seleccionado
+                putExtra("currentUserId", currentUserId) // ID del usuario actual
+                putExtra("otherUserId", chat.participants.first { it != currentUserId }) // ID del otro usuario
             }
-
-            val chatFragment = ChatFragment().apply {
-                arguments = bundle
-            }
-
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, chatFragment)
-                .addToBackStack(null)
-                .commit()
+            startActivity(intent) // Inicia la actividad del chat
         }
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = chatAdapter
     }
+
 
     private fun observeViewModel() {
         viewModel.chats.observe(viewLifecycleOwner, Observer { chats ->

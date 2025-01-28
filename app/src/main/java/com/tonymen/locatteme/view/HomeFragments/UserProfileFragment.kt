@@ -1,5 +1,6 @@
 package com.tonymen.locatteme.view.HomeFragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ import com.tonymen.locatteme.databinding.FragmentUserProfileBinding
 import com.tonymen.locatteme.model.Post
 import com.tonymen.locatteme.model.Follow
 import com.tonymen.locatteme.view.adapters.UserPostsAdapter
+import com.tonymen.locatteme.view.ui.ChatActivity
 import com.tonymen.locatteme.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -135,18 +137,25 @@ class UserProfileFragment : Fragment() {
         }
 
         binding.messageButton.setOnClickListener {
-            openChatFragment()
+            openChatActivity()
         }
     }
 
-    private fun openChatFragment() {
-        val chatId = generateChatId(currentUserId, userId)
-        val chatFragment = ChatFragment.newInstance(chatId, currentUserId, userId)
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, chatFragment)
-            .addToBackStack(null)
-            .commit()
+    private fun openChatActivity() {
+        if (currentUserId.isNotEmpty() && userId.isNotEmpty()) {
+            val chatId = generateChatId(currentUserId, userId)
+
+            val intent = Intent(requireContext(), ChatActivity::class.java).apply {
+                putExtra("chatId", chatId)           // ID único del chat
+                putExtra("currentUserId", currentUserId) // Usuario actual
+                putExtra("otherUserId", userId)     // ID del usuario del perfil
+            }
+            startActivity(intent) // Inicia el ChatActivity
+        } else {
+            showToast("No se puede iniciar el chat. Falta información del usuario.")
+        }
     }
+
 
 
     private fun checkIfFollowing() {

@@ -3,7 +3,7 @@
     <data>
         <variable
             name="message"
-            type="com.tonymen.locatteme.model.Message" />
+            type="com.tonymen.locatteme.model.chatmodels.Message" />
         <variable
             name="handler"
             type="com.tonymen.locatteme.view.adapters.MessageClickHandler" />

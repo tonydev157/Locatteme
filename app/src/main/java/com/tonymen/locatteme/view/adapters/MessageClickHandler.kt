@@ -1,7 +1,7 @@
 package com.tonymen.locatteme.view.adapters
 
 import com.google.firebase.Timestamp
-import com.tonymen.locatteme.model.Message
+import com.tonymen.locatteme.model.chatmodels.Message
 import java.text.SimpleDateFormat
 import java.util.Locale
 

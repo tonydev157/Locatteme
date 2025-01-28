@@ -39,5 +39,6 @@
     <string name="send_action_description">Enviar mensaje</string>
     <string name="play_pause_audio" />
     <string name="play_pause_description" />
+    <string name="title_activity_chat">ChatActivity</string>
 
 </resources>

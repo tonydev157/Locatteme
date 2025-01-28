@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId = "com.tonymen.locatteme"
-        minSdk = 23
+        minSdk = 26
         targetSdk = 34
         versionCode = 4
         versionName = "1.3"
@@ -82,6 +82,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.foundation.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -121,6 +123,15 @@ dependencies {
     implementation ("com.google.firebase:firebase-appcheck-playintegrity:16.0.1")
     implementation ("com.google.android.material:material:1.12.0")
     implementation("com.github.yalantis:ucrop:2.2.8")
+    //jetpack compouse
+    implementation (libs.ui)
+    implementation (libs.material3)
+    implementation (libs.androidx.activity.compose.v182)
+    implementation (libs.androidx.lifecycle.viewmodel.compose)
+    implementation (libs.ui.tooling.preview)
+    debugImplementation (libs.ui.tooling)
+    implementation (libs.androidx.material.icons.extended)
+
 
 
 }

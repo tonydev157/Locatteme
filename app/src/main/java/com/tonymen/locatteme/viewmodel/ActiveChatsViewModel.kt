@@ -1,6 +1,5 @@
 package com.tonymen.locatteme.viewmodel
 
-import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,8 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tonymen.locatteme.adapter.ChatDisplay
-import com.tonymen.locatteme.model.Chat
-import com.tonymen.locatteme.model.Message
+import com.tonymen.locatteme.model.chatmodels.Chat
+import com.tonymen.locatteme.model.chatmodels.Message
 import com.tonymen.locatteme.model.User
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await

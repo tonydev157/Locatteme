@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tonymen.locatteme.databinding.ItemChatBinding
-import com.tonymen.locatteme.model.Chat
+import com.tonymen.locatteme.model.chatmodels.Chat
 
 data class ChatDisplay(
     val chat: Chat,
