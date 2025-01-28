@@ -40,5 +40,7 @@
     <string name="play_pause_audio" />
     <string name="play_pause_description" />
     <string name="title_activity_chat">ChatActivity</string>
+    <string name="menu_report_error">Reportar Error</string>
+    <string name="menu_feedback">Sugerencias y Feedback</string>
 
 </resources>

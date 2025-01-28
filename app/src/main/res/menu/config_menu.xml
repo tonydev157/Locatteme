@@ -10,6 +10,12 @@
         android:id="@+id/verification_account"
         android:title="@string/verification_accoun" />
     <item
+        android:id="@+id/menu_report_error"
+        android:title="@string/menu_report_error" />
+    <item
+        android:id="@+id/menu_feedback"
+        android:title="@string/menu_feedback" />
+    <item
         android:id="@+id/menu_logout"
         android:title="@string/menu_logout" />
 </menu>

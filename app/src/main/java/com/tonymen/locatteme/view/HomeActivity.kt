@@ -301,21 +301,38 @@ class HomeActivity : AppCompatActivity() {
                 sendVerificationEmail()
                 true
             }
+            R.id.menu_report_error -> {
+                Log.d("MenuClick", "Clic en Reportar Error") // 📌 Agrega este Log
+                openWebPage("https://forms.gle/fN4A51vviq1jRMMD8")
+                true
+            }
+            R.id.menu_feedback -> {
+                Log.d("MenuClick", "Clic en Feedback") // 📌 Agrega este Log
+                openWebPage("https://forms.gle/LrWrgEDCGKgeTx7n6")
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
-
+    private fun openWebPage(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // 👈 Asegura que se abre en un nuevo contexto
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e("WebIntent", "Error al abrir el enlace: ${e.message}")
+            Toast.makeText(this, "No se pudo abrir el enlace", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
     private fun showPopupMenu(view: View) {
         val popup = PopupMenu(this, view)
         val inflater = popup.menuInflater
         inflater.inflate(R.menu.config_menu, popup.menu)
 
-        val user = auth.currentUser
-        if (user != null && user.isEmailVerified) {
-            popup.menu.findItem(R.id.verification_account).isVisible = false
-        }
-
         popup.setOnMenuItemClickListener { menuItem ->
+            Log.d("PopupMenu", "Clic en: ${menuItem.title}") // 📌 Agrega este Log
+
             when (menuItem.itemId) {
                 R.id.menu_find_upc -> {
                     findNearestUPC()
@@ -323,6 +340,16 @@ class HomeActivity : AppCompatActivity() {
                 }
                 R.id.menu_safety_numbers -> {
                     showEmergencyNumbersDialog()
+                    true
+                }
+                R.id.menu_report_error -> {
+                    Log.d("MenuClick", "Clic en Reportar Error desde Popup") // 📌
+                    openWebPage("https://forms.gle/fN4A51vviq1jRMMD8")
+                    true
+                }
+                R.id.menu_feedback -> {
+                    Log.d("MenuClick", "Clic en Feedback desde Popup") // 📌
+                    openWebPage("https://forms.gle/LrWrgEDCGKgeTx7n6")
                     true
                 }
                 R.id.menu_logout -> {
@@ -339,6 +366,7 @@ class HomeActivity : AppCompatActivity() {
         }
         popup.show()
     }
+
 
     private fun showEmergencyNumbersDialog() {
         val builder = AlertDialog.Builder(this)
