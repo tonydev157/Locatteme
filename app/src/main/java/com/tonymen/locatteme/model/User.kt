@@ -12,5 +12,13 @@ data class User(
     val profileImageUrl: String = "",         // URL de la imagen de perfil
     val seguidores: List<String> = emptyList(), // IDs de seguidores
     val seguidos: List<String> = emptyList(),   // IDs de seguidos
-    val publicaciones: List<String> = emptyList() // IDs de publicaciones
+    val publicaciones: List<String> = emptyList(), // IDs de publicaciones
+    val tipoUsuario: UserType = UserType.USER, // Tipo de usuario (por defecto USER)
+    val baneado: Boolean = false              // Indica si el usuario está baneado (por defecto false)
 )
+
+// Enum para definir los tipos de usuario
+enum class UserType {
+    ADMIN, USER
+}
+

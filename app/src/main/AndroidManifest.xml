@@ -31,9 +31,6 @@
             android:exported="false"
             android:label="@string/title_activity_chat"
             android:theme="@style/Base.Theme.Locatteme" />
-        <activity
-            android:name=".view.MediaPreviewActivity"
-            android:exported="false" /> <!-- Añadir este bloque para el FileProvider -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -74,6 +71,9 @@
         <meta-data
             android:name="com.google.android.gms.auth.api.credentials.CredentialsApi.CLIENT_ID"
             android:value="@string/default_web_client_id" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDpOSQmFoWsVsHY0z185gnjV1aXut3gECw" />
     </application>
 
 </manifest>

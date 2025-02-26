@@ -46,7 +46,8 @@
                 android:padding="8dp"
                 android:src="@drawable/ic_chat"
                 app:tint="?android:textColorPrimary"
-                android:background="@drawable/transparent_background" />
+                android:background="@drawable/transparent_background"
+                android:visibility="gone"/>
 
 
             <ImageView

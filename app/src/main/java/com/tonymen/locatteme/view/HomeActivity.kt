@@ -41,6 +41,10 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+import okhttp3.*
+import org.json.JSONObject
+import java.io.IOException
+
 
 class HomeActivity : AppCompatActivity() {
 
@@ -128,6 +132,7 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        checkVerificationStatus()
         val user = auth.currentUser
         if (user != null && !user.isEmailVerified) {
             showToast("Por favor, verifica tu correo electrónico.", 2000, R.color.primaryColor)
@@ -285,9 +290,20 @@ class HomeActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_find_upc -> {
-                findNearestUPC()
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+                } else {
+                    fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                        if (location != null) {
+                            findNearestUPCs(location.latitude, location.longitude)
+                        } else {
+                            Toast.makeText(this, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
                 true
             }
+
             R.id.menu_safety_numbers -> {
                 showEmergencyNumbersDialog()
                 true
@@ -324,7 +340,8 @@ class HomeActivity : AppCompatActivity() {
             Toast.makeText(this, "No se pudo abrir el enlace", Toast.LENGTH_SHORT).show()
         }
     }
-    
+
+
     private fun showPopupMenu(view: View) {
         val popup = PopupMenu(this, view)
         val inflater = popup.menuInflater
@@ -335,9 +352,20 @@ class HomeActivity : AppCompatActivity() {
 
             when (menuItem.itemId) {
                 R.id.menu_find_upc -> {
-                    findNearestUPC()
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+                    } else {
+                        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                            if (location != null) {
+                                findNearestUPCs(location.latitude, location.longitude)
+                            } else {
+                                Toast.makeText(this, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                     true
                 }
+
                 R.id.menu_safety_numbers -> {
                     showEmergencyNumbersDialog()
                     true
@@ -378,7 +406,12 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun sendVerificationEmail() {
-        val user = auth.currentUser
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            showToast("Usuario no autenticado.", 2000, R.color.primaryColor)
+            return
+        }
+
         val progressBar = ProgressBar(this)
         val dialog = AlertDialog.Builder(this)
             .setView(progressBar)
@@ -386,29 +419,151 @@ class HomeActivity : AppCompatActivity() {
             .create()
         dialog.show()
 
-        user?.sendEmailVerification()
-            ?.addOnCompleteListener { task ->
+        user.sendEmailVerification()
+            .addOnCompleteListener { task ->
                 dialog.dismiss()
                 if (task.isSuccessful) {
-                    showToast("Correo de verificación enviado.", 2000, R.color.primaryColor)
+                    showToast("Correo de verificación enviado. Revisa tu bandeja de entrada.", 2000, R.color.primaryColor)
                 } else {
                     showToast("Error al enviar el correo de verificación.", 2000, R.color.primaryColor)
                 }
             }
-            ?.addOnFailureListener { exception ->
+            .addOnFailureListener { exception ->
                 dialog.dismiss()
                 showToast("Error: ${exception.message}", 2000, R.color.primaryColor)
             }
     }
 
-    private fun findNearestUPC() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
-        } else {
-            getLastKnownLocation()
+    /**
+     * ✅ **Verifica si el usuario ya validó su correo.**
+     * 🔹 **Debe ejecutarse después de iniciar sesión o al abrir la app.**
+     */
+    private fun checkVerificationStatus() {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            return  // Si no hay usuario, no hacer nada
+        }
+
+        user.reload() // 🔄 Actualiza el estado del usuario en Firebase
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!user.isEmailVerified) {
+                        showToast("⚠️ Tu cuenta aún no está verificada. Revisa tu correo.", 2000, R.color.red)
+                    }
+                } else {
+                    Log.e("FirebaseAuth", "Error al verificar estado de cuenta: ${task.exception?.message}")
+                }
+            }
+    }
+
+
+
+    private fun findNearestUPCs(latitude: Double, longitude: Double) {
+        val apiKey = "AIzaSyDpOSQmFoWsVsHY0z185gnjV1aXut3gECw" // 🔥 Asegúrate de usar una API Key válida
+        val placeType = "police" // 🔍 Tipo de lugar: Estaciones de Policía (UPC)
+        val radius = 5000 // 📍 Radio de búsqueda en metros (5 km)
+
+        val url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
+                "location=$latitude,$longitude" +
+                "&radius=$radius" +
+                "&type=$placeType" +
+                "&key=$apiKey"
+
+        val client = OkHttpClient()
+        val request = Request.Builder().url(url).build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("PlacesAPI", "❌ Error en la solicitud: ${e.message}")
+                runOnUiThread {
+                    Toast.makeText(this@HomeActivity, "🚨 Error al conectar con Google Maps API", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!it.isSuccessful) {
+                        Log.e("PlacesAPI", "❌ Error en la respuesta de Google Maps")
+                        runOnUiThread {
+                            Toast.makeText(this@HomeActivity, "⚠️ No se pudo obtener datos de Google Maps", Toast.LENGTH_SHORT).show()
+                        }
+                        return
+                    }
+
+                    val responseData = it.peekBody(Long.MAX_VALUE).string() // 🔥 Usamos peekBody() en lugar de body
+                    val json = JSONObject(responseData)
+                    val results = json.optJSONArray("results")
+
+                    if (results == null || results.length() == 0) {
+                        Log.e("PlacesAPI", "⚠️ No se encontraron UPC cercanas")
+                        runOnUiThread {
+                            Toast.makeText(this@HomeActivity, "📍 No se encontraron UPC cercanas", Toast.LENGTH_SHORT).show()
+                        }
+                        return
+                    }
+
+                    var nearestPlace: JSONObject? = null
+                    var minDistance = Double.MAX_VALUE
+
+                    for (i in 0 until results.length()) {
+                        val place = results.getJSONObject(i)
+                        val location = place.getJSONObject("geometry").getJSONObject("location")
+                        val lat = location.getDouble("lat")
+                        val lon = location.getDouble("lng")
+
+                        val distance = calculateDistance(latitude, longitude, lat, lon)
+
+                        if (distance < minDistance) {
+                            minDistance = distance
+                            nearestPlace = place
+                        }
+                    }
+
+                    if (nearestPlace != null) {
+                        val name = nearestPlace.getString("name")
+                        val location = nearestPlace.getJSONObject("geometry").getJSONObject("location")
+                        val lat = location.getDouble("lat")
+                        val lon = location.getDouble("lng")
+
+                        val placeInfo = "🚔 UPC más cercana: $name\n📍 Lat: $lat, Lon: $lon\n📏 Distancia: ${String.format("%.2f", minDistance)} km"
+                        Log.d("PlacesAPI", placeInfo)
+
+                        runOnUiThread {
+                            Toast.makeText(this@HomeActivity, placeInfo, Toast.LENGTH_LONG).show()
+                            openGoogleMaps(lat, lon, name)
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+
+
+
+    private fun openGoogleMaps(lat: Double, lon: Double, name: String) {
+        try {
+            val uri = Uri.parse("geo:$lat,$lon?q=$lat,$lon($name)")
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            intent.setPackage("com.google.android.apps.maps")
+
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            } else {
+                val webUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lon")
+                val webIntent = Intent(Intent.ACTION_VIEW, webUri)
+                startActivity(webIntent)
+            }
+        } catch (e: Exception) {
+            Log.e("MapsError", "❌ Error al abrir Google Maps: ${e.message}")
+            Toast.makeText(this, "⚠️ No se pudo abrir Google Maps", Toast.LENGTH_SHORT).show()
         }
     }
+
+
+
+
+
 
     private fun getLastKnownLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -455,15 +610,18 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val earthRadius = 6371.0 // km
+        val earthRadius = 6371.0 // 🌍 Radio de la Tierra en km
         val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lat2 - lon2)
+        val dLon = Math.toRadians(lon2 - lon1)
+
         val a = sin(dLat / 2) * sin(dLat / 2) +
                 cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
                 sin(dLon / 2) * sin(dLon / 2)
+
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         return earthRadius * c
     }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
